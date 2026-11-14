@@ -1,0 +1,207 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import type { PaymentMethod } from "@prisma/client";
+import { db } from "@/lib/db";
+import { audit, requireAdmin, requirePermission } from "@/lib/admin";
+import { ALL_STATUSES, checkStatusChange } from "@/lib/status-guard";
+import { planStockAdjustment } from "@/lib/stock";
+import { newInvoiceToken } from "@/lib/invoice";
+import { resolveDelivery, shouldAdvance } from "@/lib/order-flow";
+import { site } from "@/config/site";
+
+export interface ActionState { ok?: boolean; error?: string }
+
+const STATUSES = ALL_STATUSES as unknown as [string, ...string[]];
+const intField = (max = 2_000_000_000) => z.coerce.number().int().min(0).max(max);
+
+const updateSchema = z.object({
+  id: z.string().cuid(),
+  expectedUpdatedAt: z.string().datetime(),
+  status: z.enum(STATUSES),
+  quotedPrice: z.union([z.literal(""), intField()]).transform((v) => (v === "" ? null : v)),
+  quoteValidHours: z.coerce.number().int().min(1).max(168).default(site.quoteValidHours),
+  internalNote: z.string().trim().max(2000).optional().transform((v) => v || null),
+  // datetime-local dikirim tanpa zona waktu: dianggap WIB (UTC+7)
+  followUpAt: z.string().optional().transform((v) => (v ? new Date(`${v}:00+07:00`) : null)),
+});
+
+export async function updateInquiry(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const me = await requireAdmin();
+  const parsed = updateSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Data tidak valid. Periksa harga, tanggal, dan status." };
+  const d = parsed.data;
+  if (d.followUpAt && Number.isNaN(d.followUpAt.getTime())) return { error: "Tanggal follow-up tidak valid." };
+
+  const current = await db.inquiry.findUnique({ where: { id: d.id }, include: { order: { select: { paidAt: true } } } });
+  if (!current) return { error: "Inquiry tidak ditemukan." };
+  const guardError = checkStatusChange({ role: me.role, current: current.status, target: d.status as typeof current.status, orderPaid: !!current.order?.paidAt });
+  if (guardError) return { error: guardError };
+  if (d.status === "QUOTED" && !d.quotedPrice) return { error: "Isi harga penawaran sebelum status “Quoted”." };
+  if (d.quotedPrice && d.quotedPrice < 1) return { error: "Harga penawaran harus lebih dari 0." };
+
+  const statusChanged = d.status !== current.status;
+  const quoteExpiresAt = d.status === "QUOTED" && (statusChanged || current.quotedPrice !== d.quotedPrice)
+    ? new Date(Date.now() + d.quoteValidHours * 3600 * 1000)
+    : current.quoteExpiresAt;
+
+  // Optimistic locking: tolak jika admin lain mengubah data setelah halaman ini dimuat.
+  const res = await db.inquiry.updateMany({
+    where: { id: d.id, updatedAt: new Date(d.expectedUpdatedAt) },
+    data: { status: d.status as typeof current.status, quotedPrice: d.quotedPrice, quoteExpiresAt, internalNote: d.internalNote, followUpAt: d.followUpAt },
+  });
+  if (res.count === 0) return { error: "Data sudah diubah admin lain. Muat ulang halaman lalu coba lagi." };
+
+  if (statusChanged) await db.inquiryEvent.create({ data: { inquiryId: d.id, type: "status_changed", actorId: me.id, data: { from: current.status, to: d.status } } });
+  if (current.quotedPrice !== d.quotedPrice && d.quotedPrice) await db.inquiryEvent.create({ data: { inquiryId: d.id, type: "quote_set", actorId: me.id, data: { price: d.quotedPrice } } });
+  await audit(me.id, "inquiry.update", "Inquiry", d.id, { status: [current.status, d.status], quotedPrice: [current.quotedPrice, d.quotedPrice] });
+
+  revalidatePath(`/admin/inquiries/${d.id}`);
+  revalidatePath("/admin/inquiries");
+  return { ok: true };
+}
+
+const orderSchema = z.object({
+  inquiryId: z.string().cuid(),
+  itemPrice: intField(),
+  itemCost: intField(),
+  shippingFee: intField(50_000_000),
+  insuranceFee: intField(50_000_000),
+  paymentFee: intField(50_000_000),
+  paymentMethod: z.union([z.literal(""), z.enum(["BANK_TRANSFER", "VIRTUAL_ACCOUNT", "QRIS"])]).transform((v) => (v === "" ? null : (v as PaymentMethod))),
+  paid: z.string().optional(),
+  deliveryMethod: z.enum(["OWN_TEAM", "COURIER"]),
+  deliveredBy: z.string().trim().max(60).optional().transform((v) => v || null),
+  deliveryNote: z.string().trim().max(500).optional().transform((v) => v || null),
+  courier: z.string().trim().max(40).optional().transform((v) => v || null),
+  trackingNumber: z.string().trim().max(60).optional().transform((v) => v || null),
+  dispatched: z.string().optional(),
+  delivered: z.string().optional(),
+});
+
+export async function saveOrder(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const me = await requirePermission("order.write");
+  const parsed = orderSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Data order tidak valid." };
+  const d = parsed.data;
+  if (d.itemPrice < 1) return { error: "Harga jual harus lebih dari 0." };
+  if (d.paid && !d.paymentMethod) return { error: "Pilih metode pembayaran sebelum menandai lunas." };
+
+  const inquiry = await db.inquiry.findUnique({ where: { id: d.inquiryId }, include: { order: true, product: { select: { id: true, stockQty: true } } } });
+  if (!inquiry) return { error: "Inquiry tidak ditemukan." };
+  if (["CANCELLED", "EXPIRED"].includes(inquiry.status)) return { error: "Inquiry sudah dibatalkan/kedaluwarsa. Buka ulang dulu." };
+
+  const flow = resolveDelivery({
+    method: d.deliveryMethod,
+    paid: !!d.paid,
+    dispatched: !!d.dispatched,
+    delivered: !!d.delivered,
+    courier: d.courier,
+    trackingNumber: d.trackingNumber,
+    deliveredBy: d.deliveredBy,
+  });
+  if (flow.error) return { error: flow.error };
+
+  const own = d.deliveryMethod === "OWN_TEAM";
+  const total = d.itemPrice + d.shippingFee + d.insuranceFee;
+  const paidAt = d.paid ? inquiry.order?.paidAt ?? new Date() : null;
+  const shippedAt = flow.dispatched ? inquiry.order?.shippedAt ?? new Date() : null;
+  const deliveredAt = flow.delivered ? inquiry.order?.deliveredAt ?? new Date() : null;
+  const data = {
+    itemPrice: d.itemPrice, itemCost: d.itemCost, shippingFee: d.shippingFee, insuranceFee: d.insuranceFee, paymentFee: d.paymentFee, total,
+    paymentMethod: d.paymentMethod, paidAt,
+    deliveryMethod: d.deliveryMethod, deliveryNote: d.deliveryNote,
+    // Kolom yang tidak relevan untuk metode terpilih dikosongkan agar data tidak ganda.
+    deliveredBy: own ? d.deliveredBy : null,
+    courier: own ? null : d.courier,
+    trackingNumber: own ? null : d.trackingNumber,
+    shippedAt, deliveredAt,
+  };
+  const stock = planStockAdjustment({
+    stockQty: inquiry.product.stockQty,
+    paidBefore: !!inquiry.order?.paidAt,
+    paidNow: !!paidAt,
+    autoApplied: !!inquiry.order?.stockAutoApplied,
+  });
+
+  await db.$transaction(async (tx) => {
+    const stockData = { stockAutoApplied: stock.autoApplied };
+    await tx.order.upsert({ where: { inquiryId: d.inquiryId }, create: { inquiryId: d.inquiryId, ...data, ...stockData }, update: { ...data, ...stockData } });
+    if (stock.action !== "none") {
+      // Atomik: kurangi/pulihkan relatif terhadap nilai terbaru agar dua order bersamaan tidak saling menimpa.
+      if (stock.action === "decrement") {
+        await tx.product.updateMany({ where: { id: inquiry.product.id, stockQty: { gt: 0 } }, data: { stockQty: { decrement: 1 } } });
+        if (stock.markSoldOut) await tx.product.update({ where: { id: inquiry.product.id }, data: { availability: "SOLD_OUT" } });
+      } else {
+        await tx.product.update({ where: { id: inquiry.product.id }, data: { stockQty: { increment: 1 }, ...(stock.reopen ? { availability: "CHECK" } : {}) } });
+      }
+      await tx.inquiryEvent.create({ data: { inquiryId: d.inquiryId, type: "stock_adjusted", actorId: me.id, data: { action: stock.action, newQty: stock.newQty, soldOut: stock.markSoldOut } } });
+    }
+    // Maju otomatis hanya ke depan; tidak pernah memundurkan status.
+    if (shouldAdvance(inquiry.status, flow.status)) {
+      await tx.inquiry.update({ where: { id: d.inquiryId }, data: { status: flow.status } });
+      await tx.inquiryEvent.create({ data: { inquiryId: d.inquiryId, type: "status_changed", actorId: me.id, data: { from: inquiry.status, to: flow.status, via: "order", delivery: d.deliveryMethod } } });
+    }
+  });
+  await audit(me.id, "order.save", "Order", d.inquiryId, { total, paid: !!d.paid, delivery: d.deliveryMethod, status: flow.status, stock: stock.action });
+  revalidatePath(`/admin/inquiries/${d.inquiryId}`);
+  revalidatePath("/admin");
+  revalidatePath("/katalog");
+  return { ok: true };
+}
+
+const reviewSchema = z.object({
+  inquiryId: z.string().cuid(),
+  outcome: z.enum(["SOLD_OUT", "STILL_AVAILABLE", "SET_QTY"]),
+  qty: z.coerce.number().int().min(1).max(10_000).optional(),
+});
+
+/** Peninjauan stok setelah barang terjual, untuk produk yang jumlah unitnya tidak diketahui. */
+export async function reviewStockAfterSale(formData: FormData): Promise<void> {
+  const me = await requirePermission("stock.review");
+  const parsed = reviewSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return;
+  const { inquiryId, outcome, qty } = parsed.data;
+  if (outcome === "SET_QTY" && !qty) return;
+
+  const inquiry = await db.inquiry.findUnique({ where: { id: inquiryId }, include: { order: true } });
+  if (!inquiry?.order?.paidAt || inquiry.order.stockReviewedAt) return;
+
+  await db.$transaction(async (tx) => {
+    if (outcome === "SOLD_OUT") await tx.product.update({ where: { id: inquiry.productId }, data: { availability: "SOLD_OUT", stockQty: 0 } });
+    if (outcome === "SET_QTY") await tx.product.update({ where: { id: inquiry.productId }, data: { stockQty: qty, availability: "VERIFIED", verifiedAt: new Date() } });
+    await tx.order.update({ where: { inquiryId }, data: { stockReviewedAt: new Date() } });
+    await tx.inquiryEvent.create({ data: { inquiryId, type: "stock_reviewed", actorId: me.id, data: { outcome, qty: qty ?? null } } });
+  });
+  await audit(me.id, "stock.review", "Product", inquiry.productId, { outcome, qty: qty ?? null });
+  revalidatePath(`/admin/inquiries/${inquiryId}`);
+  revalidatePath("/admin");
+  revalidatePath("/katalog");
+}
+
+const invoiceSchema = z.object({ inquiryId: z.string().cuid() });
+
+/** Membuat link invoice publik. Hanya untuk order yang sudah lunas; link yang sudah ada dipertahankan. */
+export async function issueInvoice(formData: FormData): Promise<void> {
+  const me = await requirePermission("invoice.issue");
+  const parsed = invoiceSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return;
+  const order = await db.order.findUnique({ where: { inquiryId: parsed.data.inquiryId }, select: { paidAt: true, invoiceToken: true } });
+  if (!order?.paidAt || order.invoiceToken) return;
+  await db.order.update({ where: { inquiryId: parsed.data.inquiryId }, data: { invoiceToken: newInvoiceToken(), invoiceIssuedAt: new Date() } });
+  await db.inquiryEvent.create({ data: { inquiryId: parsed.data.inquiryId, type: "invoice_issued", actorId: me.id } });
+  await audit(me.id, "invoice.issue", "Order", parsed.data.inquiryId);
+  revalidatePath(`/admin/inquiries/${parsed.data.inquiryId}`);
+}
+
+/** Mencabut link invoice (mis. terkirim ke nomor yang salah). Link lama langsung tidak berlaku. */
+export async function revokeInvoice(formData: FormData): Promise<void> {
+  const me = await requirePermission("invoice.issue");
+  const parsed = invoiceSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return;
+  await db.order.updateMany({ where: { inquiryId: parsed.data.inquiryId, invoiceToken: { not: null } }, data: { invoiceToken: null, invoiceIssuedAt: null } });
+  await db.inquiryEvent.create({ data: { inquiryId: parsed.data.inquiryId, type: "invoice_revoked", actorId: me.id } });
+  await audit(me.id, "invoice.revoke", "Order", parsed.data.inquiryId);
+  revalidatePath(`/admin/inquiries/${parsed.data.inquiryId}`);
+}

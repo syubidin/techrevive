@@ -1,0 +1,110 @@
+{
+  "nav": { "catalog": "Katalog", "howItWorks": "Cara Pesan", "policy": "Kebijakan", "contact": "Hubungi Kami", "home": "Beranda" },
+  "hero": {
+    "badge": "Second-hand premium & customizable",
+    "title": "Perangkat tech pilihan, kondisi jujur.",
+    "subtitle": "Laptop, HP, dan gadget second & refurbished dengan grade yang jelas. Cek ketersediaan langsung via WhatsApp.",
+    "browse": "Lihat Katalog",
+    "how": "Cara Pesan"
+  },
+  "home": {
+    "featured": "Pilihan Terbaru",
+    "viewAll": "Lihat semua",
+    "whyTitle": "Kenapa TechRevive",
+    "why": [
+      { "t": "Grade jujur", "d": "Setiap unit diberi grade A/B/C dengan foto unit asli dan kesehatan baterai bila ada." },
+      { "t": "Ketersediaan transparan", "d": "Kami tidak menulis 'Ready Stock' sebelum stok dikonfirmasi. Anda tahu statusnya sejak awal." },
+      { "t": "Dibantu manusia", "d": "Pesan lewat WhatsApp dan dibalas tim kami, bukan chatbot." }
+    ],
+    "stepsTitle": "Cara pesan",
+    "steps": [
+      { "t": "Pilih produk", "d": "Gunakan filter spek, merk, dan fitur sesuai kebutuhan." },
+      { "t": "Cek stok & pesan", "d": "Isi nama dan nomor WhatsApp, pesan produk terisi otomatis." },
+      { "t": "Kami konfirmasi", "d": "Kami cek stok, kirim harga final dan kondisi unit." },
+      { "t": "Bayar & terima", "d": "Bayar setelah stok pasti. Kirim ke area Jabodetabek." }
+    ]
+  },
+  "catalog": {
+    "title": "Katalog",
+    "searchPlaceholder": "Cari produk, merk, atau SKU…",
+    "results": "{n} produk",
+    "empty": "Tidak ada produk yang cocok. Coba kurangi filter.",
+    "reset": "Atur ulang",
+    "apply": "Terapkan filter",
+    "filters": "Filter",
+    "category": "Kategori",
+    "brand": "Merk",
+    "condition": "Kondisi",
+    "grade": "Grade",
+    "price": "Harga (Rp)",
+    "min": "Min",
+    "max": "Maks",
+    "availability": "Ketersediaan",
+    "features": "Fitur",
+    "specs": "Spesifikasi",
+    "battery": "Baterai min. (%)",
+    "sort": "Urutkan",
+    "sortNewest": "Terbaru",
+    "sortPriceAsc": "Harga terendah",
+    "sortPriceDesc": "Harga tertinggi",
+    "prev": "Sebelumnya",
+    "next": "Berikutnya"
+  },
+  "product": {
+    "specs": "Spesifikasi",
+    "features": "Fitur",
+    "battery": "Kesehatan baterai",
+    "sku": "SKU",
+    "related": "Produk serupa",
+    "shipping": "Diantar tim kami atau lewat kurir (Jabodetabek). Ongkos kirim dihitung saat konfirmasi.",
+    "modalTitle": "Cek stok & pesan",
+    "success": "Permintaan tersimpan. Lanjutkan di WhatsApp agar tim kami dapat mengecek stok.",
+    "openWa": "Buka WhatsApp",
+    "yes": "Ya",
+    "no": "Tidak"
+  },
+  "availability": {
+    "CHECK": "Cek Ketersediaan",
+    "VERIFIED": "Tersedia (dikonfirmasi {date})",
+    "PREORDER": "Pre-order",
+    "SOLD_OUT": "Habis"
+  },
+  "condition": { "REFURBISHED": "Refurbished", "USED": "Second" },
+  "grade": { "A": "Grade A — mulus", "B": "Grade B — bekas pakai wajar", "C": "Grade C — ada cacat fisik" },
+  "cta": { "checkAndOrder": "Cek Stok & Pesan", "sending": "Menyiapkan WhatsApp…", "copyMessage": "Salin pesan" },
+  "form": {
+    "name": "Nama",
+    "phone": "Nomor WhatsApp",
+    "area": "Area pengiriman",
+    "areaPlaceholder": "Pilih area",
+    "note": "Varian / catatan (opsional)",
+    "submit": "Lanjut ke WhatsApp"
+  },
+  "errors": {
+    "INVALID_PHONE": "Nomor WhatsApp tidak valid. Contoh: 0812-3456-7890.",
+    "VALIDATION_ERROR": "Periksa kembali data yang diisi.",
+    "RATE_LIMITED": "Terlalu banyak permintaan. Coba lagi beberapa menit lagi.",
+    "CAPTCHA_FAILED": "Verifikasi gagal. Muat ulang halaman lalu coba lagi.",
+    "PRODUCT_UNAVAILABLE": "Produk ini sudah habis. Lihat produk serupa di katalog.",
+    "PRODUCT_NOT_FOUND": "Produk tidak ditemukan.",
+    "BAD_ORIGIN": "Permintaan ditolak. Muat ulang halaman.",
+    "GENERIC": "Terjadi kendala. Silakan coba lagi atau hubungi kami via WhatsApp."
+  },
+  "trust": {
+    "sla": "Dibalas maksimal 15 menit di jam kerja",
+    "priceLock": "Harga final dikunci 24 jam setelah dikonfirmasi",
+    "noWarranty": "Seluruh produk dijual tanpa garansi dan retur. Kondisi dijelaskan jujur sebelum Anda membayar.",
+    "area": "Pengiriman khusus Jabodetabek"
+  },
+  "policy": {
+    "title": "Kebijakan",
+    "sections": [
+      { "t": "Garansi & retur", "d": "Kami menjual barang second dan refurbished yang bersumber dari mitra supplier. Mitra kami tidak menyediakan garansi maupun retur, sehingga TechRevive juga tidak menyediakannya. Karena itu kondisi unit, grade, dan kekurangan yang ada kami jelaskan dengan jujur sebelum Anda membayar. Mohon tanyakan semua hal yang Anda ragukan lebih dulu." },
+      { "t": "Ketersediaan & harga", "d": "Status 'Cek Ketersediaan' berarti stok belum dikonfirmasi. Harga final dan stok dikonfirmasi lewat WhatsApp, lalu dikunci selama 24 jam. Pembayaran hanya diminta setelah stok dipastikan." },
+      { "t": "Pembayaran", "d": "Transfer bank, virtual account, atau QRIS. Detail pembayaran dikirim setelah penawaran disetujui." },
+      { "t": "Pengiriman", "d": "Barang dikirim ke kami terlebih dahulu untuk pengecekan. Setelah itu barang diantar langsung oleh tim kami atau dikirim lewat kurir, sesuai alamat dan kesepakatan saat konfirmasi. Area layanan: Jabodetabek. Estimasi dan ongkos kirim diinformasikan saat konfirmasi." },
+      { "t": "Privasi", "d": "Nama dan nomor WhatsApp hanya dipakai untuk memproses permintaan Anda dan tidak dibagikan ke pihak lain." }
+    ]
+  },
+  "footer": { "rights": "Seluruh hak cipta dilindungi.", "lang": "Bahasa" }
+}

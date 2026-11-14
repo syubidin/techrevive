@@ -1,0 +1,305 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- Enum ----------
+enum Role {
+  OWNER
+  DEVELOPER
+  STAFF
+}
+
+enum Condition {
+  REFURBISHED
+  USED
+}
+
+enum Grade {
+  A
+  B
+  C
+}
+
+// CHECK = perlu dicek ke supplier (jangan tampil sebagai "Ready Stock")
+enum Availability {
+  CHECK
+  VERIFIED
+  PREORDER
+  SOLD_OUT
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MarginType {
+  PERCENT_BPS // 1200 = 12%
+  FIXED       // rupiah
+}
+
+enum SpecType {
+  NUMBER
+  ENUM
+  BOOLEAN
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  SUPPLIER_CHECKING
+  QUOTED
+  AWAITING_PAYMENT
+  PAID
+  PROCURING
+  RECEIVED_BY_US
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  VIRTUAL_ACCOUNT
+  QRIS
+}
+
+// Cara barang sampai ke customer: diantar tim sendiri atau lewat kurir.
+enum DeliveryMethod {
+  OWN_TEAM
+  COURIER
+}
+
+// ---------- Admin ----------
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String
+  role         Role      @default(STAFF)
+  isActive     Boolean   @default(true)
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model AuditLog {
+  id        String    @id @default(cuid())
+  actorId   String?
+  actor     AdminUser? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String    // mis. product.price_update
+  entity    String
+  entityId  String?
+  diff      Json?
+  ipHash    String?
+  createdAt DateTime  @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// ---------- Katalog ----------
+model Supplier {
+  id        String    @id @default(cuid())
+  name      String
+  waNumber  String?
+  notes     String?
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  nameId    String
+  nameEn    String
+  parentId  String?
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+  sortOrder Int        @default(0)
+  products  Product[]
+  specs     SpecDefinition[]
+}
+
+model Brand {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  products Product[]
+}
+
+// Definisi spek yang boleh difilter per kategori (whitelist untuk query filter)
+model SpecDefinition {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  key        String   // mis. ram_gb, storage_gb, cpu_family, touchscreen
+  labelId    String
+  labelEn    String
+  type       SpecType
+  unit       String?
+  options    String[] // untuk ENUM
+  sortOrder  Int      @default(0)
+
+  @@unique([categoryId, key])
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  sku           String        @unique // mis. TR-LTP-001
+  nameId        String
+  nameEn        String
+  descriptionId String?
+  descriptionEn String?
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id])
+  brandId       String
+  brand         Brand         @relation(fields: [brandId], references: [id])
+  supplierId    String?
+  supplier      Supplier?     @relation(fields: [supplierId], references: [id])
+
+  condition     Condition
+  grade         Grade?
+  batteryHealth Int?          // persen, untuk laptop/HP
+  attributes    Json          @default("{}") // spek terstruktur: {"ram_gb":16,"cpu_family":"i7"}
+  features      String[]      // tag fitur: ["touchscreen","backlit-keyboard"]
+  weightGram    Int           @default(1000)
+  stockQty      Int?          // jumlah unit; null = tidak diketahui (stok ditinjau manual setelah terjual)
+
+  // Harga: costPrice HANYA admin. sellPrice dihitung dari cost+margin lalu disimpan.
+  costPrice     Int
+  marginType    MarginType    @default(PERCENT_BPS)
+  marginValue   Int           @default(1000)
+  sellPrice     Int
+
+  availability  Availability  @default(CHECK)
+  verifiedAt    DateTime?     // kapan stok terakhir dikonfirmasi supplier
+  status        ProductStatus @default(DRAFT)
+  deletedAt     DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  images        ProductImage[]
+  inquiries     Inquiry[]
+
+  @@index([status, deletedAt, categoryId, brandId])
+  @@index([sellPrice])
+  @@index([attributes], type: Gin)
+  @@index([features], type: Gin)
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+// ---------- Inquiry & pesanan ----------
+model Inquiry {
+  id              String        @id @default(cuid())
+  code            String        @unique // TR-YYMMDD-XXXX, dikirim ke WA
+  customerName    String
+  phone           String        // 628xxxxxxxxxx
+  area            String?
+  variantNote     String?
+  locale          String        @default("id")
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  productSnapshot Json          // nama, sku, harga saat inquiry dibuat
+  status          InquiryStatus @default(NEW)
+  quotedPrice     Int?
+  quoteExpiresAt  DateTime?     // harga dikunci s.d.
+  internalNote    String?
+  followUpAt      DateTime?
+  followUpNotifiedAt DateTime? // terakhir kali pengingat follow-up dikirim
+  slaAlertedAt    DateTime?    // peringatan inquiry baru belum dibalas melewati SLA
+  ipHash          String?
+  utm             Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  events          InquiryEvent[]
+  order           Order?
+
+  @@index([phone, productId, createdAt])
+  @@index([status, createdAt])
+  @@index([followUpAt])
+}
+
+model InquiryEvent {
+  id        String   @id @default(cuid())
+  inquiryId String
+  inquiry   Inquiry  @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  type      String   // created, status_changed, note, quote_sent
+  data      Json?
+  actorId   String?
+  createdAt DateTime @default(now())
+
+  @@index([inquiryId, createdAt])
+}
+
+model Order {
+  id             String         @id @default(cuid())
+  inquiryId      String         @unique
+  inquiry        Inquiry        @relation(fields: [inquiryId], references: [id])
+  itemPrice      Int            // harga jual final yang disepakati
+  itemCost       Int            // modal aktual saat order (snapshot)
+  shippingFee    Int            @default(0)
+  insuranceFee   Int            @default(0)
+  paymentFee     Int            @default(0) // biaya gateway/VA jika ada
+  total          Int
+  paymentMethod  PaymentMethod?
+  paidAt         DateTime?
+  shippingZone   String?
+  deliveryMethod DeliveryMethod @default(OWN_TEAM)
+  deliveredBy    String?        // nama petugas pengantar (OWN_TEAM)
+  deliveryNote   String?        // alamat lengkap, patokan, jadwal antar
+  courier        String?        // COURIER
+  trackingNumber String?        // COURIER
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  stockAutoApplied Boolean      @default(false) // stok dikurangi otomatis saat lunas (hanya jika jumlah unit diketahui)
+  stockReviewedAt  DateTime?    // kapan stok produk ditinjau/disesuaikan setelah terjual
+  invoiceToken     String?      @unique // token link invoice publik; null = belum dibuat/dicabut
+  invoiceIssuedAt  DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([paidAt])
+}
+
+// ---------- Pengaturan ----------
+model ShippingRate {
+  id       String   @id @default(cuid())
+  zone     String   @unique
+  cities   String[] // nama kota ternormalisasi (huruf kecil)
+  baseFee  Int      // 1 kg pertama
+  perKgFee Int
+  minDays  Int      @default(1)
+  maxDays  Int      @default(3)
+  isActive Boolean  @default(true)
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}

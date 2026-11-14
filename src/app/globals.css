@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/*
+ * Palet dari logo TechRevive: navy pekat #08233C (ink), perak #8A8FA0 (kilau logo),
+ * dan satu aksen cyan (brand) khusus untuk aksi/CTA agar kontras di atas navy.
+ */
+@theme {
+  --color-ink-950: #040f1c;
+  --color-ink-900: #08233c;
+  --color-ink-800: #0f3354;
+  --color-ink-700: #1b4670;
+  --color-ink-500: #4a6785;
+  --color-ink-300: #a9b8c9;
+  --color-ink-200: #cdd7e3;
+  --color-ink-100: #e3e9f0;
+  --color-ink-50: #f4f7fa;
+
+  --color-silver-400: #8a8fa0;
+  --color-silver-200: #cfd3dc;
+
+  --color-brand-300: #67e8f9;
+  --color-brand-500: #06b6d4;
+  --color-brand-600: #0891b2;
+  --color-brand-700: #0e7490;
+
+  --color-success-600: #16a34a;
+  --color-warning-600: #d97706;
+  --color-danger-600: #dc2626;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-card: 1.25rem;
+  --shadow-soft: 0 1px 2px rgb(8 35 60 / 0.05), 0 12px 32px -12px rgb(8 35 60 / 0.18);
+  --shadow-glow: 0 0 0 1px rgb(6 182 212 / 0.35), 0 16px 40px -12px rgb(6 182 212 / 0.35);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  color-scheme: light;
+  --bg: var(--color-ink-50);
+  --fg: var(--color-ink-900);
+  --card: #ffffff;
+  --line: var(--color-ink-200);
+  --muted: var(--color-ink-500);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: var(--color-ink-950);
+    --fg: var(--color-ink-100);
+    --card: var(--color-ink-900);
+    --line: var(--color-ink-700);
+    --muted: var(--color-ink-300);
+  }
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: var(--shadow-soft); }
+.muted { color: var(--muted); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; padding: .7rem 1.25rem; font-weight: 600; font-size: .9rem; transition: transform .25s var(--ease-out-expo), box-shadow .25s, background .2s; cursor: pointer; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--color-ink-900); color: #fff; }
+.btn-primary:hover { background: var(--color-ink-700); box-shadow: var(--shadow-glow); }
+.btn-ghost { border: 1px solid var(--line); background: transparent; color: var(--fg); }
+.btn-ghost:hover { background: var(--color-ink-100); color: var(--color-ink-900); }
+.btn[disabled] { opacity: .55; pointer-events: none; }
+.input { width: 100%; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: .85rem; padding: .7rem .9rem; font-size: .95rem; }
+.input:focus { outline: 2px solid var(--color-brand-500); outline-offset: 1px; }
+.label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: .35rem; }
+.chip { display: inline-flex; align-items: center; border-radius: 999px; padding: .2rem .65rem; font-size: .72rem; font-weight: 600; border: 1px solid var(--line); }
+.bg-grid { background-image: radial-gradient(circle at 1px 1px, rgb(8 32 58 / 0.09) 1px, transparent 0); background-size: 22px 22px; }
+
+:focus-visible { outline: 2px solid var(--color-brand-500); outline-offset: 3px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Cetak: sembunyikan navigasi/tombol, kertas putih, tanpa bayangan. */
+@media print {
+  .no-print { display: none !important; }
+  html, body { background: #fff !important; color: #000 !important; }
+  main { padding: 0 !important; }
+  .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
+  .muted { color: #444 !important; }
+  @page { margin: 14mm; }
+}
+.print-only { display: none; }
+@media print { .print-only { display: block; } }
+@media print { body > header, body > footer { display: none !important; } }

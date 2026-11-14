@@ -1,0 +1,16 @@
+# Menjalankan pekerjaan terjadwal TechRevive tiap 10 menit (cadangan gratis bila hosting tidak punya cron).
+# Secrets repo: SITE_URL (mis. https://techrevive.id) dan CRON_SECRET (sama dengan di server).
+name: maintenance
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Panggil endpoint maintenance
+        run: |
+          curl --fail --silent --show-error --max-time 30 \
+            -X POST -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.SITE_URL }}/api/cron/maintenance"
