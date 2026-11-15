@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import type { Locale } from "@/config/site";
 import type { Messages } from "@/lib/i18n";
-import { LocaleSwitch } from "./locale-switch";
+import { LocaleSwitch, LocaleSwitchStatic } from "./locale-switch";
 
 export function SiteHeader({ locale, t }: { locale: Locale; t: Messages }) {
   const links = [
@@ -24,7 +24,7 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Messages }) {
           ))}
         </nav>
         <div className="flex items-center gap-3">
-          <Suspense fallback={null}><LocaleSwitch locale={locale} /></Suspense>
+          <Suspense fallback={<LocaleSwitchStatic locale={locale} />}><LocaleSwitch locale={locale} /></Suspense>
           <Link href={`/${locale}/catalog`} className="btn btn-primary hidden sm:inline-flex">{t.hero.browse}</Link>
         </div>
       </div>

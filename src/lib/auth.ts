@@ -2,11 +2,14 @@ import { SignJWT, jwtVerify } from "jose";
 import { hash, verify } from "@node-rs/argon2";
 import { cookies } from "next/headers";
 import { getEnv } from "./env";
+import { normalizeSv } from "./session-version";
 
 export type AdminRole = "OWNER" | "DEVELOPER" | "STAFF";
 export interface SessionPayload {
   sub: string;
   role: AdminRole;
+  /** Versi sesi akun saat token dibuat. */
+  sv: number;
 }
 
 const SESSION_TTL_SEC = 60 * 60 * 12; // 12 jam
@@ -15,8 +18,8 @@ export const SESSION_COOKIE = isProd ? "__Host-tr_session" : "tr_session";
 
 const key = () => new TextEncoder().encode(getEnv().SESSION_SECRET);
 
-export async function createSessionToken(payload: SessionPayload): Promise<string> {
-  return new SignJWT({ role: payload.role })
+export async function createSessionToken(payload: Omit<SessionPayload, "sv"> & { sv?: number }): Promise<string> {
+  return new SignJWT({ role: payload.role, sv: normalizeSv(payload.sv) })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.sub)
     .setIssuedAt()
@@ -30,7 +33,7 @@ export async function readSession(): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, key(), { algorithms: ["HS256"] });
     if (!payload.sub || typeof payload.role !== "string") return null;
-    return { sub: payload.sub, role: payload.role as AdminRole };
+    return { sub: payload.sub, role: payload.role as AdminRole, sv: normalizeSv(payload.sv) };
   } catch {
     return null;
   }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { db } from "@/lib/db";
+import { getCatalogMeta, getSpecDefs } from "@/lib/catalog-cache";
 import { getMessages, pick } from "@/lib/i18n";
 import { buildCatalogQuery, PAGE_SIZE } from "@/lib/catalog-query";
 import { publicProductSelect } from "@/lib/products";
@@ -35,16 +36,12 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
 
   // Definisi spek dimuat untuk kategori terpilih (maks 1 kategori) agar filter relevan.
   const selectedCategories = sp.getAll("category").flatMap((c) => c.split(","));
-  const [categories, brands, featureRows, specDefs] = await Promise.all([
-    db.category.findMany({ orderBy: { sortOrder: "asc" }, select: { slug: true, nameId: true, nameEn: true } }),
-    db.brand.findMany({ orderBy: { name: "asc" }, select: { slug: true, name: true } }),
-    db.product.findMany({ where: { status: "PUBLISHED", deletedAt: null }, select: { features: true }, take: 500 }),
-    selectedCategories.length === 1
-      ? db.specDefinition.findMany({ where: { category: { slug: selectedCategories[0] } }, orderBy: { sortOrder: "asc" } })
-      : Promise.resolve([]),
-  ]).catch(() => [[], [], [], []] as const);
-
-  const features = [...new Set(featureRows.flatMap((r) => r.features))].sort();
+  // Data filter di-cache (jarang berubah); hanya daftar produk yang dihitung ulang tiap permintaan.
+  const [meta, specDefs] = await Promise.all([
+    getCatalogMeta().catch(() => ({ categories: [], brands: [], features: [] as string[] })),
+    selectedCategories.length === 1 ? getSpecDefs(selectedCategories[0]).catch(() => []) : Promise.resolve([]),
+  ]);
+  const { categories, brands, features } = meta;
   const specs: SpecFilter[] = specDefs.map((d) => ({ key: d.key, label: pick(locale, d.labelId, d.labelEn), type: d.type, unit: d.unit, options: d.options }));
 
   const { where, orderBy, skip, take, page } = buildCatalogQuery(sp, specDefs.map((d) => ({ key: d.key, type: d.type })));

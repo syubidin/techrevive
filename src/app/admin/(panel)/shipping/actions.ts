@@ -45,3 +45,16 @@ export async function saveRate(formData: FormData): Promise<void> {
   revalidatePath("/admin/shipping");
   redirect("/admin/shipping");
 }
+
+/** Hapus zona ongkir: hanya Admin/Developer. Inquiry lama tidak terpengaruh (ongkir tersimpan di order). */
+export async function deleteRate(formData: FormData): Promise<void> {
+  const me = await requirePermission("data.manage");
+  const id = z.string().cuid().safeParse(formData.get("id"));
+  if (!id.success) redirect("/admin/shipping?error=Data%20tidak%20valid");
+  const r = await db.shippingRate.findUnique({ where: { id: id.data }, select: { zone: true } });
+  if (!r) redirect("/admin/shipping?error=Zona%20tidak%20ditemukan");
+  await db.shippingRate.delete({ where: { id: id.data } });
+  await audit(me.id, "shipping.delete", "ShippingRate", id.data, { zone: r!.zone });
+  revalidatePath("/admin/shipping");
+  redirect("/admin/shipping");
+}

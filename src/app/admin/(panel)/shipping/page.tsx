@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
-import { requirePermission } from "@/lib/admin";
+import { can, requirePermission } from "@/lib/admin";
+import { ConfirmButton } from "../../confirm-button";
 import { JABODETABEK_CITIES } from "@/lib/shipping";
-import { saveRate } from "./actions";
+import { deleteRate, saveRate } from "./actions";
 
 export const metadata = { title: "Ongkir" };
 
@@ -25,7 +26,8 @@ function RateForm({ r }: { r?: { id: string; zone: string; cities: string[]; bas
 }
 
 export default async function Shipping({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  await requirePermission("shipping.manage");
+  const me = await requirePermission("shipping.manage");
+  const manage = can(me.role, "data.manage");
   const { error } = await searchParams;
   const rates = await db.shippingRate.findMany({ orderBy: { zone: "asc" } });
   return (
@@ -33,7 +35,12 @@ export default async function Shipping({ searchParams }: { searchParams: Promise
       <h1 className="text-2xl font-extrabold tracking-tight">Tarif ongkir Jabodetabek</h1>
       <p className="muted text-sm">Berat tertagih = yang terbesar antara berat asli dan volumetrik, dibulatkan ke atas per kg. Kota tersedia: {JABODETABEK_CITIES.join(", ")}. Untuk lokasi di luar daftar, isi ongkir manual di detail inquiry.</p>
       {error && <p role="alert" className="card p-4 text-sm font-medium text-[var(--color-danger-600)]">{error.slice(0, 200)}</p>}
-      {rates.map((r) => <RateForm key={r.id} r={r} />)}
+      {rates.map((r) => (
+        <div key={r.id}>
+          <RateForm r={r} />
+          {manage && <form action={deleteRate} className="mt-2"><input type="hidden" name="id" value={r.id} /><ConfirmButton message={`Hapus zona “${r.zone}”? Inquiry lama tidak terpengaruh.`}>Hapus zona {r.zone}</ConfirmButton></form>}
+        </div>
+      ))}
       <h2 className="pt-4 font-bold">Tambah zona baru</h2>
       <RateForm />
     </div>

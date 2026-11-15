@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { can, fmtDateTime, idr, requireAdmin } from "@/lib/admin";
 import { allowedTargets } from "@/lib/status-guard";
-import { issueInvoice, reviewStockAfterSale, revokeInvoice } from "../actions";
+import { deleteInquiry, issueInvoice, reviewStockAfterSale, revokeInvoice } from "../actions";
+import { ConfirmButton } from "../../../confirm-button";
 import { invoiceNumber } from "@/lib/invoice";
 import { STATUS_LABEL } from "@/lib/inquiry-status";
 import { quoteShipping, ShippingError } from "@/lib/shipping";
@@ -17,9 +18,10 @@ export const metadata = { title: "Detail inquiry" };
 /** Konversi Date ke nilai <input type="datetime-local"> dalam WIB. */
 const toLocalInput = (d: Date | null) => (d ? new Date(d.getTime() + 7 * 3600 * 1000).toISOString().slice(0, 16) : "");
 
-export default async function InquiryDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function InquiryDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
   const me = await requireAdmin();
   const { id } = await params;
+  const { error } = await searchParams;
   const inquiry = await db.inquiry.findUnique({
     where: { id },
     include: { order: true, events: { orderBy: { createdAt: "desc" }, take: 50 }, product: { select: { id: true, slug: true, sku: true, costPrice: true, weightGram: true, nameId: true, stockQty: true, availability: true } } },
@@ -66,6 +68,7 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
         <h1 className="mt-2 flex flex-wrap items-center gap-3 text-2xl font-extrabold tracking-tight"><span className="font-mono">{inquiry.code}</span><span className="chip">{STATUS_LABEL[inquiry.status]}</span></h1>
       </div>
 
+      {error && <p role="alert" className="card p-4 text-sm font-medium text-[var(--color-danger-600)]">{error.slice(0, 250)}</p>}
       <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           <UpdateForm
@@ -151,6 +154,13 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
             {cost && <p className="muted">Modal katalog: {idr(inquiry.product.costPrice)}</p>}
             <Link href={`/admin/products`} className="text-xs underline">Kelola produk</Link>
           </section>
+          {can(me.role, "data.manage") && !inquiry.order?.paidAt && (
+            <section className="card space-y-2 p-5 text-sm">
+              <h2 className="font-bold">Zona berbahaya</h2>
+              <p className="muted">Hapus permanen inquiry ini (mis. data uji coba atau spam). Hanya Admin/Developer, dan tidak tersedia setelah pembayaran tercatat.</p>
+              <form action={deleteInquiry}><input type="hidden" name="inquiryId" value={inquiry.id} /><ConfirmButton message={`Hapus permanen inquiry ${inquiry.code}? Tidak bisa dibatalkan.`}>Hapus inquiry</ConfirmButton></form>
+            </section>
+          )}
           <section className="card p-5 text-sm">
             <h2 className="font-bold">Riwayat</h2>
             <ul className="mt-3 space-y-3">

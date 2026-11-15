@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { audit, clientIpHash } from "@/lib/admin";
+import { audit, clientIpHash, getAdminOrNull } from "@/lib/admin";
 import { clearSessionCookie, createSessionToken, setSessionCookie, verifyPassword } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -43,12 +43,23 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   }
 
   await db.adminUser.update({ where: { id: user.id }, data: { failedLogins: 0, lockedUntil: null, lastLoginAt: new Date() } });
-  await setSessionCookie(await createSessionToken({ sub: user.id, role: user.role }));
+  await setSessionCookie(await createSessionToken({ sub: user.id, role: user.role, sv: user.sessionVersion }));
   await audit(user.id, "auth.login", "AdminUser", user.id);
   redirect("/admin");
 }
 
 export async function logout() {
+  await clearSessionCookie();
+  redirect("/admin/login");
+}
+
+/** Keluar dari SEMUA perangkat: menaikkan versi sesi sehingga semua token lama (termasuk di perangkat lain) tidak berlaku. */
+export async function logoutEverywhere() {
+  const me = await getAdminOrNull();
+  if (me) {
+    await db.adminUser.update({ where: { id: me.id }, data: { sessionVersion: { increment: 1 } } });
+    await audit(me.id, "auth.logout_all", "AdminUser", me.id);
+  }
   await clearSessionCookie();
   redirect("/admin/login");
 }

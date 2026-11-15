@@ -8,8 +8,8 @@ test("Developer punya semua izin", () => {
   for (const p of all) assert.equal(can("DEVELOPER", p), true, p);
 });
 
-test("Owner punya semua izin kecuali mengelola akun dan peran", () => {
-  for (const p of all) assert.equal(can("OWNER", p), p !== "user.manage", p);
+test("Owner punya semua izin kecuali mengelola akun/peran dan ubah-hapus data master", () => {
+  for (const p of all) assert.equal(can("OWNER", p), p !== "user.manage" && p !== "data.manage", p);
 });
 
 test("Staff hanya memproses inquiry", () => {

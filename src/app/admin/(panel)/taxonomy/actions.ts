@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { invalidateCatalog } from "@/lib/catalog-cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -11,6 +12,7 @@ import { normalizeIdPhone } from "@/lib/phone";
 const back = (error?: string): never => redirect(error ? `/admin/taxonomy?error=${encodeURIComponent(error)}` : "/admin/taxonomy");
 const done = (): never => {
   revalidatePath("/", "layout");
+  invalidateCatalog();
   return back();
 };
 const keyRe = /^[a-z][a-z0-9_]{1,39}$/;

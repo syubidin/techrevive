@@ -8,6 +8,8 @@ import { audit, requireAdmin, requirePermission } from "@/lib/admin";
 import { ALL_STATUSES, checkStatusChange } from "@/lib/status-guard";
 import { planStockAdjustment } from "@/lib/stock";
 import { newInvoiceToken } from "@/lib/invoice";
+import { redirect } from "next/navigation";
+import { canDeleteInquiry } from "@/lib/delete-guard";
 import { resolveDelivery, shouldAdvance } from "@/lib/order-flow";
 import { site } from "@/config/site";
 
@@ -204,4 +206,20 @@ export async function revokeInvoice(formData: FormData): Promise<void> {
   await db.inquiryEvent.create({ data: { inquiryId: parsed.data.inquiryId, type: "invoice_revoked", actorId: me.id } });
   await audit(me.id, "invoice.revoke", "Order", parsed.data.inquiryId);
   revalidatePath(`/admin/inquiries/${parsed.data.inquiryId}`);
+}
+
+/** Hapus permanen inquiry (uji coba/spam): hanya Admin/Developer dan hanya bila belum ada pembayaran tercatat. */
+export async function deleteInquiry(formData: FormData): Promise<void> {
+  const me = await requirePermission("data.manage");
+  const id = z.string().cuid().safeParse(formData.get("inquiryId"));
+  if (!id.success) redirect("/admin/inquiries");
+  const inquiry = await db.inquiry.findUnique({ where: { id: id.data! }, select: { code: true, status: true, order: { select: { paidAt: true } } } });
+  if (!inquiry) redirect("/admin/inquiries");
+  const blocked = canDeleteInquiry({ orderPaid: !!inquiry!.order?.paidAt });
+  if (blocked) redirect(`/admin/inquiries/${id.data}?error=${encodeURIComponent(blocked)}`);
+  await db.$transaction([db.order.deleteMany({ where: { inquiryId: id.data } }), db.inquiry.delete({ where: { id: id.data } })]); // riwayat ikut terhapus (cascade)
+  await audit(me.id, "inquiry.delete", "Inquiry", id.data, { code: inquiry!.code, status: inquiry!.status });
+  revalidatePath("/admin/inquiries");
+  revalidatePath("/admin");
+  redirect("/admin/inquiries");
 }

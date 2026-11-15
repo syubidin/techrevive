@@ -25,7 +25,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
   const order = await db.order.findUnique({
     where: { invoiceToken: token },
     select: {
-      itemPrice: true, shippingFee: true, insuranceFee: true, paymentMethod: true, paidAt: true, deliveryMethod: true, courier: true, trackingNumber: true, invoiceIssuedAt: true,
+      itemPrice: true, shippingFee: true, insuranceFee: true, paymentMethod: true, paidAt: true, deliveryMethod: true, deliveredBy: true, courier: true, trackingNumber: true, invoiceIssuedAt: true,
       inquiry: { select: { code: true, customerName: true, phone: true, status: true, productSnapshot: true, product: { select: { sku: true, nameId: true, nameEn: true, grade: true } } } },
     },
   });
@@ -71,7 +71,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
 
         <section className="text-sm">
           <p className="muted text-xs font-semibold uppercase">{L("Pengiriman", "Delivery")}</p>
-          <p>{order.deliveryMethod === "OWN_TEAM" ? L("Diantar oleh tim TechRevive", "Delivered by the TechRevive team") : `${L("Kurir", "Courier")}: ${order.courier ?? "-"}${order.trackingNumber ? ` · ${L("Resi", "Tracking")} ${order.trackingNumber}` : ""}`}</p>
+          <p>{order.deliveryMethod === "OWN_TEAM" ? `${L("Diantar oleh tim TechRevive", "Delivered by the TechRevive team")}${order.deliveredBy ? ` — ${L("petugas", "courier")}: ${order.deliveredBy}` : ""}` : `${L("Kurir", "Courier")}: ${order.courier ?? "-"}${order.trackingNumber ? ` · ${L("Resi", "Tracking")} ${order.trackingNumber}` : ""}`}</p>
         </section>
 
         <p className="muted border-t border-[var(--line)] pt-4 text-xs leading-relaxed">

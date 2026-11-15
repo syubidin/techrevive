@@ -1,7 +1,7 @@
 /**
  * Peta izin terpusat. Satu-satunya tempat yang menentukan siapa boleh melakukan apa.
  *
- *  DEVELOPER (Admin/Developer) : kendali penuh, termasuk mengelola akun dan peran.
+ *  DEVELOPER (Admin/Developer) : kendali penuh, termasuk akun/peran serta ubah-hapus data master dan penghapusan permanen.
  *  OWNER                       : semua fitur bisnis, KECUALI mengelola akun dan peran.
  *  STAFF                       : memproses inquiry saja (nomor HP tersamar, tanpa data keuangan).
  *
@@ -41,6 +41,10 @@ export const PERMISSIONS = {
   "taxonomy.manage": MANAGEMENT,
   "shipping.manage": MANAGEMENT,
   "audit.view": MANAGEMENT,
+  /** Mengubah (bukan menghapus) kategori, merk, supplier, dan definisi spek. */
+  "taxonomy.edit": MANAGEMENT,
+  /** Hapus data master (kategori, merk, supplier, spek, zona ongkir) serta penghapusan permanen (produk, inquiry). */
+  "data.manage": DEVELOPER_ONLY,
   // Akun dan peran
   "user.manage": DEVELOPER_ONLY,
 } as const satisfies Record<string, readonly Role[]>;

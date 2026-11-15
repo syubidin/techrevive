@@ -3,8 +3,8 @@
 ## Peran
 | Peran | Akses |
 |---|---|
-| **Admin / Developer** | Penuh, termasuk kelola akun & peran |
-| **Owner** | Semua kecuali kelola akun & peran |
+| **Admin / Developer** | Penuh: kelola akun & peran, serta **menghapus** data master (kategori, merk, supplier, spek, zona ongkir) dan hapus permanen (produk arsip, inquiry uji/spam) |
+| **Owner** | Semua fitur bisnis (produk, order, laporan, invoice) dan **menambah serta mengubah** kategori, merk, supplier, spek; tidak bisa kelola akun/peran maupun menghapus data master |
 | **Staff** | Dashboard (tanpa angka keuangan), lihat & proses inquiry (status pra-order, catatan, follow-up). Nomor customer disamarkan. Tanpa form Order, laporan, produk, invoice, audit |
 
 ## Alur dari customer sampai selesai
@@ -31,3 +31,6 @@ npx prisma generate
 npm run db:set-role -- email-anda@contoh.com DEVELOPER
 ```
 (Akun seed lama berperan OWNER; naikkan akun Anda ke DEVELOPER dengan perintah terakhir.)
+
+## Keamanan sesi
+Sesi login otomatis diputus (harus login ulang) bila: kata sandi akun diatur ulang, peran diubah, akun dinonaktifkan, Developer menekan *Putus semua sesi login*, atau pengguna menekan *Keluar semua perangkat*. Setelah memasang versi ini jalankan `npx prisma db push` (ada kolom baru `sessionVersion`).

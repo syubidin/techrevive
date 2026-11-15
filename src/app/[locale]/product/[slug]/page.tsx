@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
@@ -13,7 +14,7 @@ export const revalidate = 60;
 
 const slugRe = /^[a-z0-9][a-z0-9-]{0,99}$/;
 
-async function load(slug: string) {
+const load = cache(async (slug: string) => {
   if (!slugRe.test(slug)) return null;
   return db.product
     .findFirst({
@@ -28,7 +29,7 @@ async function load(slug: string) {
       },
     })
     .catch(() => null);
-}
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;

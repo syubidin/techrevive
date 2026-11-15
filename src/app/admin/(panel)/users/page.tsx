@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { fmtDateTime, requirePermission } from "@/lib/admin";
 import { ROLE_LABEL, ROLES } from "@/lib/rbac";
-import { createAdmin, setAdminActive, setAdminRole } from "./actions";
+import { ConfirmButton } from "../../confirm-button";
+import { createAdmin, deleteAdmin, resetAdminPassword, revokeAdminSessions, setAdminActive, setAdminRole, updateAdmin } from "./actions";
 
 export const metadata = { title: "Admin & peran" };
 
@@ -37,10 +38,30 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                   )}
                 </td>
                 <td className="muted p-3">{u.lastLoginAt ? fmtDateTime(u.lastLoginAt) : "—"}</td>
-                <td className="p-3">
+                <td className="p-3 align-top">
                   {u.id !== me.id && (
                     <form action={setAdminActive}><input type="hidden" name="id" value={u.id} /><input type="hidden" name="active" value={u.isActive ? "0" : "1"} /><button className="text-xs underline">{u.isActive ? "Nonaktifkan" : "Aktifkan"}</button></form>
                   )}
+                  <details className="mt-1">
+                    <summary className="cursor-pointer text-xs underline">Kelola</summary>
+                    <div className="mt-2 w-64 space-y-3">
+                      <form action={updateAdmin} className="grid gap-2">
+                        <input type="hidden" name="id" value={u.id} />
+                        <input name="name" className="input" defaultValue={u.name} required aria-label="Nama" />
+                        <input name="email" type="email" className="input" defaultValue={u.email} required aria-label="Email" />
+                        <button className="btn btn-primary">Simpan profil</button>
+                      </form>
+                      <form action={resetAdminPassword} className="grid gap-2">
+                        <input type="hidden" name="id" value={u.id} />
+                        <input name="password" type="password" minLength={12} required className="input" placeholder="Kata sandi baru (min. 12)" autoComplete="new-password" aria-label="Kata sandi baru" />
+                        <button className="btn">Atur ulang kata sandi</button>
+                      </form>
+                      {u.id !== me.id && <form action={revokeAdminSessions}><input type="hidden" name="id" value={u.id} /><button className="btn w-full">Putus semua sesi login</button></form>}
+                      {u.id !== me.id && (
+                        <form action={deleteAdmin}><input type="hidden" name="id" value={u.id} /><ConfirmButton message={`Hapus akun ${u.email} secara permanen? Jejak audit tetap tersimpan. Untuk berhenti sementara, pilih Nonaktifkan.`}>Hapus akun</ConfirmButton></form>
+                      )}
+                    </div>
+                  </details>
                 </td>
               </tr>
             ))}
@@ -63,7 +84,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
         <div><label className="label" htmlFor="u-pass">Kata sandi (min. 12 karakter)</label><input id="u-pass" name="password" type="password" minLength={12} required className="input" autoComplete="new-password" /></div>
         <button className="btn btn-primary sm:w-fit">Tambah</button>
       </form>
-      <p className="muted text-sm">Hanya Admin/Developer yang dapat menambah akun dan mengubah peran. Sistem selalu menyisakan minimal satu Admin/Developer aktif.</p>
+      <p className="muted text-sm">Hanya Admin/Developer yang dapat menambah, mengubah, mengatur ulang kata sandi, dan menghapus akun. Mengatur ulang kata sandi, mengubah peran, atau menonaktifkan akun otomatis memutus semua sesi login akun tersebut (harus login ulang). Sistem selalu menyisakan minimal satu Admin/Developer aktif.</p>
     </div>
   );
 }

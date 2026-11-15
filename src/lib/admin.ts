@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import type { Prisma } from "@prisma/client";
@@ -6,6 +7,7 @@ import { getEnv } from "./env";
 import { readSession, type AdminRole } from "./auth";
 import { getClientIp, hashIp } from "./client-ip";
 import { can, type Permission } from "./rbac";
+import { isSessionCurrent } from "./session-version";
 
 export interface AdminContext {
   id: string;
@@ -32,13 +34,14 @@ export async function requirePermission(permission: Permission): Promise<AdminCo
 }
 
 /** Untuk route handler (API): mengembalikan null alih-alih redirect. */
-export async function getAdminOrNull(): Promise<AdminContext | null> {
+/** Di-cache per permintaan: layout dan halaman sama-sama memanggilnya, tetapi DB hanya dibaca sekali. */
+export const getAdminOrNull = cache(async (): Promise<AdminContext | null> => {
   const session = await readSession();
   if (!session) return null;
-  const user = await db.adminUser.findUnique({ where: { id: session.sub }, select: { id: true, name: true, email: true, role: true, isActive: true } });
-  if (!user || !user.isActive) return null;
+  const user = await db.adminUser.findUnique({ where: { id: session.sub }, select: { id: true, name: true, email: true, role: true, isActive: true, sessionVersion: true } });
+  if (!user || !user.isActive || !isSessionCurrent(session.sv, user.sessionVersion)) return null;
   return { id: user.id, name: user.name, email: user.email, role: user.role };
-}
+});
 
 export { can };
 /** @deprecated gunakan can(role, "finance.view") */

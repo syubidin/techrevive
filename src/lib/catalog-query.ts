@@ -108,7 +108,7 @@ export function buildCatalogQuery(sp: URLSearchParams, specDefs: SpecDef[]) {
     // Form HTML mengirim batas sebagai s.<key>.min / s.<key>.max (tanpa JS).
     if (bound && def.type === "NUMBER") {
       if (/^\d{1,9}(?:\.\d{1,2})?$/.test(raw)) {
-       and.push({ attributes: bound === "min" ? { path: [key], gte: Number(raw) } : { path: [key], lte: Number(raw) } });
+        and.push({ attributes: bound === "min" ? { path: [key], gte: Number(raw) } : { path: [key], lte: Number(raw) } });
       }
       continue;
     }

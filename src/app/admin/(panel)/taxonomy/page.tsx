@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
-import { requirePermission } from "@/lib/admin";
+import { can, requirePermission } from "@/lib/admin";
+import { ConfirmButton } from "../../confirm-button";
 import { addBrand, addCategory, addSpec, addSupplier } from "./actions";
+import { deleteBrand, deleteCategory, deleteSpec, deleteSupplier, updateBrand, updateCategory, updateSpec, updateSupplier } from "./manage-actions";
 
 export const metadata = { title: "Kategori & Spek" };
 
@@ -9,11 +11,13 @@ const F = ({ label, name, ...p }: { label: string; name: string } & React.InputH
 );
 
 export default async function Taxonomy({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  await requirePermission("taxonomy.manage");
+  const me = await requirePermission("taxonomy.manage");
+  const edit = can(me.role, "taxonomy.edit"); // ubah: Owner dan Developer
+  const manage = can(me.role, "data.manage"); // hapus: hanya Admin/Developer
   const { error } = await searchParams;
   const [categories, brands, suppliers] = await Promise.all([
-    db.category.findMany({ orderBy: { nameId: "asc" }, include: { specs: { orderBy: { sortOrder: "asc" } } } }),
-    db.brand.findMany({ orderBy: { name: "asc" } }),
+    db.category.findMany({ orderBy: { nameId: "asc" }, include: { specs: { orderBy: { sortOrder: "asc" } }, _count: { select: { products: true } } } }),
+    db.brand.findMany({ orderBy: { name: "asc" }, include: { _count: { select: { products: true } } } }),
     db.supplier.findMany({ orderBy: { name: "asc" } }),
   ]);
 
@@ -38,22 +42,97 @@ export default async function Taxonomy({ searchParams }: { searchParams: Promise
         <button className="btn btn-primary sm:col-span-3 sm:w-fit">Tambah spek</button>
       </form>
 
+      {edit && !manage && <p className="muted text-sm">Anda dapat mengubah data di halaman ini. Menghapus hanya bisa dilakukan oleh Admin/Developer.</p>}
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="card p-5">
           <h2 className="font-bold">Kategori & spek</h2>
-          <ul className="mt-3 space-y-4 text-sm">
+          <ul className="mt-3 space-y-5 text-sm">
             {categories.length === 0 && <li className="muted">Belum ada.</li>}
             {categories.map((c) => (
               <li key={c.id}>
-                <p className="font-semibold">{c.nameId} <span className="muted font-normal">/ {c.nameEn} · {c.slug}</span></p>
-                <ul className="muted mt-1 list-inside list-disc text-xs">{c.specs.map((s) => <li key={s.id}><code>{s.key}</code> — {s.labelId} ({s.type}{s.unit ? `, ${s.unit}` : ""}{s.options.length ? `: ${s.options.join("/")}` : ""})</li>)}</ul>
+                <p className="font-semibold">{c.nameId} <span className="muted font-normal">/ {c.nameEn} · {c.slug} · {c._count.products} produk</span></p>
+                {edit && (
+                  <details className="mt-1">
+                    <summary className="cursor-pointer text-xs underline">Ubah / hapus kategori</summary>
+                    <form action={updateCategory} className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                      <input type="hidden" name="id" value={c.id} />
+                      <input name="nameId" className="input" defaultValue={c.nameId} required aria-label="Nama (ID)" />
+                      <input name="nameEn" className="input" defaultValue={c.nameEn} required aria-label="Name (EN)" />
+                      <button className="btn btn-primary">Simpan</button>
+                    </form>
+                    {manage && <form action={deleteCategory} className="mt-2"><input type="hidden" name="id" value={c.id} /><ConfirmButton message={`Hapus kategori “${c.nameId}” beserta definisi spek-nya? Tindakan ini tidak bisa dibatalkan.`}>Hapus kategori</ConfirmButton></form>}
+                  </details>
+                )}
+                <ul className="muted mt-2 space-y-1 text-xs">
+                  {c.specs.map((sp) => (
+                    <li key={sp.id}>
+                      <code>{sp.key}</code> — {sp.labelId} ({sp.type}{sp.unit ? `, ${sp.unit}` : ""}{sp.options.length ? `: ${sp.options.join("/")}` : ""})
+                      {edit && (
+                        <details className="mt-1 ml-3">
+                          <summary className="cursor-pointer underline">ubah / hapus</summary>
+                          <form action={updateSpec} className="mt-2 grid gap-2 sm:grid-cols-2">
+                            <input type="hidden" name="id" value={sp.id} />
+                            <input name="labelId" className="input" defaultValue={sp.labelId} required aria-label="Label (ID)" />
+                            <input name="labelEn" className="input" defaultValue={sp.labelEn} required aria-label="Label (EN)" />
+                            <input name="unit" className="input" defaultValue={sp.unit ?? ""} placeholder="Satuan" aria-label="Satuan" />
+                            {sp.type === "ENUM" && <input name="options" className="input" defaultValue={sp.options.join(", ")} placeholder="Opsi dipisah koma" aria-label="Opsi" />}
+                            <button className="btn btn-primary sm:w-fit">Simpan</button>
+                          </form>
+                          <p className="mt-1">Kunci dan tipe tidak bisa diubah agar data produk tetap valid.</p>
+                          {manage && <form action={deleteSpec} className="mt-1"><input type="hidden" name="id" value={sp.id} /><ConfirmButton message={`Hapus spek “${sp.key}”? Filter di katalog untuk spek ini akan hilang.`}>Hapus spek</ConfirmButton></form>}
+                        </details>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>
         </div>
+
         <div className="space-y-6">
-          <div className="card p-5"><h2 className="font-bold">Merk</h2><p className="muted mt-3 text-sm">{brands.map((b) => b.name).join(", ") || "Belum ada."}</p></div>
-          <div className="card p-5"><h2 className="font-bold">Supplier</h2><ul className="muted mt-3 text-sm">{suppliers.map((s) => <li key={s.id}>{s.name}{s.waNumber ? ` · ${s.waNumber}` : ""}</li>)}{suppliers.length === 0 && <li>Belum ada.</li>}</ul></div>
+          <div className="card p-5">
+            <h2 className="font-bold">Merk</h2>
+            <ul className="mt-3 space-y-2 text-sm">
+              {brands.length === 0 && <li className="muted">Belum ada.</li>}
+              {brands.map((b) => (
+                <li key={b.id}>
+                  {b.name} <span className="muted text-xs">· {b._count.products} produk</span>
+                  {edit && (
+                    <details className="mt-1">
+                      <summary className="cursor-pointer text-xs underline">ubah / hapus</summary>
+                      <form action={updateBrand} className="mt-2 flex gap-2"><input type="hidden" name="id" value={b.id} /><input name="name" className="input" defaultValue={b.name} required aria-label="Nama merk" /><button className="btn btn-primary">Simpan</button></form>
+                      {manage && <form action={deleteBrand} className="mt-2"><input type="hidden" name="id" value={b.id} /><ConfirmButton message={`Hapus merk “${b.name}”?`}>Hapus merk</ConfirmButton></form>}
+                    </details>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="card p-5">
+            <h2 className="font-bold">Supplier</h2>
+            <ul className="mt-3 space-y-2 text-sm">
+              {suppliers.length === 0 && <li className="muted">Belum ada.</li>}
+              {suppliers.map((sp) => (
+                <li key={sp.id}>
+                  {sp.name}{sp.waNumber ? <span className="muted"> · {sp.waNumber}</span> : ""}
+                  {edit && (
+                    <details className="mt-1">
+                      <summary className="cursor-pointer text-xs underline">ubah / hapus</summary>
+                      <form action={updateSupplier} className="mt-2 grid gap-2">
+                        <input type="hidden" name="id" value={sp.id} />
+                        <input name="name" className="input" defaultValue={sp.name} required aria-label="Nama supplier" />
+                        <input name="waNumber" className="input" defaultValue={sp.waNumber ?? ""} inputMode="tel" placeholder="No. WhatsApp" aria-label="No. WhatsApp" />
+                        <input name="notes" className="input" defaultValue={sp.notes ?? ""} placeholder="Catatan" aria-label="Catatan" />
+                        <button className="btn btn-primary sm:w-fit">Simpan</button>
+                      </form>
+                      {manage && <form action={deleteSupplier} className="mt-2"><input type="hidden" name="id" value={sp.id} /><ConfirmButton message={`Hapus supplier “${sp.name}”? Produk terkait menjadi “tanpa supplier”.`}>Hapus supplier</ConfirmButton></form>}
+                    </details>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
     </div>

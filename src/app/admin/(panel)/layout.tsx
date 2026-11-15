@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { requireAdmin, can } from "@/lib/admin";
 import { ROLE_LABEL, type Permission } from "@/lib/rbac";
-import { logout } from "../login/actions";
+import { logout, logoutEverywhere } from "../login/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +35,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <div className="mt-4 text-xs lg:absolute lg:bottom-4 lg:left-4 lg:right-4">
           <p className="font-semibold">{me.name}</p>
           <p className="muted">{ROLE_LABEL[me.role]}</p>
-          <form action={logout} className="mt-2"><button className="underline">Keluar</button></form>
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1"><form action={logout}><button className="underline">Keluar</button></form><form action={logoutEverywhere}><button className="muted underline" title="Putus login di semua perangkat">Keluar semua perangkat</button></form></div>
         </div>
       </aside>
       <main className="min-w-0 p-4 sm:p-8">{children}</main>

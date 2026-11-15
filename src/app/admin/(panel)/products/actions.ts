@@ -2,6 +2,7 @@
 
 import { randomInt } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { invalidateCatalog } from "@/lib/catalog-cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -9,6 +10,7 @@ import { db } from "@/lib/db";
 import { audit, requirePermission, slugify } from "@/lib/admin";
 import { computeSellPrice, meetsMinimumMargin, PricingError } from "@/lib/pricing";
 import { site } from "@/config/site";
+import { canDeleteProduct } from "@/lib/delete-guard";
 
 export interface ProductState { error?: string }
 
@@ -149,6 +151,7 @@ export async function saveProduct(_prev: ProductState, formData: FormData): Prom
   });
   revalidatePath("/admin/products");
   revalidatePath("/", "layout");
+  invalidateCatalog();
   redirect("/admin/products");
 }
 
@@ -159,4 +162,32 @@ export async function archiveProduct(formData: FormData): Promise<void> {
   await audit(me.id, "product.archive", "Product", id);
   revalidatePath("/admin/products");
   revalidatePath("/", "layout");
+  invalidateCatalog();
+}
+
+/** Mengembalikan produk dari arsip sebagai Draft (cek ulang sebelum diterbitkan). */
+export async function restoreProduct(formData: FormData): Promise<void> {
+  const me = await requirePermission("product.manage");
+  const id = z.string().cuid().parse(formData.get("id"));
+  await db.product.update({ where: { id }, data: { deletedAt: null, status: "DRAFT" } });
+  await audit(me.id, "product.restore", "Product", id);
+  revalidatePath("/admin/products");
+  revalidatePath("/", "layout");
+  invalidateCatalog();
+}
+
+/** Hapus permanen: hanya Admin/Developer, hanya dari arsip, dan hanya bila belum punya inquiry. */
+export async function deleteProductPermanently(formData: FormData): Promise<void> {
+  const me = await requirePermission("data.manage");
+  const id = z.string().cuid().parse(formData.get("id"));
+  const p = await db.product.findUnique({ where: { id }, select: { sku: true, nameId: true, deletedAt: true, _count: { select: { inquiries: true } } } });
+  if (!p) redirect("/admin/products?view=archived");
+  const blocked = canDeleteProduct({ archived: !!p!.deletedAt, inquiryCount: p!._count.inquiries });
+  if (blocked) redirect(`/admin/products?view=archived&error=${encodeURIComponent(blocked)}`);
+  await db.product.delete({ where: { id } }); // foto ikut terhapus (cascade)
+  await audit(me.id, "product.delete", "Product", id, { sku: p!.sku, name: p!.nameId });
+  revalidatePath("/admin/products");
+  revalidatePath("/", "layout");
+  invalidateCatalog();
+  redirect("/admin/products?view=archived");
 }

@@ -91,7 +91,7 @@ export function InquiryForm({ productId, locale, t, turnstileSiteKey }: { produc
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
         <label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
       </div>
-      {turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto" />}
+      {turnstileSiteKey && <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="auto" data-appearance="interaction-only" data-size="flexible" />}
       {state.kind === "error" && <p role="alert" className="text-sm font-medium text-[var(--color-danger-600)]">{state.message}</p>}
       <button type="submit" className="btn btn-primary w-full" disabled={state.kind === "loading"}>
         {state.kind === "loading" ? t.cta.sending : t.form.submit}

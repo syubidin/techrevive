@@ -21,7 +21,7 @@ if (!user) {
   await db.$disconnect();
   process.exit(1);
 }
-await db.adminUser.update({ where: { email }, data: { role: role as "DEVELOPER" | "OWNER" | "STAFF" } });
+await db.adminUser.update({ where: { email }, data: { role: role as "DEVELOPER" | "OWNER" | "STAFF", sessionVersion: { increment: 1 } } });
 await db.auditLog.create({ data: { actorId: null, action: "admin.role_change", entity: "AdminUser", entityId: user.id, diff: { from: user.role, to: role, via: "script" } } });
 console.log(`Peran ${email}: ${user.role} -> ${role}`);
 await db.$disconnect();

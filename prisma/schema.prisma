@@ -88,6 +88,7 @@ model AdminUser {
   isActive     Boolean   @default(true)
   failedLogins Int       @default(0)
   lockedUntil  DateTime?
+  sessionVersion Int      @default(0) // dinaikkan untuk memutus semua sesi login akun ini
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
