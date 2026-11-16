@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [state, action, pending] = useActionState<LoginState, FormData>(login, {});
   return (
     <div className="grid min-h-screen place-items-center px-4">
-      <form action={action} className="card animate-rise w-full max-w-sm space-y-5 p-6 sm:p-8">
+      <form action={action} className="card w-full max-w-sm space-y-5 p-6 sm:p-8">
         <div className="flex items-center gap-3">
           <Image src="/logo.jpg" alt="" width={44} height={44} className="rounded-lg" />
           <div>

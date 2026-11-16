@@ -4,7 +4,7 @@ import { clientIpHash } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { normalizeIdPhone } from "@/lib/phone";
 import { rateLimit } from "@/lib/rate-limit";
-import { normalizeCode, type TrackStatus } from "@/lib/track";
+import { ALL_TRACK_STATUSES, normalizeCode, type TrackStatus } from "@/lib/track";
 
 export interface TrackData {
   status: TrackStatus;
@@ -14,6 +14,8 @@ export interface TrackData {
   quoteExpiresAt: string | null;
   delivery: { method: "OWN_TEAM" | "COURIER"; deliveredBy: string | null; courier: string | null; trackingNumber: string | null } | null;
   invoiceToken: string | null;
+  /** Riwayat perubahan status yang aman dilihat pelanggan (lama ke baru). */
+  history: Array<{ status: TrackStatus; at: string }>;
 }
 export type TrackState = { ok: true; data: TrackData } | { ok: false; error: "notFound" | "rateLimited" | "generic" } | null;
 
@@ -35,6 +37,7 @@ export async function trackAction(_prev: TrackState, formData: FormData): Promis
       where: { code },
       select: {
         phone: true, status: true, createdAt: true, quotedPrice: true, quoteExpiresAt: true, productSnapshot: true,
+        events: { where: { type: "status_changed" }, orderBy: { createdAt: "asc" }, take: 30, select: { createdAt: true, data: true } },
         order: { select: { deliveryMethod: true, deliveredBy: true, courier: true, trackingNumber: true, invoiceToken: true, shippedAt: true } },
       },
     });
@@ -43,9 +46,15 @@ export async function trackAction(_prev: TrackState, formData: FormData): Promis
     const snap = (inq.productSnapshot ?? {}) as { name?: string };
     const o = inq.order;
     const shipping = inq.status === "SHIPPED" || inq.status === "DELIVERED";
+    const history: TrackData["history"] = [{ status: "NEW", at: inq.createdAt.toISOString() }];
+    for (const e of inq.events) {
+      const to = (e.data as { to?: string } | null)?.to;
+      if (to && (ALL_TRACK_STATUSES as readonly string[]).includes(to) && history[history.length - 1].status !== to) history.push({ status: to as TrackStatus, at: e.createdAt.toISOString() });
+    }
     return {
       ok: true,
       data: {
+        history,
         status: inq.status,
         productName: snap.name ?? "-",
         createdAt: inq.createdAt.toISOString(),

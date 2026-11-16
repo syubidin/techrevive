@@ -14,7 +14,8 @@ test("Owner punya semua izin kecuali mengelola akun/peran dan ubah-hapus data ma
 
 test("Staff hanya memproses inquiry", () => {
   const allowed = all.filter((p) => can("STAFF", p)).sort();
-  assert.deepEqual(allowed, ["inquiry.update", "inquiry.view"]);
+  // order.fulfil: Staff boleh menandai Dikirim/Selesai (operasional), tanpa akses angka keuangan.
+  assert.deepEqual(allowed, ["inquiry.update", "inquiry.view", "order.fulfil"]);
 });
 
 test("Staff tidak melihat keuangan, nomor HP lengkap, atau laporan", () => {

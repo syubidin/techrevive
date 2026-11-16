@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { InquiryStatus, Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { fmtDateTime, requireAdmin } from "@/lib/admin";
-import { STATUS_KEYS, STATUS_LABEL } from "@/lib/inquiry-status";
+import { STATUS_GROUPS } from "@/lib/inquiry-status";
 import { AdminPageHeader } from "@/components/admin-page-header";
 import { Icon } from "@/components/icons";
 import { StatusBadge } from "@/components/status-badge";
@@ -11,15 +11,15 @@ export const metadata = { title: "Inquiry" };
 
 const PAGE = 30;
 
-export default async function InquiriesPage({ searchParams }: { searchParams: Promise<{ status?: string; q?: string; page?: string }> }) {
+export default async function InquiriesPage({ searchParams }: { searchParams: Promise<{ g?: string; q?: string; page?: string }> }) {
   await requireAdmin();
   const sp = await searchParams;
-  const status = STATUS_KEYS.find((s) => s === sp.status);
+  const group = STATUS_GROUPS.find((g) => g.key === sp.g);
   const q = (sp.q ?? "").trim().slice(0, 60);
   const page = Math.max(1, Math.min(500, Number(sp.page) || 1));
 
   const where: Prisma.InquiryWhereInput = {
-    ...(status ? { status } : {}),
+    ...(group ? { status: { in: group.statuses } } : {}),
     ...(q ? { OR: [{ code: { contains: q, mode: "insensitive" } }, { customerName: { contains: q, mode: "insensitive" } }, { phone: { contains: q.replace(/\D/g, "") || "x" } }] } : {}),
   };
   const [rows, total, counts] = await Promise.all([
@@ -27,44 +27,59 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
     db.inquiry.count({ where }),
     db.inquiry.groupBy({ by: ["status"], _count: { _all: true } }),
   ]);
-  const countOf = (s: InquiryStatus) => counts.find((c) => c.status === s)?._count._all ?? 0;
-  const qs = (patch: Record<string, string>) => new URLSearchParams({ ...(status ? { status } : {}), ...(q ? { q } : {}), ...patch }).toString();
+  const countOf = (statuses: string[]) => counts.filter((c) => statuses.includes(c.status)).reduce((a, c) => a + c._count._all, 0);
+  const qs = (patch: Record<string, string>) => new URLSearchParams({ ...(group ? { g: group.key } : {}), ...(q ? { q } : {}), ...patch }).toString();
+  const now = Date.now();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <AdminPageHeader title="Inquiry" icon="inbox" />
       <form className="flex gap-2" role="search">
-        {status && <input type="hidden" name="status" value={status} />}
+        {group && <input type="hidden" name="g" value={group.key} />}
         <div className="relative w-full max-w-sm">
           <Icon name="search" size={18} className="muted pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input name="q" defaultValue={q} className="input !pl-10" placeholder="Cari kode, nama, atau nomor…" maxLength={60} aria-label="Cari inquiry" />
         </div>
         <button className="btn btn-primary">Cari</button>
       </form>
-      <nav className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 text-xs sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Status">
-        <Link href="/admin/inquiries" className={`chip shrink-0 !min-h-9 ${!status ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>Semua</Link>
-        {STATUS_KEYS.map((s) => (
-          <Link key={s} href={`/admin/inquiries?${qs({ status: s })}`} className={`chip shrink-0 !min-h-9 ${status === s ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>{STATUS_LABEL[s]} · {countOf(s)}</Link>
-        ))}
+
+      <nav className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 text-sm sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Kelompok status">
+        <Link href={`/admin/inquiries${q ? `?q=${encodeURIComponent(q)}` : ""}`} className={`chip shrink-0 !min-h-9 ${!group ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>Semua</Link>
+        {STATUS_GROUPS.map((g) => {
+          const n = countOf(g.statuses);
+          return (
+            <Link key={g.key} href={`/admin/inquiries?${qs({ g: g.key, page: "1" })}`} className={`chip shrink-0 !min-h-9 ${group?.key === g.key ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>
+              {g.label}{n > 0 && <span className="opacity-70">· {n}</span>}
+            </Link>
+          );
+        })}
       </nav>
-      <div className="card overflow-x-auto">
-        <table className="w-full min-w-[40rem] text-left text-sm">
-          <thead className="muted text-xs uppercase"><tr><th className="p-3">Kode</th><th className="p-3">Customer</th><th className="p-3">Produk</th><th className="p-3">Status</th><th className="p-3">Masuk</th><th className="p-3">Follow-up</th></tr></thead>
-          <tbody className="divide-y divide-[var(--line)]">
-            {rows.length === 0 && <tr><td colSpan={6} className="muted p-6 text-center">Tidak ada data.</td></tr>}
-            {rows.map((r) => (
-              <tr key={r.id} className="hover:bg-[var(--color-ink-100)] dark:hover:bg-[var(--color-ink-800)]">
-                <td className="p-3 font-mono"><Link className="font-bold underline-offset-4 hover:underline" href={`/admin/inquiries/${r.id}`}>{r.code}</Link></td>
-                <td className="p-3">{r.customerName}</td>
-                <td className="p-3">{(r.productSnapshot as { name?: string }).name}</td>
-                <td className="p-3"><StatusBadge status={r.status} /></td>
-                <td className="muted p-3">{fmtDateTime(r.createdAt)}</td>
-                <td className="muted p-3">{r.followUpAt ? fmtDateTime(r.followUpAt) : "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+      {rows.length === 0 ? (
+        <div className="card grid place-items-center gap-2 p-10 text-center"><span className="muted"><Icon name="inbox" size={36} /></span><p className="muted">Tidak ada inquiry.</p></div>
+      ) : (
+        <ul className="card divide-y divide-[var(--line)] overflow-hidden">
+          {rows.map((r) => {
+            const due = r.followUpAt && r.followUpAt.getTime() <= now && !["DELIVERED", "CANCELLED", "EXPIRED"].includes(r.status);
+            return (
+              <li key={r.id}>
+                <Link href={`/admin/inquiries/${r.id}`} className="flex flex-col gap-1.5 p-4 transition hover:bg-[var(--color-ink-100)] sm:flex-row sm:items-center sm:gap-4 dark:hover:bg-[var(--color-ink-800)]">
+                  <div className="min-w-0 flex-1">
+                    <p className="flex flex-wrap items-center gap-2"><span className="font-mono text-sm font-bold">{r.code}</span>{due && <span className="chip chip-tone-warn !min-h-0 !px-2 !py-0.5 !text-[11px]"><Icon name="clock" size={12} />Follow-up</span>}</p>
+                    <p className="truncate text-sm">{r.customerName} <span className="muted">· {(r.productSnapshot as { name?: string }).name}</span></p>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 sm:justify-end">
+                    <StatusBadge status={r.status} />
+                    <span className="muted text-xs">{fmtDateTime(r.createdAt)}</span>
+                    <Icon name="chevron-right" size={16} className="muted hidden sm:block" />
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
       <div className="flex items-center gap-3 text-sm">
         {page > 1 && <Link className="btn btn-ghost" href={`/admin/inquiries?${qs({ page: String(page - 1) })}`}><Icon name="chevron-left" size={16} />Sebelumnya</Link>}
         <span className="muted">Halaman {page} · {total} data</span>

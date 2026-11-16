@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { enter } from "@/lib/anim";
 import { Icon, type IconName } from "./icons";
 
 interface Img { url: string; alt: string | null }
@@ -10,11 +11,13 @@ interface Img { url: string; alt: string | null }
 export function Gallery({ images, name, placeholderIcon, imageLabel }: { images: Img[]; name: string; placeholderIcon: IconName; imageLabel: string }) {
   const [i, setI] = useState(0);
   const cur = images[i];
+  const frame = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (i > 0) void enter(frame.current, "fade"); }, [i]);
   return (
     <div>
-      <div className="card relative aspect-square overflow-hidden bg-[var(--color-ink-100)] sm:aspect-[4/3] dark:bg-[var(--color-ink-800)]">
+      <div ref={frame} className="card relative aspect-square overflow-hidden bg-[var(--color-ink-100)] sm:aspect-[4/3] dark:bg-[var(--color-ink-800)]">
         {cur ? (
-          <Image key={cur.url} src={cur.url} alt={cur.alt ?? name} fill priority={i === 0} sizes="(min-width:1024px) 55vw, 100vw" className="animate-rise object-cover" />
+          <Image key={cur.url} src={cur.url} alt={cur.alt ?? name} fill priority={i === 0} sizes="(min-width:1024px) 55vw, 100vw" className="object-cover" />
         ) : (
           <div className="bg-grid muted absolute inset-0 grid place-items-center" aria-hidden><Icon name={placeholderIcon} size={64} /></div>
         )}

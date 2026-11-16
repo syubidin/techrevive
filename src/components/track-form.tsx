@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
+import { enter } from "@/lib/anim";
 import { trackAction, type TrackState } from "@/app/[locale]/track/actions";
 import type { Locale } from "@/config/site";
 import { formatDate, formatIdr, type Messages } from "@/lib/i18n";
@@ -12,6 +13,8 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
   const [state, action, pending] = useActionState<TrackState, FormData>(trackAction, null);
   const tr = t.track;
   const d = state?.ok ? state.data : null;
+  const result = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (d) void enter(result.current, "bottom"); }, [d]);
   const step = d ? trackStep(d.status) : -1;
   const info = d ? tr.status[d.status as TrackStatus] : null;
 
@@ -39,7 +42,7 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
 
       <div aria-live="polite">
         {d && info ? (
-          <div className="card animate-rise space-y-6 p-5 sm:p-6">
+          <div ref={result} className="card space-y-6 p-5 sm:p-6">
             <div>
               <p className="muted text-xs font-semibold uppercase tracking-wide">{tr.product}</p>
               <p className="mt-1 text-lg font-bold">{d.productName}</p>
@@ -63,6 +66,18 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
               <Icon name={step < 0 ? "alert" : d.status === "DELIVERED" ? "circle-check" : "info"} className="mt-0.5 shrink-0" />
               <div><p className="font-bold">{info.t}</p><p className="muted mt-1 text-sm">{info.d}</p></div>
             </div>
+
+            {d.history.length > 1 && (
+              <ol className="space-y-2 border-l-2 border-[var(--line)] pl-4 text-sm" aria-label={tr.timeline}>
+                {[...d.history].reverse().map((h, i) => (
+                  <li key={`${h.status}-${h.at}`} className="relative">
+                    <span className={`absolute -left-[1.4rem] top-1.5 h-2.5 w-2.5 rounded-full ${i === 0 ? "bg-[var(--color-ink-900)]" : "bg-[var(--color-ink-300)]"}`} aria-hidden />
+                    <p className={i === 0 ? "font-bold" : ""}>{tr.status[h.status].t}</p>
+                    <p className="muted text-xs">{new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }).format(new Date(h.at))}</p>
+                  </li>
+                ))}
+              </ol>
+            )}
 
             <dl className="grid gap-3 text-sm sm:grid-cols-2">
               {d.quotedPrice != null && (

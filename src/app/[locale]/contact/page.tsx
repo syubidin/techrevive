@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale, site } from "@/config/site";
-import { waLink } from "@/lib/contact";
+import { waLink, waNumber } from "@/lib/contact";
 import { getMessages } from "@/lib/i18n";
 import { Icon, socialIcon } from "@/components/icons";
+import { ContactForm } from "@/components/contact-form";
 import { PageHero } from "@/components/page-hero";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -25,12 +26,10 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     <>
       <PageHero title={c.title} intro={c.intro} icon="phone" />
       <div className="container-x grid gap-6 py-8 sm:py-10 lg:grid-cols-[1fr_1.2fr]">
-        <section className="card flex flex-col gap-3 p-6">
-          <span className="grid h-12 w-12 place-items-center rounded-xl bg-green-600/10 text-green-700 dark:text-green-300"><Icon name="message-circle" size={24} /></span>
-          <h2 className="text-xl font-bold">{c.waTitle}</h2>
-          <p className="muted text-sm">{c.waDesc}</p>
-          <a href={waLink(c.waText)} target="_blank" rel="noopener noreferrer" className="btn btn-accent btn-lg mt-2"><Icon name="message-circle" />{c.waButton}</a>
-        </section>
+        <div className="space-y-4">
+          <ContactForm t={c} waNumber={waNumber()} />
+          <a href={waLink(c.waText)} target="_blank" rel="noopener noreferrer" className="btn btn-ghost w-full"><Icon name="message-circle" size={18} />{c.waButton}</a>
+        </div>
         <div className="space-y-4">
           <ul className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             {info.map((i) => (

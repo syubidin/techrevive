@@ -1,5 +1,7 @@
 import { db } from "@/lib/db";
 import { can, requirePermission } from "@/lib/admin";
+import { AdminAlert } from "@/components/admin-alert";
+import { AdminPageHeader } from "@/components/admin-page-header";
 import { ConfirmButton } from "../../confirm-button";
 import { JABODETABEK_CITIES } from "@/lib/shipping";
 import { deleteRate, saveRate } from "./actions";
@@ -11,7 +13,7 @@ function RateForm({ r }: { r?: { id: string; zone: string; cities: string[]; bas
     <div><label className="label" htmlFor={`${name}-${r?.id ?? "new"}`}>{label}</label><input id={`${name}-${r?.id ?? "new"}`} name={name} type="number" min={0} required className="input" defaultValue={v} /></div>
   );
   return (
-    <form action={saveRate} className="card grid gap-3 p-5 sm:grid-cols-4">
+    <form action={saveRate} className="grid gap-3 sm:grid-cols-4">
       {r && <input type="hidden" name="id" value={r.id} />}
       <div className="sm:col-span-2"><label className="label" htmlFor={`zone-${r?.id ?? "new"}`}>Nama zona</label><input id={`zone-${r?.id ?? "new"}`} name="zone" required className="input" defaultValue={r?.zone ?? ""} maxLength={40} /></div>
       <div className="sm:col-span-2"><label className="label" htmlFor={`cities-${r?.id ?? "new"}`}>Kota (pisahkan koma)</label><input id={`cities-${r?.id ?? "new"}`} name="cities" required className="input" defaultValue={r?.cities.join(", ") ?? ""} /></div>
@@ -31,18 +33,27 @@ export default async function Shipping({ searchParams }: { searchParams: Promise
   const { error } = await searchParams;
   const rates = await db.shippingRate.findMany({ orderBy: { zone: "asc" } });
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold tracking-tight">Tarif ongkir Jabodetabek</h1>
-      <p className="muted text-sm">Berat tertagih = yang terbesar antara berat asli dan volumetrik, dibulatkan ke atas per kg. Kota tersedia: {JABODETABEK_CITIES.join(", ")}. Untuk lokasi di luar daftar, isi ongkir manual di detail inquiry.</p>
-      {error && <p role="alert" className="card p-4 text-sm font-medium text-[var(--color-danger-600)]">{error.slice(0, 200)}</p>}
+    <div className="space-y-5">
+      <AdminPageHeader title="Tarif ongkir Jabodetabek" icon="truck" />
+      <p className="muted text-sm">Berat tertagih = yang terbesar antara berat asli dan volumetrik, dibulatkan ke atas per kg. Kota tersedia: {JABODETABEK_CITIES.join(", ")}. Di luar daftar, isi ongkir manual saat membuat pesanan.</p>
+      <AdminAlert message={error} />
       {rates.map((r) => (
-        <div key={r.id}>
-          <RateForm r={r} />
-          {manage && <form action={deleteRate} className="mt-2"><input type="hidden" name="id" value={r.id} /><ConfirmButton message={`Hapus zona “${r.zone}”? Inquiry lama tidak terpengaruh.`}>Hapus zona {r.zone}</ConfirmButton></form>}
-        </div>
+        <details key={r.id} className="card p-4">
+          <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2">
+            <span className="font-semibold">{r.zone}</span>
+            <span className="muted text-xs">Rp{r.baseFee.toLocaleString("id-ID")} + Rp{r.perKgFee.toLocaleString("id-ID")}/kg · {r.minDays}-{r.maxDays} hari</span>
+            {!r.isActive && <span className="chip chip-tone-mute ml-auto">Nonaktif</span>}
+          </summary>
+          <div className="mt-4">
+            <RateForm r={r} />
+            {manage && <form action={deleteRate} className="mt-2"><input type="hidden" name="id" value={r.id} /><ConfirmButton message={`Hapus zona “${r.zone}”? Inquiry lama tidak terpengaruh.`}>Hapus zona {r.zone}</ConfirmButton></form>}
+          </div>
+        </details>
       ))}
-      <h2 className="pt-4 font-bold">Tambah zona baru</h2>
-      <RateForm />
+      <details className="card p-4" open={rates.length === 0}>
+        <summary className="cursor-pointer font-bold">Tambah zona baru</summary>
+        <div className="mt-4"><RateForm /></div>
+      </details>
     </div>
   );
 }

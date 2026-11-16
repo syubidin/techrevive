@@ -16,14 +16,13 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   // Awal bulan menurut WIB (UTC+7), bukan UTC.
   const wib = new Date(now.getTime() + 7 * 3600 * 1000);
   const startMonth = new Date(Date.UTC(wib.getUTCFullYear(), wib.getUTCMonth(), 1) - 7 * 3600 * 1000);
-  const since30 = new Date(now.getTime() - 30 * DAY);
   const since14 = new Date(now.getTime() - 14 * DAY);
   const endToday = new Date(now.getTime() + DAY);
 
   // Cadangan bila jadwal otomatis belum aktif; jalur utama adalah /api/cron/maintenance.
   await expireQuotes(now);
 
-  const [byStatus, dueFollowUps, recent, orders, inquiries30, ordersCount30, topGroups, daily, staleVerified, stockReview] = await Promise.all([
+  const [byStatus, dueFollowUps, recent, orders, daily, staleVerified, stockReview] = await Promise.all([
     db.inquiry.groupBy({ by: ["status"], _count: { _all: true } }),
     db.inquiry.findMany({
       where: { followUpAt: { lte: endToday }, status: { notIn: ["DELIVERED", "CANCELLED", "EXPIRED"] } },
@@ -32,9 +31,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     }),
     db.inquiry.findMany({ where: { status: "NEW" }, orderBy: { createdAt: "desc" }, take: 6, select: { id: true, code: true, customerName: true, createdAt: true, productSnapshot: true } }),
     db.order.findMany({ where: { paidAt: { gte: startMonth } }, select: { itemPrice: true, itemCost: true, paymentFee: true } }),
-    db.inquiry.count({ where: { createdAt: { gte: since30 } } }),
-    db.order.count({ where: { createdAt: { gte: since30 } } }),
-    db.inquiry.groupBy({ by: ["productId"], where: { createdAt: { gte: since30 } }, _count: { _all: true }, orderBy: { _count: { productId: "desc" } }, take: 5 }),
     db.inquiry.findMany({ where: { createdAt: { gte: since14 } }, select: { createdAt: true } }),
     db.product.count({ where: { status: "PUBLISHED", deletedAt: null, availability: "VERIFIED", verifiedAt: { lt: new Date(now.getTime() - 48 * 3600 * 1000) } } }),
     can(me.role, "stock.review")
@@ -46,12 +42,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       : Promise.resolve([]),
   ]);
 
-  const topProducts = await db.product.findMany({ where: { id: { in: topGroups.map((g) => g.productId) } }, select: { id: true, nameId: true, sku: true } });
   const statusCount = Object.fromEntries(byStatus.map((s) => [s.status, s._count._all])) as Record<string, number>;
 
   const revenue = orders.reduce((a, o) => a + o.itemPrice, 0);
-  const profit = orders.reduce((a, o) => a + o.itemPrice - o.itemCost - o.paymentFee, 0);
-  const conversion = inquiries30 ? Math.round((ordersCount30 / inquiries30) * 1000) / 10 : 0;
 
   // 14 hari terakhir, bucket per hari WIB
   const buckets = Array.from({ length: 14 }, (_, i) => {
@@ -65,16 +58,15 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   }
   const max = Math.max(1, ...buckets.map((b) => b.n));
 
+  const n = (...keys: string[]) => keys.reduce((a, k) => a + (statusCount[k] ?? 0), 0);
   const kpis = [
-    { label: "Inquiry baru", value: statusCount.NEW ?? 0, href: "/admin/inquiries?status=NEW", icon: "inbox" as IconName },
-    { label: "Menunggu supplier", value: statusCount.SUPPLIER_CHECKING ?? 0, href: "/admin/inquiries?status=SUPPLIER_CHECKING", icon: "clock" as IconName },
-    { label: "Menunggu pembayaran", value: statusCount.AWAITING_PAYMENT ?? 0, href: "/admin/inquiries?status=AWAITING_PAYMENT", icon: "wallet" as IconName },
-    { label: "Konversi 30 hari", value: `${conversion}%`, href: "/admin/inquiries", icon: "chart" as IconName },
+    { label: "Perlu dibalas", value: n("NEW", "CONTACTED", "SUPPLIER_CHECKING"), href: "/admin/inquiries?g=reply", icon: "inbox" as IconName },
+    { label: "Menunggu keputusan customer", value: n("QUOTED"), href: "/admin/inquiries?g=quoted", icon: "receipt" as IconName },
+    { label: "Menunggu pembayaran", value: n("AWAITING_PAYMENT"), href: "/admin/inquiries?g=pay", icon: "wallet" as IconName },
+    { label: "Siap dikirim", value: n("PAID", "PROCURING", "RECEIVED_BY_US"), href: "/admin/inquiries?g=process", icon: "package" as IconName },
+    { label: "Sedang dikirim", value: n("SHIPPED"), href: "/admin/inquiries?g=shipping", icon: "truck" as IconName },
     ...(can(me.role, "finance.view")
-      ? [
-          { label: "Omzet bulan ini", value: idr(revenue), href: "/admin/inquiries", icon: "receipt" as IconName },
-          { label: "Laba kotor bulan ini", value: idr(profit), href: "/admin/inquiries", icon: "tag" as IconName },
-        ]
+      ? [{ label: "Omzet bulan ini", value: idr(revenue), href: "/admin/reports", icon: "chart" as IconName }]
       : []),
   ];
 
@@ -98,7 +90,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </section>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
         {kpis.map((k) => (
           <Link key={k.label} href={k.href} className="card hover-lift flex items-start justify-between gap-3 p-5">
             <div className="min-w-0">
@@ -148,22 +140,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </ul>
         </section>
       </div>
-
-      <section className="card p-5">
-        <h2 className="font-bold">Produk paling dicari (30 hari)</h2>
-        <ol className="mt-3 divide-y divide-[var(--line)] text-sm">
-          {topGroups.length === 0 && <li className="muted py-3">Belum ada data.</li>}
-          {topGroups.map((g) => {
-            const p = topProducts.find((x) => x.id === g.productId);
-            return (
-              <li key={g.productId} className="flex justify-between py-3">
-                <span>{p?.nameId ?? g.productId} <span className="muted">({p?.sku})</span></span>
-                <span className="font-bold">{g._count._all}</span>
-              </li>
-            );
-          })}
-        </ol>
-      </section>
     </div>
   );
 }

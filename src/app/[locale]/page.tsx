@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { getMessages, pick } from "@/lib/i18n";
 import { publicProductSelect } from "@/lib/products";
 import { Icon, categoryIcon, type IconName } from "@/components/icons";
+import { HeroSceneLoader } from "@/components/hero-scene-loader";
 import { ProductCard } from "@/components/product-card";
 
 export const revalidate = 60;
@@ -41,8 +42,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section className="relative overflow-hidden">
         <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" aria-hidden />
         <div className="hero-glow absolute -top-32 left-1/2 h-96 w-[48rem] -translate-x-1/2" aria-hidden />
+        <div className="absolute inset-y-0 right-0 hidden w-1/2 opacity-60 lg:block" aria-hidden><HeroSceneLoader /></div>
         <div className="container-x relative grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
-          <div className="animate-rise">
+          <div data-intro>
             <span className="chip bg-[var(--card)]"><Icon name="badge-check" size={14} />{t.hero.badge}</span>
             <h1 className="mt-5 text-balance text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">{t.hero.title}</h1>
             <p className="muted mt-4 max-w-xl text-base sm:text-lg">{t.hero.subtitle}</p>
@@ -60,8 +62,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               ))}
             </ul>
           </div>
-          <div className="animate-rise delay-2 relative mx-auto w-full max-w-sm">
-            <div className="animate-float card relative grid aspect-square place-items-center overflow-hidden bg-white p-6">
+          <div data-intro className="relative mx-auto w-full max-w-sm">
+            <div data-float className="card relative grid aspect-square place-items-center overflow-hidden bg-white p-6">
               <Image src="/logo.jpg" alt="TechRevive" width={420} height={420} priority className="h-auto w-full" />
             </div>
             <div className="card absolute -left-2 top-6 flex items-center gap-2.5 p-3 sm:-left-6">
@@ -101,9 +103,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* KATEGORI */}
       {showcase.categories.length > 0 && (
-        <section className="section container-x reveal">
+        <section data-reveal className="section container-x">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.categoriesTitle}</h2>
-          <ul className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+          <ul data-stagger className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
             {showcase.categories.map((c) => (
               <li key={c.slug}>
                 <Link href={L(`/catalog?category=${c.slug}`)} className="card hover-lift flex h-full flex-col gap-3 p-4 sm:p-5">
@@ -118,13 +120,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* PRODUK UNGGULAN */}
-      <section className="section container-x reveal">
+      <section data-reveal className="section container-x">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.featured}</h2>
           <Link href={L("/catalog")} className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold hover:underline">{t.home.viewAll}<Icon name="arrow-right" size={16} /></Link>
         </div>
         {products.length > 0 ? (
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+          <div data-stagger className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {products.map((p, i) => <ProductCard key={p.id} product={p} locale={locale} t={t} priority={i < 2} />)}
           </div>
         ) : (
@@ -133,7 +135,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* KENAPA KAMI */}
-      <section className="section container-x reveal">
+      <section data-reveal className="section container-x">
         <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.whyTitle}</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {t.home.why.map((w, i) => (
@@ -147,7 +149,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* CARA KERJA */}
-      <section id="how" className="section container-x reveal scroll-mt-24">
+      <section id="how" data-reveal className="section container-x scroll-mt-24">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.stepsTitle}</h2>
           <Link href={L("/how-it-works")} className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold hover:underline">{t.home.viewAll}<Icon name="arrow-right" size={16} /></Link>
@@ -167,7 +169,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* GRADE */}
-      <section className="section container-x reveal">
+      <section data-reveal className="section container-x">
         <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.gradeTitle}</h2>
         <p className="muted mt-2 max-w-2xl">{t.home.gradeSub}</p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -181,7 +183,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* FAQ RINGKAS */}
-      <section className="section container-x reveal">
+      <section data-reveal className="section container-x">
         <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.faqTitle}</h2>
         <div className="mt-6 grid gap-3 lg:max-w-3xl">
           {t.faqPage.items.slice(0, 4).map((f) => (
@@ -197,7 +199,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* CTA */}
-      <section className="container-x section reveal">
+      <section data-reveal className="container-x section">
         <div className="relative overflow-hidden rounded-3xl bg-[var(--color-ink-900)] p-8 text-white sm:p-12">
           <div className="hero-glow absolute -right-20 -top-20 h-72 w-72 opacity-60" aria-hidden />
           <div className="relative max-w-xl">

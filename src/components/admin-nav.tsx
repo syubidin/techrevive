@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { enter } from "@/lib/anim";
 import { Icon, type IconName } from "./icons";
 
 export interface AdminNavItem { href: string; label: string; icon: IconName }
@@ -15,6 +16,8 @@ export interface AdminNavItem { href: string; label: string; icon: IconName }
 export function AdminNav({ items, children }: { items: AdminNavItem[]; children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
   const [open, setOpen] = useState(false);
+  const panel = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (open) void enter(panel.current, "right"); }, [open]);
 
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
@@ -70,7 +73,7 @@ export function AdminNav({ items, children }: { items: AdminNavItem[]; children:
       {open && (
         <div className="no-print fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu admin">
           <button type="button" tabIndex={-1} aria-label="Tutup menu" onClick={() => setOpen(false)} className="absolute inset-0 bg-black/50" />
-          <div className="animate-sheet absolute inset-y-0 right-0 flex w-[min(20rem,88vw)] flex-col bg-[var(--bg)] p-4 shadow-2xl">
+          <div ref={panel} className="absolute inset-y-0 right-0 flex w-[min(20rem,88vw)] flex-col bg-[var(--bg)] p-4 shadow-2xl">
             <div className="flex items-center justify-between">
               {brand}
               <button type="button" onClick={() => setOpen(false)} aria-label="Tutup menu" className="btn btn-ghost !h-11 !w-11 !p-0"><Icon name="x" /></button>

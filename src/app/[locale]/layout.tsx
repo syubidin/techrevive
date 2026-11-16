@@ -3,6 +3,7 @@ import { isLocale, site } from "@/config/site";
 import { getMessages } from "@/lib/i18n";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { MotionRoot } from "@/components/motion-root";
 import { getShowcase } from "@/lib/catalog-cache";
 import { jakarta, rootMetadata, rootViewport } from "@/lib/root";
 import "../globals.css";
@@ -22,6 +23,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   return (
     <html lang={locale} className={jakarta.variable}>
       <body>
+        <MotionRoot />
         <SiteHeader locale={locale} t={t} />
         <main id="content">{children}</main>
         <SiteFooter locale={locale} t={t} brands={brands} />

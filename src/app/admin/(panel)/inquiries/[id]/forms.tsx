@@ -1,53 +1,12 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { saveOrder, updateInquiry, type ActionState } from "../actions";
-
-const STATUS_OPTIONS: Array<[string, string]> = [
-  ["NEW", "Baru"], ["CONTACTED", "Dihubungi"], ["SUPPLIER_CHECKING", "Cek supplier"], ["QUOTED", "Penawaran terkirim"], ["AWAITING_PAYMENT", "Menunggu bayar"],
-  ["PAID", "Lunas"], ["PROCURING", "Pesan ke supplier"], ["RECEIVED_BY_US", "Diterima (QC)"], ["SHIPPED", "Dikirim"], ["DELIVERED", "Selesai"], ["CANCELLED", "Batal"], ["EXPIRED", "Kedaluwarsa"],
-];
+import { saveOrder, type ActionState } from "../actions";
 
 function Feedback({ state }: { state: ActionState }) {
   if (state.error) return <p role="alert" className="text-sm font-medium text-[var(--color-danger-600)]">{state.error}</p>;
   if (state.ok) return <p role="status" className="text-sm font-medium text-[var(--color-success-600)]">Tersimpan.</p>;
   return null;
-}
-
-export function UpdateForm(p: { allowedStatuses: string[]; id: string; updatedAt: string; status: string; quotedPrice: number | null; internalNote: string | null; followUpAt: string; validHours: number }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(updateInquiry, {});
-  return (
-    <form action={action} className="card space-y-4 p-5">
-      <h2 className="font-bold">Status & penawaran</h2>
-      <input type="hidden" name="id" value={p.id} />
-      <input type="hidden" name="expectedUpdatedAt" value={p.updatedAt} />
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="label" htmlFor="status">Status</label>
-          <p className="muted mb-1 text-xs">Menunggu bayar, Lunas, Dikirim, dan Selesai berubah otomatis dari form Order.</p>
-          <select id="status" name="status" className="input" defaultValue={p.status}>{STATUS_OPTIONS.filter(([v]) => p.allowedStatuses.includes(v)).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
-        </div>
-        <div>
-          <label className="label" htmlFor="quotedPrice">Harga final ke customer (Rp)</label>
-          <input id="quotedPrice" name="quotedPrice" type="number" min={0} step={1000} className="input" defaultValue={p.quotedPrice ?? ""} />
-        </div>
-        <div>
-          <label className="label" htmlFor="quoteValidHours">Harga berlaku (jam)</label>
-          <input id="quoteValidHours" name="quoteValidHours" type="number" min={1} max={168} className="input" defaultValue={p.validHours} />
-        </div>
-        <div>
-          <label className="label" htmlFor="followUpAt">Jadwal follow-up (WIB)</label>
-          <input id="followUpAt" name="followUpAt" type="datetime-local" className="input" defaultValue={p.followUpAt} />
-        </div>
-      </div>
-      <div>
-        <label className="label" htmlFor="internalNote">Catatan internal</label>
-        <textarea id="internalNote" name="internalNote" rows={3} maxLength={2000} className="input" defaultValue={p.internalNote ?? ""} />
-      </div>
-      <Feedback state={state} />
-      <button className="btn btn-primary" disabled={pending}>{pending ? "Menyimpan…" : "Simpan"}</button>
-    </form>
-  );
 }
 
 type Method = "OWN_TEAM" | "COURIER";

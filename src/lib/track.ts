@@ -3,6 +3,10 @@ export type TrackStatus =
   | "NEW" | "CONTACTED" | "SUPPLIER_CHECKING" | "QUOTED" | "AWAITING_PAYMENT" | "PAID"
   | "PROCURING" | "RECEIVED_BY_US" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "EXPIRED";
 
+export const ALL_TRACK_STATUSES: readonly TrackStatus[] = [
+  "NEW", "CONTACTED", "SUPPLIER_CHECKING", "QUOTED", "AWAITING_PAYMENT", "PAID", "PROCURING", "RECEIVED_BY_US", "SHIPPED", "DELIVERED", "CANCELLED", "EXPIRED",
+];
+
 /** Enam tahap yang dilihat pelanggan (indeks cocok dengan t.track.steps). */
 export const TRACK_STEP_COUNT = 6;
 

@@ -7,12 +7,12 @@ export const msgNewInquiry = (i: InquiryInfo, baseUrl: string, id: string) =>
   `[BARU] Inquiry baru ${i.code}\n${i.customerName} (${maskPhone(i.phone)})${i.area ? ` · ${i.area}` : ""}\n${i.productName}\n${baseUrl}/admin/inquiries/${id}`;
 
 export const msgSlaBreach = (items: Array<{ code: string; customerName: string; minutes: number }>, sla: number, baseUrl: string) =>
-  `⏰ ${items.length} inquiry belum dibalas > ${sla} menit:\n${items.map((x) => `- ${x.code} ${x.customerName} (${x.minutes} mnt)`).join("\n")}\n${baseUrl}/admin/inquiries?status=NEW`;
+  `[SLA] ${items.length} inquiry belum dibalas > ${sla} menit:\n${items.map((x) => `- ${x.code} ${x.customerName} (${x.minutes} mnt)`).join("\n")}\n${baseUrl}/admin/inquiries?status=NEW`;
 
 export const msgFollowUps = (items: Array<{ code: string; customerName: string }>, baseUrl: string) =>
   `[FOLLOW-UP] ${items.length} follow-up jatuh tempo:\n${items.map((x) => `- ${x.code} ${x.customerName}`).join("\n")}\n${baseUrl}/admin`;
 
-export const msgExpired = (n: number) => `⌛ ${n} penawaran kedaluwarsa otomatis.`;
+export const msgExpired = (n: number) => `[KEDALUWARSA] ${n} penawaran kedaluwarsa otomatis.`;
 
 /** Kirim ke semua kanal yang dikonfigurasi. Tidak pernah melempar; mengembalikan true bila ada kanal yang berhasil. */
 export async function notify(text: string): Promise<boolean> {

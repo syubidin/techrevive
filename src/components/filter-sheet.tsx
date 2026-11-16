@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { enter } from "@/lib/anim";
 import { Icon } from "./icons";
 
 /**
@@ -9,15 +10,29 @@ import { Icon } from "./icons";
  */
 export function FilterSheet({ title, count, closeLabel, children }: { title: string; count: number; closeLabel: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const panel = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (open && !window.matchMedia("(min-width: 1024px)").matches) void enter(panel.current, "bottom"); }, [open]);
 
   useEffect(() => {
     if (!open) return;
+    // Panel hanya berupa lembar bawah di bawah 1024px. Di layar lebar ia statis, jadi scroll tidak boleh dikunci.
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const prev = document.body.style.overflow;
+    const sync = () => {
+      if (mq.matches) {
+        document.body.style.overflow = prev;
+        setOpen(false);
+      } else {
+        document.body.style.overflow = "hidden";
+      }
+    };
+    sync();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    mq.addEventListener("change", sync);
     return () => {
       document.removeEventListener("keydown", onKey);
+      mq.removeEventListener("change", sync);
       document.body.style.overflow = prev;
     };
   }, [open]);
@@ -31,9 +46,10 @@ export function FilterSheet({ title, count, closeLabel, children }: { title: str
       </button>
       {open && <button type="button" tabIndex={-1} aria-label={closeLabel} onClick={() => setOpen(false)} className="fixed inset-0 z-50 bg-black/50 lg:hidden" />}
       <div
+        ref={panel}
         className={
           open
-            ? "animate-sheet fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] overflow-y-auto rounded-t-2xl bg-[var(--bg)] p-3 shadow-2xl lg:static lg:z-auto lg:max-h-none lg:animate-none lg:overflow-visible lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none"
+            ? "fixed inset-x-0 bottom-0 z-50 max-h-[88dvh] overflow-y-auto rounded-t-2xl bg-[var(--bg)] p-3 shadow-2xl lg:static lg:z-auto lg:max-h-none lg:overflow-visible lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none"
             : "hidden lg:block"
         }
         role={open ? "dialog" : undefined}

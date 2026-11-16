@@ -366,7 +366,17 @@
     "socialTitle": "Sosial media",
     "noSocial": "Segera hadir.",
     "aboutTitle": "Tentang TechRevive",
-    "aboutDesc": "TechRevive menghubungkan Anda dengan perangkat tech second dan refurbished pilihan lewat jaringan supplier terpercaya. Setiap unit dinilai dengan grade yang jujur dan dikonfirmasi manual oleh tim kami sebelum Anda membayar."
+    "aboutDesc": "TechRevive menghubungkan Anda dengan perangkat tech second dan refurbished pilihan lewat jaringan supplier terpercaya. Setiap unit dinilai dengan grade yang jujur dan dikonfirmasi manual oleh tim kami sebelum Anda membayar.",
+    "formTitle": "Tulis pesan",
+    "formDesc": "Pesan Anda akan terbuka di WhatsApp dan tinggal dikirim.",
+    "name": "Nama (opsional)",
+    "message": "Pesan",
+    "placeholder": "Contoh: Saya cari laptop untuk kuliah, budget sekitar 6 juta.",
+    "send": "Kirim lewat WhatsApp",
+    "empty": "Tulis pesan Anda dulu.",
+    "hello": "Halo TechRevive, saya {name}.",
+    "helloAnon": "Halo TechRevive.",
+    "count": "{n}/500"
   },
   "track": {
     "title": "Lacak Pesanan",
@@ -447,7 +457,8 @@
         "t": "Penawaran kedaluwarsa",
         "d": "Masa berlaku penawaran habis. Hubungi kami untuk harga terbaru."
       }
-    }
+    },
+    "timeline": "Riwayat status"
   },
   "notFound": {
     "title": "Halaman tidak ditemukan",

@@ -4,12 +4,22 @@ import { jwtVerify } from "jose";
 const LOCALES = ["id", "en"] as const;
 const COOKIE = process.env.NODE_ENV === "production" ? "__Host-tr_session" : "tr_session";
 
-function buildCsp(nonce: string): string {
+/**
+ * Admin & API: CSP ketat dengan nonce (halaman selalu dirender dinamis).
+ * Halaman publik di-cache/di-prerender (ISR) sehingga TIDAK bisa membawa nonce per-permintaan; skrip inline
+ * bawaan Next (hidrasi & penukar skeleton Suspense) akan diblokir bila CSP-nya memakai nonce, dan hasilnya
+ * skeleton loading tidak pernah selesai. Karena itu halaman publik memakai 'unsafe-inline' tanpa nonce.
+ * Risikonya kecil: situs publik tidak merender HTML buatan pengguna (JSON-LD sudah di-escape).
+ */
+function buildCsp(nonce: string | null): string {
   const dev = process.env.NODE_ENV !== "production";
+  const scriptSrc = nonce
+    ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com${dev ? " 'unsafe-eval'" : ""}`
+    : `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${dev ? " 'unsafe-eval'" : ""}`;
   const imageHost = process.env.IMAGE_HOST ? ` https://${process.env.IMAGE_HOST}` : "";
   return [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com${dev ? " 'unsafe-eval'" : ""}`,
+    scriptSrc,
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob:${imageHost}`,
     "font-src 'self'",
@@ -42,7 +52,8 @@ function preferredLocale(req: NextRequest): (typeof LOCALES)[number] {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const nonce = btoa(crypto.randomUUID());
+  const strict = pathname.startsWith("/admin") || pathname.startsWith("/api");
+  const nonce = strict ? btoa(crypto.randomUUID()) : null;
   const csp = buildCsp(nonce);
 
   // Admin: wajib sesi valid (pemeriksaan role tetap dilakukan di server action/route).
@@ -66,8 +77,10 @@ export async function middleware(req: NextRequest) {
   }
 
   const headers = new Headers(req.headers);
-  headers.set("x-nonce", nonce);
-  headers.set("Content-Security-Policy", csp);
+  if (nonce) {
+    headers.set("x-nonce", nonce);
+    headers.set("Content-Security-Policy", csp);
+  }
   const res = NextResponse.next({ request: { headers } });
   res.headers.set("Content-Security-Policy", csp);
   if (pathname.startsWith("/admin") || pathname.startsWith("/api")) {

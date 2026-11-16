@@ -86,7 +86,14 @@ export async function saveOrder(_prev: ActionState, formData: FormData): Promise
   const me = await requirePermission("order.write");
   const parsed = orderSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Data order tidak valid." };
-  const d = parsed.data;
+  return saveOrderCore(me, parsed.data);
+}
+
+type OrderInput = z.output<typeof orderSchema>;
+type Me = Awaited<ReturnType<typeof requireAdmin>>;
+
+/** Inti penyimpanan order (dipakai form "Koreksi order" dan tombol langkah). Izin diperiksa oleh pemanggil. */
+async function saveOrderCore(me: Me, d: OrderInput): Promise<ActionState> {
   if (d.itemPrice < 1) return { error: "Harga jual harus lebih dari 0." };
   if (d.paid && !d.paymentMethod) return { error: "Pilih metode pembayaran sebelum menandai lunas." };
 
@@ -149,8 +156,174 @@ export async function saveOrder(_prev: ActionState, formData: FormData): Promise
   await audit(me.id, "order.save", "Order", d.inquiryId, { total, paid: !!d.paid, delivery: d.deliveryMethod, status: flow.status, stock: stock.action });
   revalidatePath(`/admin/inquiries/${d.inquiryId}`);
   revalidatePath("/admin");
-  revalidatePath("/katalog");
+  revalidatePath("/admin/inquiries");
   return { ok: true };
+}
+
+/** Data order yang tersimpan, diubah kembali ke bentuk input agar langkah-langkah kecil bisa memakai saveOrderCore. */
+async function loadOrderInput(inquiryId: string): Promise<{ input: OrderInput; exists: boolean; costPrice: number; quotedPrice: number | null } | null> {
+  const inq = await db.inquiry.findUnique({ where: { id: inquiryId }, include: { order: true, product: { select: { costPrice: true } } } });
+  if (!inq) return null;
+  const o = inq.order;
+  return {
+    exists: !!o,
+    costPrice: inq.product.costPrice,
+    quotedPrice: inq.quotedPrice,
+    input: {
+      inquiryId,
+      itemPrice: o?.itemPrice ?? inq.quotedPrice ?? 0,
+      itemCost: o?.itemCost ?? inq.product.costPrice,
+      shippingFee: o?.shippingFee ?? 0,
+      insuranceFee: o?.insuranceFee ?? 0,
+      paymentFee: o?.paymentFee ?? 0,
+      paymentMethod: o?.paymentMethod ?? null,
+      paid: o?.paidAt ? "1" : undefined,
+      deliveryMethod: o?.deliveryMethod ?? "OWN_TEAM",
+      deliveredBy: o?.deliveredBy ?? null,
+      deliveryNote: o?.deliveryNote ?? null,
+      courier: o?.courier ?? null,
+      trackingNumber: o?.trackingNumber ?? null,
+      dispatched: o?.shippedAt ? "1" : undefined,
+      delivered: o?.deliveredAt ? "1" : undefined,
+    },
+  };
+}
+
+const idOnly = z.object({ inquiryId: z.string().cuid() });
+
+// ---------- Langkah-langkah alur yang disederhanakan ----------
+
+const quoteSchema = z.object({
+  inquiryId: z.string().cuid(),
+  quotedPrice: z.coerce.number().int().min(1).max(2_000_000_000),
+  quoteValidHours: z.coerce.number().int().min(1).max(168).default(site.quoteValidHours),
+  followUpAt: z.string().optional().transform((v) => (v ? new Date(`${v}:00+07:00`) : null)),
+});
+
+/** Langkah 1: kirim penawaran (status menjadi Penawaran terkirim, harga dikunci sesuai jam yang dipilih). */
+export async function sendQuote(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const me = await requirePermission("inquiry.update");
+  const parsed = quoteSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Isi harga final dengan angka lebih dari 0." };
+  const d = parsed.data;
+  if (d.followUpAt && Number.isNaN(d.followUpAt.getTime())) return { error: "Tanggal follow-up tidak valid." };
+  const cur = await db.inquiry.findUnique({ where: { id: d.inquiryId }, include: { order: { select: { paidAt: true } } } });
+  if (!cur) return { error: "Inquiry tidak ditemukan." };
+  const guard = checkStatusChange({ role: me.role, current: cur.status, target: "QUOTED", orderPaid: !!cur.order?.paidAt });
+  if (guard) return { error: guard };
+  await db.$transaction([
+    db.inquiry.update({ where: { id: d.inquiryId }, data: { status: "QUOTED", quotedPrice: d.quotedPrice, quoteExpiresAt: new Date(Date.now() + d.quoteValidHours * 3600 * 1000), ...(d.followUpAt ? { followUpAt: d.followUpAt } : {}) } }),
+    db.inquiryEvent.create({ data: { inquiryId: d.inquiryId, type: "status_changed", actorId: me.id, data: { from: cur.status, to: "QUOTED", price: d.quotedPrice } } }),
+  ]);
+  await audit(me.id, "inquiry.quote", "Inquiry", d.inquiryId, { price: d.quotedPrice });
+  revalidatePath(`/admin/inquiries/${d.inquiryId}`);
+  revalidatePath("/admin/inquiries");
+  return { ok: true };
+}
+
+const noteSchema = z.object({
+  inquiryId: z.string().cuid(),
+  internalNote: z.string().trim().max(2000).optional().transform((v) => v || null),
+  followUpAt: z.string().optional().transform((v) => (v ? new Date(`${v}:00+07:00`) : null)),
+});
+
+/** Catatan internal dan jadwal follow-up (tidak mengubah status). */
+export async function saveNote(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const me = await requirePermission("inquiry.update");
+  const parsed = noteSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Data tidak valid." };
+  const d = parsed.data;
+  if (d.followUpAt && Number.isNaN(d.followUpAt.getTime())) return { error: "Tanggal follow-up tidak valid." };
+  await db.inquiry.update({ where: { id: d.inquiryId }, data: { internalNote: d.internalNote, followUpAt: d.followUpAt, followUpNotifiedAt: null } });
+  await audit(me.id, "inquiry.note", "Inquiry", d.inquiryId);
+  revalidatePath(`/admin/inquiries/${d.inquiryId}`);
+  return { ok: true };
+}
+
+const quickSchema = z.object({ inquiryId: z.string().cuid(), target: z.enum(["CONTACTED", "SUPPLIER_CHECKING", "PROCURING", "RECEIVED_BY_US", "CANCELLED"]) });
+
+/** Tombol satu klik untuk status sederhana (Dihubungi, Cek supplier, Pesan ke supplier, Diterima QC, Batal). */
+export async function quickStatus(formData: FormData): Promise<void> {
+  const me = await requirePermission("inquiry.update");
+  const parsed = quickSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return;
+  const { inquiryId, target } = parsed.data;
+  const cur = await db.inquiry.findUnique({ where: { id: inquiryId }, include: { order: { select: { paidAt: true } } } });
+  if (!cur) return;
+  const guard = checkStatusChange({ role: me.role, current: cur.status, target, orderPaid: !!cur.order?.paidAt });
+  if (guard) redirect(`/admin/inquiries/${inquiryId}?error=${encodeURIComponent(guard)}`);
+  await db.$transaction([
+    db.inquiry.update({ where: { id: inquiryId }, data: { status: target } }),
+    db.inquiryEvent.create({ data: { inquiryId, type: "status_changed", actorId: me.id, data: { from: cur.status, to: target } } }),
+  ]);
+  await audit(me.id, "inquiry.status", "Inquiry", inquiryId, { from: cur.status, to: target });
+  revalidatePath(`/admin/inquiries/${inquiryId}`);
+  revalidatePath("/admin/inquiries");
+  revalidatePath("/admin");
+}
+
+const createOrderSchema = z.object({
+  inquiryId: z.string().cuid(),
+  itemPrice: intField(),
+  shippingFee: intField(50_000_000),
+  insuranceFee: intField(50_000_000).default(0),
+});
+
+/** Langkah 2: customer setuju, buat pesanan (status Menunggu bayar). Modal diambil dari modal katalog. */
+export async function createOrder(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const me = await requirePermission("order.write");
+  const parsed = createOrderSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Isi harga dan ongkir dengan angka." };
+  const base = await loadOrderInput(parsed.data.inquiryId);
+  if (!base) return { error: "Inquiry tidak ditemukan." };
+  return saveOrderCore(me, { ...base.input, itemPrice: parsed.data.itemPrice, shippingFee: parsed.data.shippingFee, insuranceFee: parsed.data.insuranceFee });
+}
+
+const paySchema = z.object({
+  inquiryId: z.string().cuid(),
+  paymentMethod: z.enum(["BANK_TRANSFER", "VIRTUAL_ACCOUNT", "QRIS"]),
+  paymentFee: intField(50_000_000).default(0),
+});
+
+/** Langkah 3: tandai lunas (mengurangi stok otomatis bila jumlah unit diketahui). */
+export async function markPaid(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const me = await requirePermission("order.write");
+  const parsed = paySchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Pilih metode pembayaran." };
+  const base = await loadOrderInput(parsed.data.inquiryId);
+  if (!base?.exists) return { error: "Buat pesanan dulu." };
+  return saveOrderCore(me, { ...base.input, paymentMethod: parsed.data.paymentMethod as PaymentMethod, paymentFee: parsed.data.paymentFee, paid: "1" });
+}
+
+const shipSchema = z.object({
+  inquiryId: z.string().cuid(),
+  deliveryMethod: z.enum(["OWN_TEAM", "COURIER"]),
+  deliveredBy: z.string().trim().max(60).optional().transform((v) => v || null),
+  courier: z.string().trim().max(40).optional().transform((v) => v || null),
+  trackingNumber: z.string().trim().max(60).optional().transform((v) => v || null),
+  deliveryNote: z.string().trim().max(500).optional().transform((v) => v || null),
+});
+
+/** Langkah 4: tandai Dikirim (diantar tim: nama petugas; kurir: nama kurir, resi opsional). */
+export async function markShipped(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const me = await requirePermission("order.fulfil");
+  const parsed = shipSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Data pengiriman tidak valid." };
+  const d = parsed.data;
+  const base = await loadOrderInput(d.inquiryId);
+  if (!base?.exists) return { error: "Pesanan belum dibuat oleh Owner." };
+  return saveOrderCore(me, { ...base.input, deliveryMethod: d.deliveryMethod, deliveredBy: d.deliveredBy, courier: d.courier, trackingNumber: d.trackingNumber, deliveryNote: d.deliveryNote ?? base.input.deliveryNote, dispatched: "1" });
+}
+
+/** Langkah 5: tandai Selesai (barang sudah diterima customer). */
+export async function markDelivered(formData: FormData): Promise<void> {
+  const me = await requirePermission("order.fulfil");
+  const parsed = idOnly.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return;
+  const base = await loadOrderInput(parsed.data.inquiryId);
+  if (!base?.exists) return;
+  const r = await saveOrderCore(me, { ...base.input, dispatched: "1", delivered: "1" });
+  if (r.error) redirect(`/admin/inquiries/${parsed.data.inquiryId}?error=${encodeURIComponent(r.error)}`);
 }
 
 const reviewSchema = z.object({

@@ -34,3 +34,17 @@ npm run db:set-role -- email-anda@contoh.com DEVELOPER
 
 ## Keamanan sesi
 Sesi login otomatis diputus (harus login ulang) bila: kata sandi akun diatur ulang, peran diubah, akun dinonaktifkan, Developer menekan *Putus semua sesi login*, atau pengguna menekan *Keluar semua perangkat*. Setelah memasang versi ini jalankan `npx prisma db push` (ada kolom baru `sessionVersion`).
+
+## Alur inquiry yang disederhanakan (versi terbaru)
+
+Di detail inquiry admin ada satu panel **Langkah berikutnya** yang berubah mengikuti status:
+
+1. Balas & kirim penawaran (Staff/Owner): tombol "Sudah saya hubungi", "Sedang cek supplier", isi harga final lalu "Kirim penawaran".
+2. Buat pesanan (Owner/Developer): harga + ongkir, status Menunggu bayar.
+3. Catat pembayaran (Owner/Developer): metode bayar, tandai lunas (stok berkurang otomatis bila jumlah unit diketahui).
+4. Kirim barang (Staff/Owner/Developer): diantar tim (nama petugas) atau kurir (nama kurir, resi opsional), tandai Dikirim.
+5. Konfirmasi diterima: tandai Selesai.
+
+Tombol "Kabari via WhatsApp" selalu menyiapkan pesan sesuai status beserta link Lacak Pesanan.
+Form "Koreksi order (lanjutan)" tetap ada (Owner/Developer) untuk memperbaiki angka atau membatalkan tanda lunas/dikirim.
+Pelanggan melihat status yang sama di halaman Lacak Pesanan (kode inquiry + nomor WhatsApp).

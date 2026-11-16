@@ -32,6 +32,8 @@ export const PERMISSIONS = {
   // Keuangan dan order
   "finance.view": MANAGEMENT,
   "order.write": MANAGEMENT,
+  /** Menandai barang Dikirim / Selesai (operasional harian; tanpa akses angka modal & laba). */
+  "order.fulfil": ALL,
   "stock.review": MANAGEMENT,
   "invoice.issue": MANAGEMENT,
   "report.view": MANAGEMENT,

@@ -366,7 +366,17 @@
     "socialTitle": "Social media",
     "noSocial": "Coming soon.",
     "aboutTitle": "About TechRevive",
-    "aboutDesc": "TechRevive connects you with curated second-hand and refurbished tech through a trusted supplier network. Every unit is graded honestly and confirmed manually by our team before you pay."
+    "aboutDesc": "TechRevive connects you with curated second-hand and refurbished tech through a trusted supplier network. Every unit is graded honestly and confirmed manually by our team before you pay.",
+    "formTitle": "Write a message",
+    "formDesc": "Your message opens in WhatsApp, ready to send.",
+    "name": "Name (optional)",
+    "message": "Message",
+    "placeholder": "Example: I need a laptop for university, budget around IDR 6 million.",
+    "send": "Send via WhatsApp",
+    "empty": "Please write your message first.",
+    "hello": "Hi TechRevive, I'm {name}.",
+    "helloAnon": "Hi TechRevive.",
+    "count": "{n}/500"
   },
   "track": {
     "title": "Track Order",
@@ -447,7 +457,8 @@
         "t": "Quote expired",
         "d": "The quote has expired. Contact us for an updated price."
       }
-    }
+    },
+    "timeline": "Status history"
   },
   "notFound": {
     "title": "Page not found",
