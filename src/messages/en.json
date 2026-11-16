@@ -1,27 +1,111 @@
 {
-  "nav": { "catalog": "Catalog", "howItWorks": "How to Order", "policy": "Policies", "contact": "Contact Us", "home": "Home" },
+  "nav": {
+    "catalog": "Catalog",
+    "howItWorks": "How to Order",
+    "policy": "Policies",
+    "contact": "Contact Us",
+    "home": "Home",
+    "faq": "FAQ",
+    "track": "Track Order",
+    "menu": "Menu",
+    "close": "Close",
+    "openMenu": "Open menu",
+    "skip": "Skip to main content"
+  },
   "hero": {
     "badge": "Second-hand premium & customizable",
     "title": "Curated tech, honestly graded.",
     "subtitle": "Second-hand and refurbished laptops, phones and gadgets with clear grading. Check availability instantly on WhatsApp.",
     "browse": "Browse Catalog",
-    "how": "How to Order"
+    "how": "How to Order",
+    "searchPlaceholder": "Search laptops, phones or brands…",
+    "search": "Search",
+    "chips": [
+      "Honest A/B/C grading",
+      "Replies within 15 min",
+      "Jabodetabek delivery"
+    ],
+    "floatA": "Grade A",
+    "floatAd": "Mint units, real photos",
+    "floatB": "Manually checked",
+    "floatBd": "Stock confirmed by our team"
   },
   "home": {
     "featured": "Latest Picks",
     "viewAll": "View all",
     "whyTitle": "Why TechRevive",
     "why": [
-      { "t": "Honest grading", "d": "Every unit gets an A/B/C grade with real photos and battery health where applicable." },
-      { "t": "Transparent availability", "d": "We never say 'Ready Stock' until stock is confirmed. You know the status from the start." },
-      { "t": "Real people", "d": "Order through WhatsApp and get answers from our team, not a chatbot." }
+      {
+        "t": "Honest grading",
+        "d": "Every unit gets an A/B/C grade with real photos and battery health where applicable."
+      },
+      {
+        "t": "Transparent availability",
+        "d": "We never say 'Ready Stock' until stock is confirmed. You know the status from the start."
+      },
+      {
+        "t": "Real people",
+        "d": "Order through WhatsApp and get answers from our team, not a chatbot."
+      }
     ],
     "stepsTitle": "How to order",
     "steps": [
-      { "t": "Pick a product", "d": "Use spec, brand and feature filters to match your needs." },
-      { "t": "Check stock & order", "d": "Enter your name and WhatsApp number; the message is pre-filled." },
-      { "t": "We confirm", "d": "We check stock and send the final price and unit condition." },
-      { "t": "Pay & receive", "d": "Pay once stock is certain. Delivery within Greater Jakarta." }
+      {
+        "t": "Pick a product",
+        "d": "Use spec, brand and feature filters to match your needs."
+      },
+      {
+        "t": "Check stock & order",
+        "d": "Enter your name and WhatsApp number; the message is pre-filled."
+      },
+      {
+        "t": "We confirm",
+        "d": "We check stock and send the final price and unit condition."
+      },
+      {
+        "t": "Pay & receive",
+        "d": "Pay once stock is certain. Delivery within Greater Jakarta."
+      }
+    ],
+    "brandsTitle": "Brands we carry",
+    "brandsSub": "Shop by your favorite brand",
+    "categoriesTitle": "Shop by category",
+    "products": "{n} products",
+    "gradeTitle": "Understanding unit grades",
+    "gradeSub": "We grade every unit honestly so there are no surprises.",
+    "grades": [
+      {
+        "g": "A",
+        "t": "Mint",
+        "d": "Almost no signs of use. Screen and body in excellent shape."
+      },
+      {
+        "g": "B",
+        "t": "Normal wear",
+        "d": "Light scratches or minor signs of use. Works normally."
+      },
+      {
+        "g": "C",
+        "t": "Visible wear",
+        "d": "Visible cosmetic flaws. Works normally at a lower price."
+      }
+    ],
+    "faqTitle": "Frequently asked questions",
+    "faqAll": "See all FAQs",
+    "ctaTitle": "Can't find what you need?",
+    "ctaDesc": "Tell us your needs and budget. Our team will source a matching unit through our supplier network.",
+    "ctaButton": "Ask on WhatsApp",
+    "ctaWaText": "Hi TechRevive, I'm looking for a device with these needs: ",
+    "whyIcons": [
+      "badge-check",
+      "shield-check",
+      "message-circle"
+    ],
+    "stepIcons": [
+      "search",
+      "message-circle",
+      "circle-check",
+      "truck"
     ]
   },
   "catalog": {
@@ -48,7 +132,15 @@
     "sortPriceAsc": "Price: low to high",
     "sortPriceDesc": "Price: high to low",
     "prev": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "activeFilters": "Active filters",
+    "clearAll": "Clear all",
+    "showResults": "Show results",
+    "closeFilters": "Close filters",
+    "sortLabel": "Sort by",
+    "searchLabel": "Search products",
+    "searching": "Results for",
+    "filtersCount": "Filters ({n})"
   },
   "product": {
     "specs": "Specifications",
@@ -61,7 +153,19 @@
     "success": "Request saved. Continue on WhatsApp so our team can check stock.",
     "openWa": "Open WhatsApp",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "breadcrumbCatalog": "Catalog",
+    "orderNow": "Check stock & order",
+    "factsTitle": "Unit summary",
+    "gradeGuide": "What do grades mean?",
+    "noWarrantyTitle": "No warranty or returns",
+    "trustTitle": "Shop with confidence",
+    "gallery": "Photo gallery",
+    "image": "Photo {n}",
+    "from": "Price",
+    "askWa": "Ask on WhatsApp",
+    "askWaText": "Hi TechRevive, I'm interested in {name} ({sku}).",
+    "priceNote": "Final price is locked for 24 hours after confirmation."
   },
   "availability": {
     "CHECK": "Check Availability",
@@ -69,9 +173,20 @@
     "PREORDER": "Pre-order",
     "SOLD_OUT": "Sold out"
   },
-  "condition": { "REFURBISHED": "Refurbished", "USED": "Used" },
-  "grade": { "A": "Grade A — like new", "B": "Grade B — normal wear", "C": "Grade C — visible cosmetic wear" },
-  "cta": { "checkAndOrder": "Check Stock & Order", "sending": "Preparing WhatsApp…", "copyMessage": "Copy message" },
+  "condition": {
+    "REFURBISHED": "Refurbished",
+    "USED": "Used"
+  },
+  "grade": {
+    "A": "Grade A — like new",
+    "B": "Grade B — normal wear",
+    "C": "Grade C — visible cosmetic wear"
+  },
+  "cta": {
+    "checkAndOrder": "Check Stock & Order",
+    "sending": "Preparing WhatsApp…",
+    "copyMessage": "Copy message"
+  },
   "form": {
     "name": "Name",
     "phone": "WhatsApp number",
@@ -99,12 +214,250 @@
   "policy": {
     "title": "Policies",
     "sections": [
-      { "t": "Warranty & returns", "d": "We sell second-hand and refurbished items sourced from partner suppliers. Our suppliers offer no warranty or returns, so TechRevive cannot offer them either. That is why we describe condition, grade and any flaws honestly before you pay. Please ask about anything you are unsure of first." },
-      { "t": "Availability & pricing", "d": "'Check Availability' means stock is not yet confirmed. The final price and stock are confirmed over WhatsApp and then locked for 24 hours. Payment is only requested once stock is certain." },
-      { "t": "Payment", "d": "Bank transfer, virtual account or QRIS. Payment details are sent after you approve the quote." },
-      { "t": "Delivery", "d": "Items are shipped to us first for inspection. They are then delivered by our own team or sent via courier, depending on your address and what we agree at confirmation. Service area: Greater Jakarta. Estimates and delivery fees are given at confirmation." },
-      { "t": "Privacy", "d": "Your name and WhatsApp number are used only to process your request and are not shared with third parties." }
+      {
+        "t": "Warranty & returns",
+        "d": "We sell second-hand and refurbished items sourced from partner suppliers. Our suppliers offer no warranty or returns, so TechRevive cannot offer them either. That is why we describe condition, grade and any flaws honestly before you pay. Please ask about anything you are unsure of first."
+      },
+      {
+        "t": "Availability & pricing",
+        "d": "'Check Availability' means stock is not yet confirmed. The final price and stock are confirmed over WhatsApp and then locked for 24 hours. Payment is only requested once stock is certain."
+      },
+      {
+        "t": "Payment",
+        "d": "Bank transfer, virtual account or QRIS. Payment details are sent after you approve the quote."
+      },
+      {
+        "t": "Delivery",
+        "d": "Items are shipped to us first for inspection. They are then delivered by our own team or sent via courier, depending on your address and what we agree at confirmation. Service area: Greater Jakarta. Estimates and delivery fees are given at confirmation."
+      },
+      {
+        "t": "Privacy",
+        "d": "Your name and WhatsApp number are used only to process your request and are not shared with third parties."
+      }
     ]
   },
-  "footer": { "rights": "All rights reserved.", "lang": "Language" }
+  "footer": {
+    "rights": "All rights reserved.",
+    "lang": "Language",
+    "shop": "Shop",
+    "help": "Help",
+    "brands": "Brands",
+    "company": "TechRevive",
+    "tagline": "Second-hand & refurbished tech with honest grading."
+  },
+  "common": {
+    "whatsapp": "WhatsApp",
+    "chatWa": "Chat on WhatsApp",
+    "back": "Back",
+    "home": "Home",
+    "viewAll": "View all",
+    "learnMore": "Learn more"
+  },
+  "availabilityShort": {
+    "CHECK": "Check stock",
+    "VERIFIED": "Available",
+    "PREORDER": "Pre-order",
+    "SOLD_OUT": "Sold out"
+  },
+  "howPage": {
+    "title": "How to Order",
+    "intro": "Shopping at TechRevive is assisted by our team on WhatsApp. There is no cart or upfront payment: you pay only after stock is confirmed.",
+    "steps": [
+      {
+        "t": "Pick a product",
+        "d": "Browse the catalog and use spec, brand and feature filters to match your needs."
+      },
+      {
+        "t": "Send a request",
+        "d": "Click Check stock & order, then enter your name, WhatsApp number and area. WhatsApp opens with a prefilled message."
+      },
+      {
+        "t": "We confirm",
+        "d": "Our team checks stock with the supplier, then sends the final price and unit condition. The price is locked for 24 hours."
+      },
+      {
+        "t": "Pay once stock is certain",
+        "d": "Bank transfer, virtual account or QRIS. The unit is shipped to us first for inspection."
+      },
+      {
+        "t": "Delivery",
+        "d": "Delivered by our team or by courier within Jabodetabek. You receive an invoice as proof of purchase."
+      }
+    ],
+    "stepIcons": [
+      "search",
+      "message-circle",
+      "clock",
+      "wallet",
+      "truck"
+    ],
+    "payTitle": "Payment methods",
+    "pay": [
+      "Bank transfer",
+      "Virtual account",
+      "QRIS"
+    ],
+    "payNote": "Payment details are sent after you accept the quote. We never ask for payment before stock is confirmed.",
+    "deliveryTitle": "Delivery",
+    "delivery": [
+      "Hand-delivered by the TechRevive team, or",
+      "Shipped by courier with a tracking number",
+      "Service area: Jabodetabek. Delivery fee is calculated at confirmation."
+    ],
+    "cta": "Start shopping",
+    "trackCta": "Already ordered? Track your order"
+  },
+  "faqPage": {
+    "title": "FAQ",
+    "intro": "Quick answers to the most common questions. Can't find yours? Contact us on WhatsApp.",
+    "stillAsk": "Still have questions?",
+    "stillAskDesc": "Our team replies within 15 minutes during business hours.",
+    "items": [
+      {
+        "q": "Is there a warranty or can I return an item?",
+        "a": "No. Our suppliers offer no warranty or returns, so TechRevive cannot either. That is why we describe each unit's condition, grade and flaws honestly before you pay."
+      },
+      {
+        "q": "How do I order?",
+        "a": "Pick a product and click Check stock & order. Enter your name, WhatsApp number and delivery area. You will be taken to WhatsApp with a prefilled message and our team continues the confirmation."
+      },
+      {
+        "q": "Why does a product say 'Check Availability'?",
+        "a": "We hold no stock of our own. This status means availability has not yet been confirmed with the supplier. We never write 'Ready Stock' until it is certain."
+      },
+      {
+        "q": "How long is the price locked?",
+        "a": "Once we send the final price it is locked for 24 hours. After that the quote expires and the price may change."
+      },
+      {
+        "q": "Which payment methods do you accept?",
+        "a": "Bank transfer, virtual account and QRIS. Payment is requested only after stock is confirmed and you accept the quote."
+      },
+      {
+        "q": "How does delivery work and what does it cost?",
+        "a": "We serve Jabodetabek. Items are hand-delivered by our team or sent by courier as agreed. The fee and estimate are shared at confirmation."
+      },
+      {
+        "q": "What do Grade A, B and C mean?",
+        "a": "Grade A: mint. Grade B: normal wear with light scratches. Grade C: visible cosmetic flaws but works normally. Battery health is listed where applicable."
+      },
+      {
+        "q": "How can I track my order?",
+        "a": "Open the Track Order page and enter your inquiry code (starting with TR-) and the WhatsApp number you used to order."
+      },
+      {
+        "q": "How is my data used?",
+        "a": "Your name and WhatsApp number are used only to process your request and are never shared with third parties."
+      }
+    ]
+  },
+  "contactPage": {
+    "title": "Contact Us",
+    "intro": "The fastest way to reach us is WhatsApp. You talk to our team, not a chatbot.",
+    "waTitle": "WhatsApp",
+    "waDesc": "Ask about stock, price or unit condition.",
+    "waButton": "Chat on WhatsApp",
+    "waText": "Hi TechRevive, I have a question.",
+    "hoursTitle": "Business hours",
+    "areaTitle": "Service area",
+    "areaDesc": "Jabodetabek (hand-delivered by our team or by courier).",
+    "responseTitle": "Response time",
+    "responseDesc": "Within 15 minutes during business hours.",
+    "socialTitle": "Social media",
+    "noSocial": "Coming soon.",
+    "aboutTitle": "About TechRevive",
+    "aboutDesc": "TechRevive connects you with curated second-hand and refurbished tech through a trusted supplier network. Every unit is graded honestly and confirmed manually by our team before you pay."
+  },
+  "track": {
+    "title": "Track Order",
+    "intro": "Enter the inquiry code and WhatsApp number you used when ordering.",
+    "code": "Inquiry code",
+    "codeHint": "Example: TR-261114-ABCD",
+    "phone": "WhatsApp number",
+    "submit": "Check status",
+    "checking": "Checking…",
+    "notFound": "No match found. Please double-check your code and WhatsApp number.",
+    "rateLimited": "Too many attempts. Please try again in a few minutes.",
+    "generic": "Something went wrong. Try again or contact us on WhatsApp.",
+    "product": "Product",
+    "quotedPrice": "Final price",
+    "validUntil": "Valid until",
+    "delivery": "Delivery",
+    "ownTeam": "Delivered by the TechRevive team",
+    "courier": "Courier",
+    "tracking": "Tracking no.",
+    "by": "Delivered by",
+    "invoice": "View invoice",
+    "created": "Submitted",
+    "helpWa": "Need help? Contact us",
+    "steps": [
+      "Received",
+      "Confirmed",
+      "Payment",
+      "Preparing",
+      "Shipping",
+      "Done"
+    ],
+    "status": {
+      "NEW": {
+        "t": "Request received",
+        "d": "Our team will contact you on WhatsApp shortly."
+      },
+      "CONTACTED": {
+        "t": "We have contacted you",
+        "d": "Our team has reached out. Please check your WhatsApp."
+      },
+      "SUPPLIER_CHECKING": {
+        "t": "Checking stock",
+        "d": "We are confirming availability with the supplier."
+      },
+      "QUOTED": {
+        "t": "Quote sent",
+        "d": "Your final price has been sent. Please confirm before it expires."
+      },
+      "AWAITING_PAYMENT": {
+        "t": "Awaiting payment",
+        "d": "Please pay using the details our team sent you."
+      },
+      "PAID": {
+        "t": "Payment received",
+        "d": "Thank you. We are preparing your item."
+      },
+      "PROCURING": {
+        "t": "Preparing your item",
+        "d": "We are ordering the unit from the supplier."
+      },
+      "RECEIVED_BY_US": {
+        "t": "Item received",
+        "d": "We are inspecting the unit before sending it to you."
+      },
+      "SHIPPED": {
+        "t": "On its way",
+        "d": "Your item is on the way."
+      },
+      "DELIVERED": {
+        "t": "Completed",
+        "d": "Your item has been received. Thank you for shopping with us."
+      },
+      "CANCELLED": {
+        "t": "Cancelled",
+        "d": "This order was cancelled. Contact us if you have questions."
+      },
+      "EXPIRED": {
+        "t": "Quote expired",
+        "d": "The quote has expired. Contact us for an updated price."
+      }
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "desc": "The page you opened does not exist or has moved.",
+    "browse": "Browse catalog",
+    "home": "Go home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "desc": "The page failed to load. Please try again.",
+    "retry": "Try again"
+  }
 }

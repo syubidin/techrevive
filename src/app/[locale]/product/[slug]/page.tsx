@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cache } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { db } from "@/lib/db";
@@ -9,6 +9,9 @@ import { effectiveAvailability, publicProductSelect } from "@/lib/products";
 import { AvailabilityBadge } from "@/components/availability-badge";
 import { InquiryForm } from "@/components/inquiry-form";
 import { ProductCard } from "@/components/product-card";
+import { Gallery } from "@/components/gallery";
+import { Icon, categoryIcon } from "@/components/icons";
+import { waLink } from "@/lib/contact";
 
 export const revalidate = 60;
 
@@ -77,28 +80,31 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
     },
   };
 
+  const catName = pick(locale, p.category.nameId, p.category.nameEn);
+  const L = (x: string) => `/${locale}${x}`;
+  const facts: Array<{ icon: "tag" | "badge-check" | "battery" | "layers"; label: string; value: string }> = [
+    { icon: "layers", label: t.catalog.condition, value: t.condition[p.condition] },
+    ...(p.grade ? [{ icon: "badge-check" as const, label: t.catalog.grade, value: t.grade[p.grade] }] : []),
+    ...(p.batteryHealth != null ? [{ icon: "battery" as const, label: t.product.battery, value: `${p.batteryHealth}%` }] : []),
+    { icon: "tag", label: t.product.sku, value: p.sku },
+  ];
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <div className="container-x py-6 pb-28 sm:py-10 lg:pb-10">
       {/* eslint-disable-next-line react/no-danger -- JSON.stringify output; "<" di-escape agar tidak menutup tag script */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-      <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+
+      <nav aria-label="Breadcrumb" className="muted mb-5 flex flex-wrap items-center gap-1 text-sm">
+        <Link href={L("")} className="hover:text-[var(--fg)]">{t.common.home}</Link>
+        <Icon name="chevron-right" size={14} />
+        <Link href={L("/catalog")} className="hover:text-[var(--fg)]">{t.product.breadcrumbCatalog}</Link>
+        <Icon name="chevron-right" size={14} />
+        <Link href={L(`/catalog?category=${p.category.slug}`)} className="hover:text-[var(--fg)]">{catName}</Link>
+      </nav>
+
+      <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:gap-10">
         <div>
-          <div className="card relative aspect-[4/3] overflow-hidden bg-[var(--color-ink-100)] dark:bg-[var(--color-ink-800)]">
-            {p.images[0] ? (
-              <Image src={p.images[0].url} alt={p.images[0].alt ?? name} fill priority sizes="(min-width:1024px) 60vw, 100vw" className="object-cover" />
-            ) : (
-              <div className="bg-grid absolute inset-0 grid place-items-center text-6xl opacity-60" aria-hidden>💻</div>
-            )}
-          </div>
-          {p.images.length > 1 && (
-            <ul className="mt-3 grid grid-cols-4 gap-3">
-              {p.images.slice(1, 5).map((img) => (
-                <li key={img.url} className="card relative aspect-square overflow-hidden">
-                  <Image src={img.url} alt={img.alt ?? name} fill sizes="15vw" className="object-cover" />
-                </li>
-              ))}
-            </ul>
-          )}
+          <Gallery images={p.images} name={name} placeholderIcon={categoryIcon(p.category.slug)} imageLabel={t.product.image} />
 
           {desc && <p className="muted mt-8 whitespace-pre-line leading-relaxed">{desc}</p>}
 
@@ -108,7 +114,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
               <dl className="card mt-4 divide-y divide-[var(--line)] text-sm">
                 {attrs.map(([k, v]) => (
                   <div key={k} className="grid grid-cols-2 gap-4 px-4 py-3">
-                    <dt className="muted">{k.replace(/_/g, " ")}</dt>
+                    <dt className="muted capitalize">{k.replace(/_/g, " ")}</dt>
                     <dd className="font-medium">{typeof v === "boolean" ? (v ? t.product.yes : t.product.no) : String(v)}</dd>
                   </div>
                 ))}
@@ -120,41 +126,72 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
             <section className="mt-8">
               <h2 className="text-xl font-bold">{t.product.features}</h2>
               <ul className="mt-3 flex flex-wrap gap-2">
-                {p.features.map((f) => <li key={f} className="chip">{f.replace(/-/g, " ")}</li>)}
+                {p.features.map((f) => <li key={f} className="chip"><Icon name="check" size={14} />{f.replace(/-/g, " ")}</li>)}
               </ul>
             </section>
           )}
+
+          <section className="mt-8 grid gap-3 sm:grid-cols-2" aria-label={t.product.trustTitle}>
+            <div className="card flex gap-3 p-4">
+              <Icon name="alert" className="mt-0.5 shrink-0 text-amber-600" />
+              <div><p className="font-bold">{t.product.noWarrantyTitle}</p><p className="muted mt-1 text-sm">{t.trust.noWarranty}</p></div>
+            </div>
+            <div className="card flex gap-3 p-4">
+              <Icon name="truck" className="mt-0.5 shrink-0" />
+              <div><p className="font-bold">{t.trust.area}</p><p className="muted mt-1 text-sm">{t.product.shipping}</p></div>
+            </div>
+          </section>
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
           <div>
-            <p className="muted text-xs font-semibold uppercase tracking-wide">{p.brand.name} · {t.product.sku} {p.sku}</p>
-            <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight">{name}</h1>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="chip">{t.condition[p.condition]}</span>
-              {p.grade && <span className="chip">{t.grade[p.grade]}</span>}
-              {p.batteryHealth != null && <span className="chip">{t.product.battery} {p.batteryHealth}%</span>}
-              <AvailabilityBadge product={p} t={t} locale={locale} />
-            </div>
-            <p className="mt-5 text-4xl font-extrabold">{formatIdr(p.sellPrice)}</p>
-            <p className="muted mt-2 text-sm">{t.product.shipping}</p>
+            <p className="muted text-xs font-semibold uppercase tracking-wide">{p.brand.name}</p>
+            <h1 className="mt-2 text-balance text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">{name}</h1>
+            <div className="mt-3"><AvailabilityBadge product={p} t={t} locale={locale} /></div>
+            <p className="mt-4 text-3xl font-extrabold sm:text-4xl">{formatIdr(p.sellPrice)}</p>
+            <p className="muted mt-1 text-sm">{t.product.priceNote}</p>
           </div>
 
-          {status === "SOLD_OUT" ? (
-            <p className="card p-5 text-sm font-medium">{t.errors.PRODUCT_UNAVAILABLE}</p>
-          ) : (
-            <InquiryForm productId={p.id} locale={locale} t={t} turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || undefined} />
-          )}
+          <dl className="card grid grid-cols-2 gap-px overflow-hidden bg-[var(--line)] text-sm">
+            {facts.map((f) => (
+              <div key={f.label} className="flex items-center gap-2.5 bg-[var(--card)] p-3">
+                <Icon name={f.icon} size={18} className="muted shrink-0" />
+                <div className="min-w-0"><dt className="muted text-xs">{f.label}</dt><dd className="truncate font-semibold">{f.value}</dd></div>
+              </div>
+            ))}
+          </dl>
+
+          <div id="order" className="scroll-mt-24">
+            {status === "SOLD_OUT" ? (
+              <p className="card p-5 text-sm font-medium">{t.errors.PRODUCT_UNAVAILABLE}</p>
+            ) : (
+              <InquiryForm productId={p.id} locale={locale} t={t} turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || undefined} />
+            )}
+          </div>
+
+          <a href={waLink(t.product.askWaText.replace("{name}", name).replace("{sku}", p.sku))} target="_blank" rel="noopener noreferrer" className="btn btn-ghost w-full">
+            <Icon name="message-circle" size={18} />{t.product.askWa}
+          </a>
         </aside>
       </div>
 
       {related.length > 0 && (
-        <section className="mt-20">
+        <section className="section">
           <h2 className="text-2xl font-extrabold tracking-tight">{t.product.related}</h2>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {related.map((r) => <ProductCard key={r.id} product={r} locale={locale} t={t} />)}
           </div>
         </section>
+      )}
+
+      {/* Bilah CTA lengket (hanya ponsel) */}
+      {status !== "SOLD_OUT" && (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--line)] bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] p-3 backdrop-blur-xl lg:hidden" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+          <div className="container-x flex items-center gap-3 !px-1">
+            <div className="min-w-0 flex-1"><p className="truncate text-xs muted">{name}</p><p className="font-extrabold">{formatIdr(p.sellPrice)}</p></div>
+            <a href="#order" className="btn btn-primary btn-lg shrink-0">{t.product.orderNow}</a>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { can, fmtDateTime, idr, requireAdmin } from "@/lib/admin";
 import { expireQuotes } from "@/lib/maintenance";
+import { AdminPageHeader } from "@/components/admin-page-header";
+import { Icon, type IconName } from "@/components/icons";
 
 export const metadata = { title: "Dashboard" };
 
@@ -64,23 +66,23 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const max = Math.max(1, ...buckets.map((b) => b.n));
 
   const kpis = [
-    { label: "Inquiry baru", value: statusCount.NEW ?? 0, href: "/admin/inquiries?status=NEW" },
-    { label: "Menunggu supplier", value: statusCount.SUPPLIER_CHECKING ?? 0, href: "/admin/inquiries?status=SUPPLIER_CHECKING" },
-    { label: "Menunggu pembayaran", value: statusCount.AWAITING_PAYMENT ?? 0, href: "/admin/inquiries?status=AWAITING_PAYMENT" },
-    { label: "Konversi 30 hari", value: `${conversion}%`, href: "/admin/inquiries" },
+    { label: "Inquiry baru", value: statusCount.NEW ?? 0, href: "/admin/inquiries?status=NEW", icon: "inbox" as IconName },
+    { label: "Menunggu supplier", value: statusCount.SUPPLIER_CHECKING ?? 0, href: "/admin/inquiries?status=SUPPLIER_CHECKING", icon: "clock" as IconName },
+    { label: "Menunggu pembayaran", value: statusCount.AWAITING_PAYMENT ?? 0, href: "/admin/inquiries?status=AWAITING_PAYMENT", icon: "wallet" as IconName },
+    { label: "Konversi 30 hari", value: `${conversion}%`, href: "/admin/inquiries", icon: "chart" as IconName },
     ...(can(me.role, "finance.view")
       ? [
-          { label: "Omzet bulan ini", value: idr(revenue), href: "/admin/inquiries" },
-          { label: "Laba kotor bulan ini", value: idr(profit), href: "/admin/inquiries" },
+          { label: "Omzet bulan ini", value: idr(revenue), href: "/admin/inquiries", icon: "receipt" as IconName },
+          { label: "Laba kotor bulan ini", value: idr(profit), href: "/admin/inquiries", icon: "tag" as IconName },
         ]
       : []),
   ];
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-extrabold tracking-tight">Dashboard</h1>
-      {denied && <p className="card p-4 text-sm text-[var(--color-danger-600)]">Anda tidak punya akses ke halaman tersebut.</p>}
-      {staleVerified > 0 && <p className="card p-4 text-sm">⚠ {staleVerified} produk berstatus “Tersedia” sudah lebih dari 48 jam dan otomatis tampil sebagai “Cek Ketersediaan”. Konfirmasi ulang ke supplier.</p>}
+      <AdminPageHeader title="Dashboard" icon="dashboard" />
+      {denied && <p className="card flex gap-2 p-4 text-sm text-[var(--color-danger-600)]"><Icon name="lock" size={18} className="shrink-0" />Anda tidak punya akses ke halaman tersebut.</p>}
+      {staleVerified > 0 && <p className="card flex gap-2 p-4 text-sm"><Icon name="alert" size={18} className="mt-0.5 shrink-0 text-amber-600" /><span>{staleVerified} produk berstatus “Tersedia” sudah lebih dari 48 jam dan otomatis tampil sebagai “Cek Ketersediaan”. Konfirmasi ulang ke supplier.</span></p>}
 
       {stockReview.length > 0 && (
         <section className="card border-[var(--color-brand-500)] p-5">
@@ -96,11 +98,14 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </section>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
         {kpis.map((k) => (
-          <Link key={k.label} href={k.href} className="card p-5 transition hover:-translate-y-0.5">
-            <p className="muted text-xs font-semibold uppercase tracking-wide">{k.label}</p>
-            <p className="mt-2 text-3xl font-extrabold">{k.value}</p>
+          <Link key={k.label} href={k.href} className="card hover-lift flex items-start justify-between gap-3 p-5">
+            <div className="min-w-0">
+              <p className="muted text-xs font-semibold uppercase tracking-wide">{k.label}</p>
+              <p className="mt-2 truncate text-2xl font-extrabold sm:text-3xl">{k.value}</p>
+            </div>
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name={k.icon} size={20} /></span>
           </Link>
         ))}
       </div>

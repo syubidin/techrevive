@@ -1,44 +1,63 @@
 import Link from "next/link";
 import { site, type Locale } from "@/config/site";
 import type { Messages } from "@/lib/i18n";
+import { waLink } from "@/lib/contact";
+import { Icon, socialIcon } from "./icons";
 
-export function SiteFooter({ locale, t }: { locale: Locale; t: Messages }) {
+export function SiteFooter({ locale, t, brands = [] }: { locale: Locale; t: Messages; brands?: Array<{ slug: string; name: string }> }) {
   const socials = site.social.filter((s) => s.url);
+  const L = (p: string) => `/${locale}${p}`;
+  const col = "text-sm";
+  const head = "text-xs font-bold uppercase tracking-wider";
+  const link = "muted inline-flex min-h-8 items-center transition hover:text-[var(--fg)]";
   return (
-    <footer className="mt-24 border-t border-[var(--line)]">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-3">
+    <footer className="mt-20 border-t border-[var(--line)] bg-[var(--card)]">
+      <div className="container-x grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
         <div>
           <p className="text-lg font-extrabold">TechRevive</p>
-          <p className="muted mt-2 max-w-xs text-sm">{site.tagline[locale]}</p>
+          <p className="muted mt-2 max-w-xs text-sm">{t.footer.tagline}</p>
           {socials.length > 0 && (
-            <ul className="mt-4 flex flex-wrap gap-2" aria-label={locale === "id" ? "Sosial media" : "Social media"}>
+            <ul className="mt-4 flex flex-wrap gap-2" aria-label={t.contactPage.socialTitle}>
               {socials.map((s) => (
                 <li key={s.key}>
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="chip transition hover:bg-[var(--color-ink-100)] hover:text-[var(--color-ink-900)]">
-                    {s.label}
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} className="btn btn-ghost !h-11 !w-11 !p-0">
+                    <Icon name={socialIcon(s.key)} size={18} />
                   </a>
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <div className="text-sm">
-          <p className="font-semibold">{t.nav.policy}</p>
-          <ul className="muted mt-3 space-y-2">
-            <li>{t.trust.noWarranty}</li>
-            <li>{t.trust.area}</li>
+        <nav className={col} aria-label={t.footer.shop}>
+          <p className={head}>{t.footer.shop}</p>
+          <ul className="mt-3 space-y-1">
+            <li><Link href={L("/catalog")} className={link}>{t.nav.catalog}</Link></li>
+            {brands.slice(0, 5).map((b) => (
+              <li key={b.slug}><Link href={L(`/catalog?brand=${b.slug}`)} className={link}>{b.name}</Link></li>
+            ))}
           </ul>
-        </div>
-        <div className="text-sm">
-          <p className="font-semibold">{t.nav.contact}</p>
-          <ul className="muted mt-3 space-y-2">
-            <li>{t.trust.sla}</li>
-            <li>{site.businessHours[locale]}</li>
-            <li><Link href={`/${locale}/policy`} className="underline underline-offset-4">{t.nav.policy}</Link></li>
+        </nav>
+        <nav className={col} aria-label={t.footer.help}>
+          <p className={head}>{t.footer.help}</p>
+          <ul className="mt-3 space-y-1">
+            <li><Link href={L("/how-it-works")} className={link}>{t.nav.howItWorks}</Link></li>
+            <li><Link href={L("/faq")} className={link}>{t.nav.faq}</Link></li>
+            <li><Link href={L("/track")} className={link}>{t.nav.track}</Link></li>
+            <li><Link href={L("/policy")} className={link}>{t.nav.policy}</Link></li>
+            <li><Link href={L("/contact")} className={link}>{t.nav.contact}</Link></li>
           </ul>
+        </nav>
+        <div className={col}>
+          <p className={head}>{t.nav.contact}</p>
+          <ul className="muted mt-3 space-y-2.5">
+            <li className="flex gap-2"><Icon name="clock" size={16} className="mt-0.5 shrink-0" />{site.businessHours[locale]}</li>
+            <li className="flex gap-2"><Icon name="map-pin" size={16} className="mt-0.5 shrink-0" />{t.trust.area}</li>
+            <li className="flex gap-2"><Icon name="alert" size={16} className="mt-0.5 shrink-0" />{t.trust.noWarranty}</li>
+          </ul>
+          <a href={waLink()} target="_blank" rel="noopener noreferrer" className="btn btn-accent mt-4"><Icon name="message-circle" size={18} />{t.common.chatWa}</a>
         </div>
       </div>
-      <p className="muted border-t border-[var(--line)] py-5 text-center text-xs">© {new Date().getFullYear()} TechRevive. {t.footer.rights}</p>
+      <p className="muted border-t border-[var(--line)] py-5 text-center text-xs">&copy; {new Date().getFullYear()} TechRevive. {t.footer.rights}</p>
     </footer>
   );
 }

@@ -1,44 +1,36 @@
-import Image from "next/image";
-import Link from "next/link";
+import { AdminNav, type AdminNavItem } from "@/components/admin-nav";
+import { Icon } from "@/components/icons";
 import { requireAdmin, can } from "@/lib/admin";
 import { ROLE_LABEL, type Permission } from "@/lib/rbac";
 import { logout, logoutEverywhere } from "../login/actions";
 
 export const dynamic = "force-dynamic";
 
-const NAV: Array<{ href: string; label: string; permission?: Permission }> = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/inquiries", label: "Inquiry" },
-  { href: "/admin/reports", label: "Laporan", permission: "report.view" },
-  { href: "/admin/products", label: "Produk", permission: "product.manage" },
-  { href: "/admin/taxonomy", label: "Kategori & Spek", permission: "taxonomy.manage" },
-  { href: "/admin/shipping", label: "Ongkir", permission: "shipping.manage" },
-  { href: "/admin/audit", label: "Audit Log", permission: "audit.view" },
-  { href: "/admin/users", label: "Admin & peran", permission: "user.manage" },
+const NAV: Array<AdminNavItem & { permission?: Permission }> = [
+  { href: "/admin", label: "Dashboard", icon: "dashboard" },
+  { href: "/admin/inquiries", label: "Inquiry", icon: "inbox" },
+  { href: "/admin/reports", label: "Laporan", icon: "chart", permission: "report.view" },
+  { href: "/admin/products", label: "Produk", icon: "package", permission: "product.manage" },
+  { href: "/admin/taxonomy", label: "Kategori & Spek", icon: "layers", permission: "taxonomy.manage" },
+  { href: "/admin/shipping", label: "Ongkir", icon: "truck", permission: "shipping.manage" },
+  { href: "/admin/audit", label: "Audit Log", icon: "history", permission: "audit.view" },
+  { href: "/admin/users", label: "Admin & peran", icon: "users", permission: "user.manage" },
 ];
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const me = await requireAdmin();
-  const nav = NAV.filter((n) => !n.permission || can(me.role, n.permission));
+  const items: AdminNavItem[] = NAV.filter((n) => !n.permission || can(me.role, n.permission)).map(({ href, label, icon }) => ({ href, label, icon }));
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[15rem_1fr]">
-      <aside className="no-print border-b border-[var(--line)] bg-[var(--card)] p-4 lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
-        <div className="flex items-center gap-2.5">
-          <Image src="/logo.jpg" alt="" width={32} height={32} className="rounded-md" />
-          <span className="font-extrabold">TechRevive</span>
+      <AdminNav items={items}>
+        <p className="text-sm font-semibold">{me.name}</p>
+        <p className="muted text-xs">{ROLE_LABEL[me.role]}</p>
+        <div className="mt-3 grid gap-1">
+          <form action={logout}><button className="btn btn-ghost btn-sm w-full justify-start"><Icon name="log-out" size={16} />Keluar</button></form>
+          <form action={logoutEverywhere}><button className="btn btn-ghost btn-sm muted w-full justify-start" title="Putus login di semua perangkat"><Icon name="lock" size={16} />Keluar semua perangkat</button></form>
         </div>
-        <nav className="mt-4 flex gap-1 overflow-x-auto text-sm font-medium lg:mt-8 lg:flex-col" aria-label="Admin">
-          {nav.map((n) => (
-            <Link key={n.href} href={n.href} className="muted whitespace-nowrap rounded-lg px-3 py-2 transition hover:bg-[var(--color-ink-100)] hover:text-[var(--color-ink-900)]">{n.label}</Link>
-          ))}
-        </nav>
-        <div className="mt-4 text-xs lg:absolute lg:bottom-4 lg:left-4 lg:right-4">
-          <p className="font-semibold">{me.name}</p>
-          <p className="muted">{ROLE_LABEL[me.role]}</p>
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1"><form action={logout}><button className="underline">Keluar</button></form><form action={logoutEverywhere}><button className="muted underline" title="Putus login di semua perangkat">Keluar semua perangkat</button></form></div>
-        </div>
-      </aside>
-      <main className="min-w-0 p-4 sm:p-8">{children}</main>
+      </AdminNav>
+      <main className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
     </div>
   );
 }

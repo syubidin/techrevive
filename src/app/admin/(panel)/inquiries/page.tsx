@@ -3,6 +3,9 @@ import type { InquiryStatus, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { fmtDateTime, requireAdmin } from "@/lib/admin";
 import { STATUS_KEYS, STATUS_LABEL } from "@/lib/inquiry-status";
+import { AdminPageHeader } from "@/components/admin-page-header";
+import { Icon } from "@/components/icons";
+import { StatusBadge } from "@/components/status-badge";
 
 export const metadata = { title: "Inquiry" };
 
@@ -29,16 +32,19 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold tracking-tight">Inquiry</h1>
+      <AdminPageHeader title="Inquiry" icon="inbox" />
       <form className="flex gap-2" role="search">
         {status && <input type="hidden" name="status" value={status} />}
-        <input name="q" defaultValue={q} className="input max-w-sm" placeholder="Cari kode, nama, atau nomor…" maxLength={60} />
+        <div className="relative w-full max-w-sm">
+          <Icon name="search" size={18} className="muted pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input name="q" defaultValue={q} className="input !pl-10" placeholder="Cari kode, nama, atau nomor…" maxLength={60} aria-label="Cari inquiry" />
+        </div>
         <button className="btn btn-primary">Cari</button>
       </form>
-      <nav className="flex flex-wrap gap-2 text-xs" aria-label="Status">
-        <Link href="/admin/inquiries" className={`chip ${!status ? "bg-[var(--color-ink-900)] text-white" : ""}`}>Semua</Link>
+      <nav className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 text-xs sm:mx-0 sm:flex-wrap sm:px-0" aria-label="Status">
+        <Link href="/admin/inquiries" className={`chip shrink-0 !min-h-9 ${!status ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>Semua</Link>
         {STATUS_KEYS.map((s) => (
-          <Link key={s} href={`/admin/inquiries?${qs({ status: s })}`} className={`chip ${status === s ? "bg-[var(--color-ink-900)] text-white" : ""}`}>{STATUS_LABEL[s]} · {countOf(s)}</Link>
+          <Link key={s} href={`/admin/inquiries?${qs({ status: s })}`} className={`chip shrink-0 !min-h-9 ${status === s ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>{STATUS_LABEL[s]} · {countOf(s)}</Link>
         ))}
       </nav>
       <div className="card overflow-x-auto">
@@ -51,7 +57,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
                 <td className="p-3 font-mono"><Link className="font-bold underline-offset-4 hover:underline" href={`/admin/inquiries/${r.id}`}>{r.code}</Link></td>
                 <td className="p-3">{r.customerName}</td>
                 <td className="p-3">{(r.productSnapshot as { name?: string }).name}</td>
-                <td className="p-3"><span className="chip">{STATUS_LABEL[r.status]}</span></td>
+                <td className="p-3"><StatusBadge status={r.status} /></td>
                 <td className="muted p-3">{fmtDateTime(r.createdAt)}</td>
                 <td className="muted p-3">{r.followUpAt ? fmtDateTime(r.followUpAt) : "—"}</td>
               </tr>
@@ -60,9 +66,9 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
         </table>
       </div>
       <div className="flex items-center gap-3 text-sm">
-        {page > 1 && <Link className="btn btn-ghost" href={`/admin/inquiries?${qs({ page: String(page - 1) })}`}>← Sebelumnya</Link>}
+        {page > 1 && <Link className="btn btn-ghost" href={`/admin/inquiries?${qs({ page: String(page - 1) })}`}><Icon name="chevron-left" size={16} />Sebelumnya</Link>}
         <span className="muted">Halaman {page} · {total} data</span>
-        {page * PAGE < total && <Link className="btn btn-ghost" href={`/admin/inquiries?${qs({ page: String(page + 1) })}`}>Berikutnya →</Link>}
+        {page * PAGE < total && <Link className="btn btn-ghost" href={`/admin/inquiries?${qs({ page: String(page + 1) })}`}>Berikutnya<Icon name="chevron-right" size={16} /></Link>}
       </div>
     </div>
   );

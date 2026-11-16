@@ -4,13 +4,13 @@ import { maskPhone } from "./phone.ts";
 export interface InquiryInfo { code: string; customerName: string; phone: string; productName: string; area?: string | null }
 
 export const msgNewInquiry = (i: InquiryInfo, baseUrl: string, id: string) =>
-  `🆕 Inquiry baru ${i.code}\n${i.customerName} (${maskPhone(i.phone)})${i.area ? ` · ${i.area}` : ""}\n${i.productName}\n${baseUrl}/admin/inquiries/${id}`;
+  `[BARU] Inquiry baru ${i.code}\n${i.customerName} (${maskPhone(i.phone)})${i.area ? ` · ${i.area}` : ""}\n${i.productName}\n${baseUrl}/admin/inquiries/${id}`;
 
 export const msgSlaBreach = (items: Array<{ code: string; customerName: string; minutes: number }>, sla: number, baseUrl: string) =>
-  `⏰ ${items.length} inquiry belum dibalas > ${sla} menit:\n${items.map((x) => `• ${x.code} ${x.customerName} (${x.minutes} mnt)`).join("\n")}\n${baseUrl}/admin/inquiries?status=NEW`;
+  `⏰ ${items.length} inquiry belum dibalas > ${sla} menit:\n${items.map((x) => `- ${x.code} ${x.customerName} (${x.minutes} mnt)`).join("\n")}\n${baseUrl}/admin/inquiries?status=NEW`;
 
 export const msgFollowUps = (items: Array<{ code: string; customerName: string }>, baseUrl: string) =>
-  `📞 ${items.length} follow-up jatuh tempo:\n${items.map((x) => `• ${x.code} ${x.customerName}`).join("\n")}\n${baseUrl}/admin`;
+  `[FOLLOW-UP] ${items.length} follow-up jatuh tempo:\n${items.map((x) => `- ${x.code} ${x.customerName}`).join("\n")}\n${baseUrl}/admin`;
 
 export const msgExpired = (n: number) => `⌛ ${n} penawaran kedaluwarsa otomatis.`;
 

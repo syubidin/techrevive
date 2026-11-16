@@ -4,11 +4,14 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { db } from "@/lib/db";
 import { getCatalogMeta, getSpecDefs } from "@/lib/catalog-cache";
-import { getMessages, pick } from "@/lib/i18n";
+import { formatIdr, getMessages, pick } from "@/lib/i18n";
 import { buildCatalogQuery, PAGE_SIZE } from "@/lib/catalog-query";
 import { publicProductSelect } from "@/lib/products";
 import { CatalogFilters, type SpecFilter } from "@/components/catalog-filters";
 import { ProductCard } from "@/components/product-card";
+import { FilterSheet } from "@/components/filter-sheet";
+import { Icon } from "@/components/icons";
+import { buildFilterChips } from "@/lib/filter-chips";
 
 export const dynamic = "force-dynamic"; // bergantung pada query string
 
@@ -62,8 +65,30 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
     ["price_desc", t.catalog.sortPriceDesc],
   ] as const;
 
+  const chips = buildFilterChips(sp);
+  const catName = new Map(categories.map((c) => [c.slug, pick(locale, c.nameId, c.nameEn)]));
+  const brandName = new Map(brands.map((b) => [b.slug, b.name]));
+  const specLabel = new Map(specs.map((x) => [`s.${x.key}`, x.label]));
+  const chipLabel = (kind: string, value: string): string => {
+    switch (kind) {
+      case "category": return catName.get(value) ?? value;
+      case "brand": return brandName.get(value) ?? value;
+      case "condition": return t.condition[value as "USED" | "REFURBISHED"] ?? value;
+      case "grade": return t.grade[value as "A" | "B" | "C"] ?? value;
+      case "availability": return t.availabilityShort[value as "CHECK" | "VERIFIED" | "PREORDER"] ?? value;
+      case "feature": return value.replace(/-/g, " ");
+      case "q": return `"${value}"`;
+      case "minPrice": return `${t.catalog.price} \u2265 ${formatIdr(Number(value))}`;
+      case "maxPrice": return `${t.catalog.price} \u2264 ${formatIdr(Number(value))}`;
+      case "battery": return `${t.catalog.battery} \u2265 ${value}%`;
+      default: return `${specLabel.get(kind) ?? kind.replace(/^s\./, "")}: ${value}`;
+    }
+  };
+  const chipHref = (rest: string) => `/${locale}/catalog${rest ? `?${rest}` : ""}`;
+  const sortNow = sp.get("sort") ?? "newest";
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <div className="container-x py-8 sm:py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t.catalog.title}</h1>
@@ -71,50 +96,59 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
         </div>
         <form method="get" className="flex w-full gap-2 sm:w-auto" role="search">
           {[...sp.entries()].filter(([k]) => k !== "q" && k !== "page").map(([k, v], i) => <input key={`${k}${i}`} type="hidden" name={k} value={v} />)}
-          <input className="input sm:w-72" type="search" name="q" defaultValue={sp.get("q") ?? ""} placeholder={t.catalog.searchPlaceholder} maxLength={60} aria-label={t.catalog.searchPlaceholder} />
-          <button className="btn btn-primary" type="submit">OK</button>
+          <div className="relative flex-1 sm:w-72">
+            <Icon name="search" size={18} className="muted pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input className="input !pl-10" type="search" name="q" defaultValue={sp.get("q") ?? ""} placeholder={t.catalog.searchPlaceholder} maxLength={60} aria-label={t.catalog.searchLabel} />
+          </div>
+          <button className="btn btn-primary" type="submit">{t.hero.search}</button>
         </form>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[18rem_1fr]">
+      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[18rem_1fr] lg:gap-8">
         <aside className="lg:sticky lg:top-24 lg:self-start">
-          <details className="lg:hidden card mb-4 p-0" >
-            <summary className="cursor-pointer p-4 font-bold">{t.catalog.filters}</summary>
-            <div className="p-2">
-              <CatalogFilters locale={locale} t={t} sp={sp} categories={categories} brands={brands} features={features} specs={specs} />
-            </div>
-          </details>
-          <div className="hidden lg:block">
+          <FilterSheet title={t.catalog.filters} count={chips.length} closeLabel={t.catalog.closeFilters}>
             <CatalogFilters locale={locale} t={t} sp={sp} categories={categories} brands={brands} features={features} specs={specs} />
-          </div>
+          </FilterSheet>
         </aside>
 
         <section>
-          <nav className="mb-5 flex flex-wrap items-center gap-2 text-sm" aria-label={t.catalog.sort}>
-            <span className="muted">{t.catalog.sort}:</span>
+          {chips.length > 0 && (
+            <div className="mb-4 flex flex-wrap items-center gap-2" aria-label={t.catalog.activeFilters}>
+              {chips.map((c) => (
+                <Link key={c.id} href={chipHref(c.rest)} className="chip bg-[var(--card)] !min-h-9 gap-1.5 pr-2 hover:border-[var(--color-ink-500)]" aria-label={`${t.catalog.clearAll}: ${chipLabel(c.kind, c.value)}`}>
+                  {chipLabel(c.kind, c.value)}<Icon name="x" size={14} />
+                </Link>
+              ))}
+              <Link href={`/${locale}/catalog`} className="px-2 text-sm font-semibold underline underline-offset-4">{t.catalog.clearAll}</Link>
+            </div>
+          )}
+
+          <nav className="scrollbar-none mb-5 flex items-center gap-2 overflow-x-auto text-sm" aria-label={t.catalog.sortLabel}>
+            <span className="muted flex shrink-0 items-center gap-1"><Icon name="sort" size={16} />{t.catalog.sort}:</span>
             {sortOptions.map(([value, label]) => (
-              <Link key={value} href={link({ sort: value, page: "1" })} aria-current={(sp.get("sort") ?? "newest") === value ? "true" : undefined}
-                className={`chip ${(sp.get("sort") ?? "newest") === value ? "bg-[var(--color-ink-900)] text-white" : ""}`}>{label}</Link>
+              <Link key={value} href={link({ sort: value, page: "1" })} aria-current={sortNow === value ? "true" : undefined}
+                className={`chip shrink-0 !min-h-9 ${sortNow === value ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>{label}</Link>
             ))}
           </nav>
 
           {products.length === 0 ? (
-            <div className="card p-10 text-center">
+            <div className="card grid place-items-center gap-3 p-10 text-center">
+              <span className="muted"><Icon name="search" size={36} /></span>
               <p className="muted">{t.catalog.empty}</p>
-              <Link href={`/${locale}/catalog`} className="btn btn-ghost mt-4">{t.catalog.reset}</Link>
+              <Link href={`/${locale}/catalog`} className="btn btn-ghost">{t.catalog.reset}</Link>
             </div>
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {products.map((p) => <ProductCard key={p.id} product={p} locale={locale} t={t} />)}
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+              {products.map((p, i) => <ProductCard key={p.id} product={p} locale={locale} t={t} priority={i < 2} />)}
             </div>
           )}
 
           {pages > 1 && (
-            <div className="mt-10 flex items-center justify-center gap-3 text-sm">
-              {page > 1 && <Link className="btn btn-ghost" href={link({ page: String(page - 1) })} rel="prev">← {t.catalog.prev}</Link>}
+            <nav className="mt-10 flex items-center justify-center gap-3 text-sm" aria-label="Pagination">
+              {page > 1 && <Link className="btn btn-ghost" href={link({ page: String(page - 1) })} rel="prev"><Icon name="chevron-left" size={16} />{t.catalog.prev}</Link>}
               <span className="muted">{page} / {pages}</span>
-              {page < pages && <Link className="btn btn-ghost" href={link({ page: String(page + 1) })} rel="next">{t.catalog.next} →</Link>}
-            </div>
+              {page < pages && <Link className="btn btn-ghost" href={link({ page: String(page + 1) })} rel="next">{t.catalog.next}<Icon name="chevron-right" size={16} /></Link>}
+            </nav>
           )}
         </section>
       </div>

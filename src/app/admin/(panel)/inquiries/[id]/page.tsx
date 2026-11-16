@@ -6,7 +6,8 @@ import { allowedTargets } from "@/lib/status-guard";
 import { deleteInquiry, issueInvoice, reviewStockAfterSale, revokeInvoice } from "../actions";
 import { ConfirmButton } from "../../../confirm-button";
 import { invoiceNumber } from "@/lib/invoice";
-import { STATUS_LABEL } from "@/lib/inquiry-status";
+import { Icon } from "@/components/icons";
+import { StatusBadge } from "@/components/status-badge";
 import { quoteShipping, ShippingError } from "@/lib/shipping";
 import { computeProfit } from "@/lib/pricing";
 import { maskPhone } from "@/lib/phone";
@@ -64,8 +65,8 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/admin/inquiries" className="muted text-sm underline">← Inquiry</Link>
-        <h1 className="mt-2 flex flex-wrap items-center gap-3 text-2xl font-extrabold tracking-tight"><span className="font-mono">{inquiry.code}</span><span className="chip">{STATUS_LABEL[inquiry.status]}</span></h1>
+        <Link href="/admin/inquiries" className="muted inline-flex min-h-11 items-center gap-1 text-sm hover:underline"><Icon name="arrow-left" size={16} />Inquiry</Link>
+        <h1 className="mt-2 flex flex-wrap items-center gap-3 text-2xl font-extrabold tracking-tight"><span className="font-mono">{inquiry.code}</span><StatusBadge status={inquiry.status} /></h1>
       </div>
 
       {error && <p role="alert" className="card p-4 text-sm font-medium text-[var(--color-danger-600)]">{error.slice(0, 250)}</p>}

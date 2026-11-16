@@ -3,6 +3,7 @@ import { isLocale, site } from "@/config/site";
 import { getMessages } from "@/lib/i18n";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { getShowcase } from "@/lib/catalog-cache";
 import { jakarta, rootMetadata, rootViewport } from "@/lib/root";
 import "../globals.css";
 
@@ -17,12 +18,13 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const t = getMessages(locale);
+  const { brands } = await getShowcase().catch(() => ({ brands: [] as Array<{ slug: string; name: string }> }));
   return (
     <html lang={locale} className={jakarta.variable}>
       <body>
         <SiteHeader locale={locale} t={t} />
         <main id="content">{children}</main>
-        <SiteFooter locale={locale} t={t} />
+        <SiteFooter locale={locale} t={t} brands={brands} />
       </body>
     </html>
   );

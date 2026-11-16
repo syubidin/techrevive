@@ -18,6 +18,23 @@ export const getCatalogMeta = unstable_cache(
   { revalidate: 300, tags: [CATALOG_TAG] },
 );
 
+/** Merk & kategori yang punya produk terbit (untuk marquee merk dan kartu kategori di beranda). */
+export const getShowcase = unstable_cache(
+  async () => {
+    const live = { products: { where: { status: "PUBLISHED" as const, deletedAt: null } } };
+    const [brands, categories] = await Promise.all([
+      db.brand.findMany({ orderBy: { name: "asc" }, select: { slug: true, name: true, _count: { select: live } } }),
+      db.category.findMany({ orderBy: { sortOrder: "asc" }, select: { slug: true, nameId: true, nameEn: true, _count: { select: live } } }),
+    ]);
+    return {
+      brands: brands.filter((b) => b._count.products > 0).map(({ slug, name }) => ({ slug, name })),
+      categories: categories.filter((c) => c._count.products > 0).map((c) => ({ slug: c.slug, nameId: c.nameId, nameEn: c.nameEn, count: c._count.products })),
+    };
+  },
+  ["showcase"],
+  { revalidate: 300, tags: [CATALOG_TAG] },
+);
+
 export const getSpecDefs = unstable_cache(
   async (categorySlug: string) => db.specDefinition.findMany({ where: { category: { slug: categorySlug } }, orderBy: { sortOrder: "asc" } }),
   ["spec-defs"],

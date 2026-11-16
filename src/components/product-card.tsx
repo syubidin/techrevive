@@ -4,29 +4,29 @@ import type { Locale } from "@/config/site";
 import { formatIdr, pick, type Messages } from "@/lib/i18n";
 import type { PublicProduct } from "@/lib/products";
 import { AvailabilityBadge } from "./availability-badge";
+import { Icon, categoryIcon } from "./icons";
 
-export function ProductCard({ product: p, locale, t }: { product: PublicProduct; locale: Locale; t: Messages }) {
+/** Kartu produk ringkas: 2 kolom di ponsel, jadi teks & badge dibuat kecil dan label ketersediaan dipendekkan. */
+export function ProductCard({ product: p, locale, t, priority }: { product: PublicProduct; locale: Locale; t: Messages; priority?: boolean }) {
   const img = p.images[0];
   const name = pick(locale, p.nameId, p.nameEn);
   return (
-    <Link
-      href={`/${locale}/product/${p.slug}`}
-      className="card group flex flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-glow)]"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-ink-100)] dark:bg-[var(--color-ink-800)]">
+    <Link href={`/${locale}/product/${p.slug}`} className="card hover-lift group flex h-full flex-col overflow-hidden">
+      <div className="relative aspect-square overflow-hidden bg-[var(--color-ink-100)] sm:aspect-[4/3] dark:bg-[var(--color-ink-800)]">
         {img ? (
-          <Image src={img.url} alt={img.alt ?? name} fill sizes="(min-width:1024px) 25vw, (min-width:640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
+          <Image src={img.url} alt={img.alt ?? name} fill priority={priority} sizes="(min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw" className="object-cover transition duration-500 group-hover:scale-105" />
         ) : (
-          <div className="bg-grid absolute inset-0 grid place-items-center text-4xl opacity-60" aria-hidden>💻</div>
+          <div className="bg-grid muted absolute inset-0 grid place-items-center" aria-hidden><Icon name={categoryIcon(p.category?.slug ?? "")} size={40} /></div>
         )}
-        <span className="chip absolute left-3 top-3 bg-[var(--card)]">{t.condition[p.condition]}{p.grade ? ` · ${p.grade}` : ""}</span>
+        <span className="chip absolute left-2 top-2 bg-[var(--card)] !text-[11px] sm:left-3 sm:top-3">{t.condition[p.condition]}{p.grade ? ` \u00b7 ${p.grade}` : ""}</span>
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <p className="muted text-xs font-semibold uppercase tracking-wide">{p.brand.name}</p>
-        <h3 className="line-clamp-2 font-semibold leading-snug">{name}</h3>
-        <div className="mt-auto flex items-end justify-between gap-2 pt-2">
-          <p className="text-lg font-extrabold">{formatIdr(p.sellPrice)}</p>
-          <AvailabilityBadge product={p} t={t} locale={locale} />
+      <div className="flex flex-1 flex-col gap-1 p-3 sm:gap-2 sm:p-4">
+        <p className="muted truncate text-[11px] font-semibold uppercase tracking-wide sm:text-xs">{p.brand.name}</p>
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug sm:text-base">{name}</h3>
+        <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:flex-row sm:items-end sm:justify-between">
+          <p className="text-base font-extrabold sm:text-lg">{formatIdr(p.sellPrice)}</p>
+          <span className="sm:hidden"><AvailabilityBadge product={p} t={t} locale={locale} compact /></span>
+          <span className="hidden sm:inline"><AvailabilityBadge product={p} t={t} locale={locale} /></span>
         </div>
       </div>
     </Link>
