@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { deliveryUrl } from "@/lib/cloudinary-url";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { getShowcase } from "@/lib/catalog-cache";
@@ -90,8 +91,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {[0, 1].map((copy) =>
                 marquee.map((b, i) => (
                   <li key={`${copy}-${i}`} aria-hidden={copy === 1 ? true : undefined}>
-                    <Link href={L(`/catalog?brand=${b.slug}`)} tabIndex={copy === 1 ? -1 : undefined} className="card flex h-14 min-w-36 items-center justify-center px-6 text-lg font-extrabold tracking-tight transition hover:border-brand-500">
-                      {b.name}
+                    <Link href={L(`/catalog?brand=${b.slug}`)} tabIndex={copy === 1 ? -1 : undefined} title={b.name} aria-label={copy === 1 ? undefined : b.name} className="brand-tile card">
+                      {b.logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={deliveryUrl(b.logoUrl, "c_fit,w_320,h_128,f_auto,q_auto")} alt="" width={160} height={64} loading="lazy" decoding="async" className="brand-logo" />
+                      ) : (
+                        <span className="brand-name">{b.name}</span>
+                      )}
                     </Link>
                   </li>
                 )),

@@ -7,6 +7,8 @@ import { ConfirmButton } from "../../confirm-button";
 import { DataTable } from "@/components/data-table";
 import { FormDialog } from "@/components/form-dialog";
 import { Icon } from "@/components/icons";
+import { LogoField } from "@/components/logo-field";
+import { deliveryUrl } from "@/lib/cloudinary-url";
 import { addBrand, addCategory, addSpec, addSupplier } from "./actions";
 import { deleteBrand, deleteCategory, deleteSpec, deleteSupplier, updateBrand, updateCategory, updateSpec, updateSupplier } from "./manage-actions";
 
@@ -122,13 +124,14 @@ export default async function Taxonomy({ searchParams }: { searchParams: Promise
 
       {tab === "merk" && (
         <>
-          <div className="flex justify-end"><Add label="Tambah merk"><form action={addBrand} className="grid gap-3"><F label="Nama merk" name="name" required /><button className="btn btn-primary w-fit">Tambah</button></form></Add></div>
-          <DataTable heads={["Merk", "Produk", "Aksi"]} min="24rem" empty="Belum ada merk.">
+          <div className="flex justify-end"><Add label="Tambah merk"><form action={addBrand} className="grid gap-3"><F label="Nama merk" name="name" required /><LogoField /><button className="btn btn-primary w-fit">Tambah</button></form></Add></div>
+          <DataTable heads={["Logo", "Merk", "Produk", "Aksi"]} min="30rem" empty="Belum ada merk.">
             {brands.map((b) => (
               <tr key={b.id}>
+                <td className={td}><div className="logo-checker grid h-10 w-24 place-items-center overflow-hidden rounded-lg border border-[var(--line)]">{b.logoUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={deliveryUrl(b.logoUrl, "c_fit,w_192,h_80")} alt="" className="h-full w-full object-contain p-1" /> : <span className="muted text-[10px]">Tanpa logo</span>}</div></td>
                 <td className={`${td} font-semibold`}>{b.name}</td><td className={td}>{b._count.products}</td>
                 <Actions>
-                  {edit && <FormDialog label="Edit" title="Edit merk" icon="pencil"><form action={updateBrand} className="grid gap-3"><input type="hidden" name="id" value={b.id} /><div><label className="label">Nama merk</label><input name="name" className="input" defaultValue={b.name} required /></div><button className="btn btn-primary w-fit">Simpan perubahan</button></form></FormDialog>}
+                  {edit && <FormDialog label="Edit" title="Edit merk" icon="pencil"><form action={updateBrand} className="grid gap-3"><input type="hidden" name="id" value={b.id} /><div><label className="label">Nama merk</label><input name="name" className="input" defaultValue={b.name} required /></div><LogoField defaultUrl={b.logoUrl ?? ""} /><button className="btn btn-primary w-fit">Simpan perubahan</button></form></FormDialog>}
                   {manage && <form action={deleteBrand}><input type="hidden" name="id" value={b.id} /><ConfirmButton className={del} message={`Hapus merk “${b.name}”?`}><Icon name="trash" size={14} />Hapus</ConfirmButton></form>}
                 </Actions>
               </tr>

@@ -6,6 +6,8 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { audit, requirePermission } from "@/lib/admin";
 import { invalidateCatalog } from "@/lib/catalog-cache";
+import { logoUrlSchema } from "@/lib/logo-url";
+import { releaseUnusedImages } from "@/lib/image-cleanup";
 import { canDeleteBrand, canDeleteCategory } from "@/lib/delete-guard";
 import { normalizeIdPhone } from "@/lib/phone";
 
@@ -43,9 +45,11 @@ export async function deleteCategory(formData: FormData): Promise<void> {
 
 export async function updateBrand(formData: FormData): Promise<void> {
   const me = await requirePermission("taxonomy.edit");
-  const d = z.object({ id, name: z.string().trim().min(1).max(60) }).safeParse(Object.fromEntries(formData));
-  if (!d.success) return back("Nama merk tidak valid.");
-  await db.brand.update({ where: { id: d.data.id }, data: { name: d.data.name } });
+  const d = z.object({ id, name: z.string().trim().min(1).max(60), logoUrl: logoUrlSchema }).safeParse(Object.fromEntries(formData));
+  if (!d.success) return back("Nama merk atau logo tidak valid.");
+  const before = await db.brand.findUnique({ where: { id: d.data.id }, select: { logoUrl: true } });
+  await db.brand.update({ where: { id: d.data.id }, data: { name: d.data.name, logoUrl: d.data.logoUrl } });
+  if (before?.logoUrl && before.logoUrl !== d.data.logoUrl) await releaseUnusedImages([before.logoUrl]);
   await audit(me.id, "brand.update", "Brand", d.data.id);
   done();
 }
@@ -54,11 +58,12 @@ export async function deleteBrand(formData: FormData): Promise<void> {
   const me = await requirePermission("data.manage");
   const bid = id.safeParse(formData.get("id"));
   if (!bid.success) return back("Data tidak valid.");
-  const b = await db.brand.findUnique({ where: { id: bid.data }, select: { name: true, _count: { select: { products: true } } } });
+  const b = await db.brand.findUnique({ where: { id: bid.data }, select: { name: true, logoUrl: true, _count: { select: { products: true } } } });
   if (!b) return back("Merk tidak ditemukan.");
   const blocked = canDeleteBrand({ products: b._count.products });
   if (blocked) return back(`Merk “${b.name}” tidak bisa dihapus. ${blocked}`);
   await db.brand.delete({ where: { id: bid.data } });
+  await releaseUnusedImages([b.logoUrl]);
   await audit(me.id, "brand.delete", "Brand", bid.data, { name: b.name });
   done();
 }

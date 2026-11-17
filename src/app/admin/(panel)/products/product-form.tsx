@@ -1,8 +1,10 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useState } from "react";
 import { computeProfit, computeSellPrice, PricingError } from "@/lib/pricing";
 import { site } from "@/config/site";
+import { deliveryUrl } from "@/lib/cloudinary-url";
+import { Icon } from "@/components/icons";
 import { saveProduct, type ProductState } from "./actions";
 
 export interface ProductFormValues {
@@ -20,7 +22,8 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
   const [cost, setCost] = useState(values.costPrice);
   const [type, setType] = useState(values.marginType);
   const [margin, setMargin] = useState(values.marginInput);
-  const imagesRef = useRef<HTMLTextAreaElement>(null);
+  const [imgText, setImgText] = useState(values.images);
+  const imgLines = imgText.split("\n").map((l) => l.trim()).filter(Boolean);
   const [uploadMsg, setUploadMsg] = useState("");
   const [uploading, setUploading] = useState(false);
 
@@ -37,8 +40,9 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
         const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
         const data = (await res.json()) as { url?: string; error?: string };
         if (!res.ok || !data.url) { setUploadMsg(`${file.name}: ${messages[data.error ?? ""] ?? "Gagal mengunggah."}`); continue; }
-        const ta = imagesRef.current;
-        if (ta) ta.value = [ta.value.trim(), data.url].filter(Boolean).join("\n");
+        const url = data.url;
+        // Foto yang sama (mis. terpilih dua kali) tidak ditambahkan lagi.
+        setImgText((cur) => (cur.split("\n").map((l) => l.trim()).includes(url) ? cur : [cur.trim(), url].filter(Boolean).join("\n")));
       } catch { setUploadMsg(`${file.name}: koneksi gagal.`); }
     }
     setUploading(false);
@@ -103,14 +107,29 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
         {field("Fitur (pisahkan koma)", "features", values.features, { placeholder: "touchscreen, backlit keyboard, fingerprint" })}
         <div>
           <label className="label" htmlFor="images">URL foto unit asli (https, satu per baris, yang pertama jadi foto utama)</label>
-          <textarea id="images" ref={imagesRef} name="images" rows={4} className="input font-mono text-xs" defaultValue={values.images} />
+          <textarea id="images" name="images" rows={4} className="input font-mono text-xs" value={imgText} onChange={(e) => setImgText(e.target.value)} />
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <label className="btn cursor-pointer">
               {uploading ? "Mengunggah…" : "Unggah foto"}
               <input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden disabled={uploading} onChange={(e) => { void upload(e.target.files); e.target.value = ""; }} />
             </label>
-            <span className="muted text-xs" role="status">{uploadMsg || "JPG/PNG/WebP, maks. 5 MB. URL otomatis ditambahkan ke daftar, lalu klik Simpan."}</span>
+            <span className="muted text-xs" role="status">{uploadMsg || "URL otomatis ditambahkan ke daftar, lalu klik Simpan."}</span>
           </div>
+          <p className="muted mt-2 text-xs">Ukuran ideal <strong>1200 x 1200 px (persegi 1:1)</strong>, latar polos/putih, JPG atau WebP, maks. 5 MB. Foto non-persegi tetap utuh (tidak dipotong), sisi terpanjang otomatis diperkecil ke 1600 px. Mengunggah file yang sama dua kali tidak menggandakan penyimpanan, dan foto yang dilepas/diganti otomatis dihapus dari penyimpanan saat disimpan.</p>
+          {imgLines.length > 0 && (
+            <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6" aria-label="Pratinjau foto">
+              {imgLines.map((u, i) => (
+                <li key={u} className="relative">
+                  <div className="aspect-square overflow-hidden rounded-lg border border-[var(--line)] bg-white">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={deliveryUrl(u, "c_fit,w_240,h_240")} alt="" className="h-full w-full object-contain" loading="lazy" />
+                  </div>
+                  {i === 0 && <span className="chip chip-tone-info absolute left-1 top-1 !min-h-0 !px-1.5 !py-0 !text-[10px]">Utama</span>}
+                  <button type="button" data-no-confirm aria-label="Lepas foto ini" onClick={() => setImgText(imgLines.filter((x) => x !== u).join("\n"))} className="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80"><Icon name="x" size={14} /></button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 

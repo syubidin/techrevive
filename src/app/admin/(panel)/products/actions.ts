@@ -11,6 +11,7 @@ import { audit, requirePermission, slugify } from "@/lib/admin";
 import { computeSellPrice, meetsMinimumMargin, PricingError } from "@/lib/pricing";
 import { site } from "@/config/site";
 import { canDeleteProduct } from "@/lib/delete-guard";
+import { releaseUnusedImages } from "@/lib/image-cleanup";
 
 export interface ProductState { error?: string }
 
@@ -105,7 +106,7 @@ export async function saveProduct(_prev: ProductState, formData: FormData): Prom
   if (d.status === "PUBLISHED" && images.length === 0) return { error: "Produk yang dipublikasikan harus punya minimal 1 foto unit asli." };
   if (d.status === "PUBLISHED" && !d.grade) return { error: "Isi grade sebelum publikasi (kondisi harus jujur)." };
 
-  const existing = d.id ? await db.product.findUnique({ where: { id: d.id } }) : null;
+  const existing = d.id ? await db.product.findUnique({ where: { id: d.id }, include: { images: { select: { url: true } } } }) : null;
   if (d.id && !existing) return { error: "Produk tidak ditemukan." };
   const verifiedAt = d.availability === "VERIFIED" ? (d.reverify || existing?.availability !== "VERIFIED" ? new Date() : existing?.verifiedAt ?? new Date()) : null;
 
@@ -143,6 +144,8 @@ export async function saveProduct(_prev: ProductState, formData: FormData): Prom
     }
   }
   if (!savedId) return { error: "Gagal membuat SKU/slug unik. Coba lagi." };
+  // Foto yang dilepas/diganti dihapus dari penyimpanan agar tidak menumpuk (hanya bila tidak dipakai di tempat lain).
+  if (existing) await releaseUnusedImages(existing.images.map((i) => i.url).filter((u) => !images.includes(u)));
 
   await audit(me.id, existing ? "product.update" : "product.create", "Product", savedId, {
     costPrice: existing ? [existing.costPrice, d.costPrice] : d.costPrice,
@@ -180,11 +183,12 @@ export async function restoreProduct(formData: FormData): Promise<void> {
 export async function deleteProductPermanently(formData: FormData): Promise<void> {
   const me = await requirePermission("data.manage");
   const id = z.string().cuid().parse(formData.get("id"));
-  const p = await db.product.findUnique({ where: { id }, select: { sku: true, nameId: true, deletedAt: true, _count: { select: { inquiries: true } } } });
+  const p = await db.product.findUnique({ where: { id }, select: { sku: true, nameId: true, deletedAt: true, images: { select: { url: true } }, _count: { select: { inquiries: true } } } });
   if (!p) redirect("/admin/products?view=archived");
   const blocked = canDeleteProduct({ archived: !!p!.deletedAt, inquiryCount: p!._count.inquiries });
   if (blocked) redirect(`/admin/products?view=archived&error=${encodeURIComponent(blocked)}`);
-  await db.product.delete({ where: { id } }); // foto ikut terhapus (cascade)
+  await db.product.delete({ where: { id } }); // baris foto ikut terhapus (cascade)
+  await releaseUnusedImages(p!.images.map((i) => i.url));
   await audit(me.id, "product.delete", "Product", id, { sku: p!.sku, name: p!.nameId });
   revalidatePath("/admin/products");
   revalidatePath("/", "layout");

@@ -54,3 +54,9 @@ Admin > Produk > Impor. Unduh template (.xlsx dengan dropdown, atau .csv), isi s
 
 ## Selesai
 Saat status Dikirim, pembeli bisa menekan "Pesanan sudah saya terima" di Lacak Pesanan (butuh kode + nomor WA), atau admin menekan Selesai. Keduanya menghasilkan status Selesai, tahap terakhir bercentang di sisi pembeli dan admin, dan pembeli melihat ucapan terima kasih.
+
+## Foto produk dan logo merk (Cloudinary)
+- Foto produk: ideal 1200 x 1200 px (1:1), JPG/WebP, maks. 5 MB. Tampil utuh (tidak dipotong). Di server sisi terpanjang dibatasi 1600 px.
+- Logo merk: PNG/WebP transparan (wajib; JPG atau PNG berlatar ditolak), ideal 600 x 240 px, maks. 1 MB. Di marquee tampil abu-abu, berwarna saat hover/fokus, klik membuka katalog merk itu. Semua logo ditampilkan di kotak ukuran sama.
+- Hemat penyimpanan: nama file = hash isi (file sama tidak menggandakan), foto lama otomatis dihapus saat diganti/dilepas/produk dihapus, dan job maintenance menyapu aset yatim (diunggah tapi tidak disimpan) yang lebih dari 24 jam.
+- Setelah memasang versi ini jalankan `npx prisma db push` lalu `npx prisma generate` (kolom baru `Brand.logoUrl`).

@@ -8,6 +8,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { audit, requirePermission, slugify } from "@/lib/admin";
 import { normalizeIdPhone } from "@/lib/phone";
+import { logoUrlSchema } from "@/lib/logo-url";
 
 const back = (error?: string): never => redirect(error ? `/admin/taxonomy?error=${encodeURIComponent(error)}` : "/admin/taxonomy");
 const done = (): never => {
@@ -42,10 +43,10 @@ export async function addCategory(formData: FormData): Promise<void> {
 export async function addBrand(formData: FormData): Promise<void> {
   const me = await requirePermission("taxonomy.manage");
   await guard(async () => {
-    const d = z.object({ name: z.string().trim().min(1).max(60) }).parse(Object.fromEntries(formData));
+    const d = z.object({ name: z.string().trim().min(1).max(60), logoUrl: logoUrlSchema }).parse(Object.fromEntries(formData));
     const slug = slugify(d.name);
     if (!slug) return back("Nama merk tidak valid.");
-    const b = await db.brand.create({ data: { name: d.name, slug } });
+    const b = await db.brand.create({ data: { name: d.name, slug, logoUrl: d.logoUrl } });
     await audit(me.id, "brand.create", "Brand", b.id);
   });
   done();

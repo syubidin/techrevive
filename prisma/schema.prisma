@@ -137,6 +137,7 @@ model Brand {
   id       String    @id @default(cuid())
   slug     String    @unique
   name     String
+  logoUrl  String?   // logo transparan (PNG/WebP) untuk marquee merk
   products Product[]
 }
 

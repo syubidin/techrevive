@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { site } from "@/config/site";
+import { sweepOrphanImages } from "./image-cleanup";
 import { msgExpired, msgFollowUps, msgSlaBreach, notify } from "./notify";
 
 const DONE = ["DELIVERED", "CANCELLED", "EXPIRED"] as const;
@@ -10,7 +11,7 @@ export async function expireQuotes(now = new Date()): Promise<number> {
   return count;
 }
 
-export interface MaintenanceResult { expired: number; slaAlerts: number; followUps: number; notified: boolean }
+export interface MaintenanceResult { expired: number; slaAlerts: number; followUps: number; notified: boolean; orphanImages?: number }
 
 export async function runMaintenance(baseUrl: string, now = new Date()): Promise<MaintenanceResult> {
   const expired = await expireQuotes(now);
@@ -40,5 +41,6 @@ export async function runMaintenance(baseUrl: string, now = new Date()): Promise
   }
   if (expired > 0) notified = (await notify(msgExpired(expired))) || notified;
 
-  return { expired, slaAlerts: late.length, followUps: dueFresh.length, notified };
+  const orphanImages = await sweepOrphanImages(now);
+  return { expired, slaAlerts: late.length, followUps: dueFresh.length, notified, orphanImages };
 }

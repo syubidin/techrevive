@@ -23,11 +23,11 @@ export const getShowcase = unstable_cache(
   async () => {
     const live = { products: { where: { status: "PUBLISHED" as const, deletedAt: null } } };
     const [brands, categories] = await Promise.all([
-      db.brand.findMany({ orderBy: { name: "asc" }, select: { slug: true, name: true, _count: { select: live } } }),
+      db.brand.findMany({ orderBy: { name: "asc" }, select: { slug: true, name: true, logoUrl: true, _count: { select: live } } }),
       db.category.findMany({ orderBy: { sortOrder: "asc" }, select: { slug: true, nameId: true, nameEn: true, _count: { select: live } } }),
     ]);
     return {
-      brands: brands.filter((b) => b._count.products > 0).map(({ slug, name }) => ({ slug, name })),
+      brands: brands.filter((b) => b._count.products > 0).map(({ slug, name, logoUrl }) => ({ slug, name, logoUrl })),
       categories: categories.filter((c) => c._count.products > 0).map((c) => ({ slug: c.slug, nameId: c.nameId, nameEn: c.nameEn, count: c._count.products })),
     };
   },

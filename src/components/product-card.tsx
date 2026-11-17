@@ -12,9 +12,9 @@ export function ProductCard({ product: p, locale, t, priority }: { product: Publ
   const name = pick(locale, p.nameId, p.nameEn);
   return (
     <Link href={`/${locale}/product/${p.slug}`} className="card hover-lift group flex h-full flex-col overflow-hidden">
-      <div className="relative aspect-square overflow-hidden bg-[var(--color-ink-100)] sm:aspect-[4/3] dark:bg-[var(--color-ink-800)]">
+      <div className="relative aspect-square overflow-hidden bg-white dark:bg-[var(--color-ink-800)]">
         {img ? (
-          <Image src={img.url} alt={img.alt ?? name} fill priority={priority} sizes="(min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw" className="object-cover transition duration-500 group-hover:scale-105" />
+          <Image src={img.url} alt={img.alt ?? name} fill priority={priority} sizes="(min-width:1024px) 25vw, (min-width:640px) 33vw, 50vw" className="object-contain p-1 transition duration-500 group-hover:scale-105" />
         ) : (
           <div className="bg-grid muted absolute inset-0 grid place-items-center" aria-hidden><Icon name={categoryIcon(p.category?.slug ?? "")} size={40} /></div>
         )}
