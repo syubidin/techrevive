@@ -132,14 +132,18 @@ details[open] > summary .chev { transform: rotate(180deg); }
 .dialog { margin: auto; width: min(26rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 1px solid var(--line); border-radius: 1.1rem; background: var(--card); color: var(--fg); box-shadow: 0 24px 60px rgb(0 0 0 / .35); animation: dialog-in .18s ease-out; }
 .dialog-wide { width: min(40rem, calc(100vw - 2rem)); }
 .dialog::backdrop { background: rgb(8 32 58 / .55); backdrop-filter: blur(2px); animation: fade-in .18s ease-out; }
-.brand-tile { display: flex; height: 4.5rem; width: 10.5rem; flex-shrink: 0; align-items: center; justify-content: center; padding: .75rem 1.25rem; transition: border-color .2s ease, transform .2s ease; }
-.brand-tile:hover, .brand-tile:focus-visible { border-color: var(--color-brand-500); transform: translateY(-2px); }
-.brand-logo { height: 100%; width: 100%; object-fit: contain; filter: grayscale(1); opacity: .6; transition: filter .25s ease, opacity .25s ease; }
-.brand-name { font-size: 1.05rem; font-weight: 800; letter-spacing: -.01em; color: var(--muted); filter: grayscale(1); transition: color .25s ease; text-align: center; line-height: 1.1; }
+.brand-tile { display: flex; height: 5rem; width: 9.5rem; flex-shrink: 0; align-items: center; justify-content: center; transition: transform .2s ease; }
+@media (min-width: 640px) { .brand-tile { height: 6.5rem; width: 13rem; } }
+.brand-tile:hover, .brand-tile:focus-visible { transform: scale(1.06); }
+.brand-tile:focus-visible { outline: 2px solid var(--color-brand-500); outline-offset: 4px; border-radius: .5rem; }
+.brand-logo { height: 100%; width: 100%; object-fit: contain; filter: grayscale(1); opacity: .65; transition: filter .25s ease, opacity .25s ease; }
+.brand-name { font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em; color: var(--muted); transition: color .25s ease; text-align: center; line-height: 1.1; }
+@media (min-width: 640px) { .brand-name { font-size: 1.6rem; } }
 .brand-tile:hover .brand-logo, .brand-tile:focus-visible .brand-logo { filter: none; opacity: 1; }
 .brand-tile:hover .brand-name, .brand-tile:focus-visible .brand-name { color: var(--fg); }
-@media (prefers-color-scheme: dark) { .brand-logo { filter: grayscale(1) brightness(1.6); } .brand-tile:hover .brand-logo, .brand-tile:focus-visible .brand-logo { filter: none; } }
-@media (hover: none) { .brand-logo { filter: none; opacity: .9; } }
+@media (prefers-color-scheme: dark) { .brand-logo { filter: grayscale(1) brightness(1.7); } .brand-tile:hover .brand-logo, .brand-tile:focus-visible .brand-logo { filter: none; } }
+@media (hover: none) { .brand-logo { filter: none; opacity: .92; } }
+@media (prefers-reduced-motion: reduce) { .brand-tile { transition: none; } .brand-tile:hover { transform: none; } }
 .logo-checker { background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 50% / 12px 12px; }
 .logo-tile { display: inline-grid; place-items: center; background: #fff; border: 1px solid var(--line); }
 @media (prefers-color-scheme: dark) { .logo-tile { background: #07273e; border-color: #07273e; } }

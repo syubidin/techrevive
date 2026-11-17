@@ -87,14 +87,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <p className="muted text-sm">{t.home.brandsSub}</p>
           </div>
           <div className="marquee">
-            <ul className="marquee-track gap-3 pr-3">
+            <ul className="marquee-track gap-8 pr-8 sm:gap-14 sm:pr-14">
               {[0, 1].map((copy) =>
                 marquee.map((b, i) => (
                   <li key={`${copy}-${i}`} aria-hidden={copy === 1 ? true : undefined}>
-                    <Link href={L(`/catalog?brand=${b.slug}`)} tabIndex={copy === 1 ? -1 : undefined} title={b.name} aria-label={copy === 1 ? undefined : b.name} className="brand-tile card">
+                    <Link href={L(`/catalog?brand=${b.slug}`)} tabIndex={copy === 1 ? -1 : undefined} title={b.name} aria-label={copy === 1 ? undefined : b.name} className="brand-tile">
                       {b.logoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={deliveryUrl(b.logoUrl, "c_fit,w_320,h_128,f_auto,q_auto")} alt="" width={160} height={64} loading="lazy" decoding="async" className="brand-logo" />
+                        <img src={deliveryUrl(b.logoUrl, "c_fit,w_480,h_200,f_auto,q_auto")} alt="" width={224} height={96} loading="lazy" decoding="async" className="brand-logo" />
                       ) : (
                         <span className="brand-name">{b.name}</span>
                       )}

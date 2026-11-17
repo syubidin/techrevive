@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ResetFilters } from "./reset-filters";
 import type { Locale } from "@/config/site";
 import { pick, type Messages } from "@/lib/i18n";
 
@@ -43,11 +43,11 @@ function Checks({ name, options, sp }: { name: string; options: Option[]; sp: UR
 /** Form GET murni: bekerja tanpa JavaScript, URL hasil filter bisa dibagikan. */
 export function CatalogFilters({ locale, t, sp, categories, brands, features, specs }: Props) {
   return (
-    <form method="get" className="card p-5">
+    <form method="get" className="card p-5" key={sp.toString()}>
       <input type="hidden" name="sort" value={sp.get("sort") ?? "newest"} />
       <div className="flex items-center justify-between">
         <h2 className="font-extrabold">{t.catalog.filters}</h2>
-        <Link href={`/${locale}/catalog`} className="muted text-xs underline">{t.catalog.reset}</Link>
+        <ResetFilters href={`/${locale}/catalog`} label={t.catalog.reset} />
       </div>
 
       <Group title={t.catalog.category}>
@@ -69,7 +69,7 @@ export function CatalogFilters({ locale, t, sp, categories, brands, features, sp
         </div>
       </Group>
       <Group title={t.catalog.availability}>
-        <Checks name="availability" sp={sp} options={(["VERIFIED", "CHECK", "PREORDER"] as const).map((a) => ({ value: a, label: t.availability[a].replace(/\s*\(.*\)/, "") }))} />
+        <Checks name="availability" sp={sp} options={(["VERIFIED", "CHECK", "PREORDER"] as const).map((a) => ({ value: a, label: t.availabilityShort[a] }))} />
       </Group>
 
       {specs.length > 0 && (
