@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { isLocale, site } from "@/config/site";
 import { db } from "@/lib/db";
@@ -43,7 +42,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
       <article className="card space-y-6 p-6 sm:p-8">
         <header className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Image src="/logo.jpg" alt="" width={44} height={44} className="rounded-lg" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/mark-blue.png" alt="" width={44} height={44} className="rounded-lg" />
             <div><p className="text-lg font-extrabold">{site.name}</p><p className="muted text-xs">{L("Bukti pembelian", "Proof of purchase")}</p></div>
           </div>
           <div className="text-right">
@@ -77,7 +77,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
         </section>
 
         <p className="muted border-t border-[var(--line)] pt-4 text-xs leading-relaxed">
-          {L("Barang second/refurbished dijual sesuai kondisi dan grade yang tertera, tanpa garansi dan tanpa retur. Simpan invoice ini sebagai bukti pembelian.", "Second-hand/refurbished item sold as described by its condition and grade, without warranty or returns. Keep this invoice as your proof of purchase.")}
+          {L("Garansi penuh 1 bulan sejak barang diterima; setelah itu servis tetap tersedia dengan biaya. Simpan invoice ini sebagai bukti pembelian dan klaim garansi.", "Full 1-month warranty from delivery; servicing remains available for a fee afterwards. Keep this invoice as your proof of purchase and warranty claim.")}
         </p>
       </article>
       <div className="no-print mt-4 flex justify-center"><PrintButton label={L("Cetak / Simpan PDF", "Print / Save as PDF")} /></div>

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateStorefront } from "@/lib/catalog-cache";
 import { z } from "zod";
 import type { PaymentMethod } from "@prisma/client";
 import { db } from "@/lib/db";
@@ -352,7 +353,7 @@ export async function reviewStockAfterSale(formData: FormData): Promise<void> {
   await audit(me.id, "stock.review", "Product", inquiry.productId, { outcome, qty: qty ?? null });
   revalidatePath(`/admin/inquiries/${inquiryId}`);
   revalidatePath("/admin");
-  revalidatePath("/katalog");
+  revalidateStorefront();
 }
 
 const invoiceSchema = z.object({ inquiryId: z.string().cuid() });

@@ -51,7 +51,7 @@ export function SiteFooter({ locale, t, brands = [] }: { locale: Locale; t: Mess
           <ul className="muted mt-3 space-y-2.5">
             <li className="flex gap-2"><Icon name="clock" size={16} className="mt-0.5 shrink-0" />{site.businessHours[locale]}</li>
             <li className="flex gap-2"><Icon name="map-pin" size={16} className="mt-0.5 shrink-0" />{t.trust.area}</li>
-            <li className="flex gap-2"><Icon name="alert" size={16} className="mt-0.5 shrink-0" />{t.trust.noWarranty}</li>
+            <li className="flex gap-2"><Icon name="shield-check" size={16} className="mt-0.5 shrink-0" />{t.trust.noWarranty}</li>
           </ul>
           <a href={waLink()} target="_blank" rel="noopener noreferrer" className="btn btn-accent mt-4"><Icon name="message-circle" size={18} />{t.common.chatWa}</a>
         </div>

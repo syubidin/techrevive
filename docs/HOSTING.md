@@ -33,7 +33,7 @@ Satu VPS ini cukup untuk ribuan kunjungan per hari karena halaman publik di-cach
 - [ ] Nomor WhatsApp asli terpasang dan pesan otomatis diuji dari HP.
 - [ ] Turnstile aktif; kirim satu inquiry uji dari produk draft yang sudah diterbitkan.
 - [ ] Tarif ongkir diganti sesuai kurir sebenarnya (seed hanya contoh).
-- [ ] Kebijakan tanpa garansi/retur dibaca ulang oleh owner (aspek hukum: konsultasikan dengan ahli hukum bila perlu).
+- [ ] Kebijakan garansi 1 bulan dan servis berbayar setelahnya dibaca ulang oleh owner (aspek hukum: konsultasikan dengan ahli hukum bila perlu).
 - [ ] Kata sandi owner kuat dan unik; tidak ada akun contoh.
 - [ ] Semua produk punya foto unit asli, grade, dan kesehatan baterai bila relevan.
 - [ ] Uptime monitor mengarah ke `/api/health`.

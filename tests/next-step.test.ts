@@ -19,11 +19,11 @@ test("langkah berikutnya mengikuti status", () => {
 
 const ctx = { name: "Sari", code: "TR-261116-AB12", product: "ThinkPad T14", price: "Rp5.500.000", validUntil: "17 Nov 2026 15.00 WIB", trackUrl: "https://x.id/id/track", courier: null, trackingNumber: null, deliveredBy: null };
 
-test("pesan penawaran memuat harga, masa berlaku, dan tanpa garansi", () => {
+test("pesan penawaran memuat harga, masa berlaku, dan garansi 1 bulan", () => {
   const m = customerMessage("QUOTED", ctx);
   assert.match(m, /Rp5\.500\.000/);
   assert.match(m, /17 Nov 2026/);
-  assert.match(m, /tanpa garansi/);
+  assert.match(m, /garansi penuh 1 bulan/);
 });
 
 test("pesan dikirim menyebut kurir+resi atau petugas pengantar", () => {

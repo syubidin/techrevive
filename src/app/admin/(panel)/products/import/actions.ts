@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { audit, requirePermission, slugify } from "@/lib/admin";
 import { site } from "@/config/site";
-import { invalidateCatalog } from "@/lib/catalog-cache";
+import { revalidateStorefront } from "@/lib/catalog-cache";
 import { MAX_FILE_BYTES, readMatrix } from "@/lib/import-file";
 import { validateImport, type ParsedProduct } from "@/lib/product-import";
 
@@ -79,8 +79,7 @@ export async function importProducts(_prev: ImportState, formData: FormData): Pr
       }, { timeout: 45_000, maxWait: 10_000 });
       await audit(me.id, "product.import", "Product", undefined, { file: file.name.slice(0, 80), count: result.products.length });
       revalidatePath("/admin/products");
-      revalidatePath("/", "layout");
-      invalidateCatalog();
+      revalidateStorefront();
       return { summary: { ...base, created: result.products.length, checkOnly: false } };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002" && attempt < 2) {

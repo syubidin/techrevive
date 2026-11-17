@@ -2,7 +2,7 @@
 
 import { randomInt } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { invalidateCatalog } from "@/lib/catalog-cache";
+import { revalidateStorefront } from "@/lib/catalog-cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -153,8 +153,7 @@ export async function saveProduct(_prev: ProductState, formData: FormData): Prom
     status: d.status,
   });
   revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
-  invalidateCatalog();
+  revalidateStorefront();
   redirect("/admin/products");
 }
 
@@ -164,8 +163,7 @@ export async function archiveProduct(formData: FormData): Promise<void> {
   await db.product.update({ where: { id }, data: { deletedAt: new Date(), status: "ARCHIVED" } });
   await audit(me.id, "product.archive", "Product", id);
   revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
-  invalidateCatalog();
+  revalidateStorefront();
 }
 
 /** Mengembalikan produk dari arsip sebagai Draft (cek ulang sebelum diterbitkan). */
@@ -175,8 +173,7 @@ export async function restoreProduct(formData: FormData): Promise<void> {
   await db.product.update({ where: { id }, data: { deletedAt: null, status: "DRAFT" } });
   await audit(me.id, "product.restore", "Product", id);
   revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
-  invalidateCatalog();
+  revalidateStorefront();
 }
 
 /** Hapus permanen: hanya Admin/Developer, hanya dari arsip, dan hanya bila belum punya inquiry. */
@@ -191,7 +188,6 @@ export async function deleteProductPermanently(formData: FormData): Promise<void
   await releaseUnusedImages(p!.images.map((i) => i.url));
   await audit(me.id, "product.delete", "Product", id, { sku: p!.sku, name: p!.nameId });
   revalidatePath("/admin/products");
-  revalidatePath("/", "layout");
-  invalidateCatalog();
+  revalidateStorefront();
   redirect("/admin/products?view=archived");
 }

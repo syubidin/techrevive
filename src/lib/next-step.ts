@@ -34,7 +34,7 @@ export function nextStep({ status, hasOrder }: StepInput): StepKey {
 
 /** Judul & petunjuk satu kalimat untuk tiap langkah. */
 export const STEP_COPY: Record<StepKey, { title: string; hint: string }> = {
-  reply: { title: "Balas & kirim penawaran", hint: "Hubungi customer, cek stok ke supplier, lalu kirim harga final." },
+  reply: { title: "Balas & kirim penawaran", hint: "Hubungi customer, pastikan unit lolos QC dan siap, lalu kirim harga final." },
   order: { title: "Customer setuju? Buat pesanan", hint: "Catat harga final dan ongkir. Customer akan diminta membayar." },
   pay: { title: "Catat pembayaran", hint: "Setelah transfer/VA/QRIS masuk dan terverifikasi, tandai lunas." },
   ship: { title: "Kirim barang", hint: "Pilih diantar tim atau kurir, lalu tandai dikirim." },
@@ -63,7 +63,7 @@ export function customerMessage(status: string, c: MessageCtx): string {
   const track = `Pantau pesanan: ${c.trackUrl}`;
   switch (status) {
     case "QUOTED":
-      return [head, `Produk: ${c.product}`, c.price ? `Harga final: ${c.price}${c.validUntil ? ` (berlaku s.d. ${c.validUntil})` : ""}` : "", "Catatan: barang dijual tanpa garansi dan retur; kondisi sesuai grade yang tertera.", "Jika setuju, balas pesan ini ya.", track].filter(Boolean).join("\n");
+      return [head, `Produk: ${c.product}`, c.price ? `Harga final: ${c.price}${c.validUntil ? ` (berlaku s.d. ${c.validUntil})` : ""}` : "", "Catatan: garansi penuh 1 bulan sejak barang diterima; kondisi sesuai grade yang tertera.", "Jika setuju, balas pesan ini ya.", track].filter(Boolean).join("\n");
     case "AWAITING_PAYMENT":
       return [head, `Pesanan ${c.product} sudah kami catat${c.price ? ` dengan total ${c.price}` : ""}.`, "Silakan lakukan pembayaran, lalu kirim bukti transfer di chat ini.", track].join("\n");
     case "PAID":

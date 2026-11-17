@@ -11,7 +11,7 @@
 8. Tidak tersedia: tawarkan alternatif, atau status *Cancelled/Expired*.
 
 ## Fitur Tahap 1
-**Publik:** homepage, katalog + filter (URL-shareable), detail produk (grade, baterai, foto unit asli, spek), status ketersediaan jujur, halaman kebijakan (tanpa garansi/retur, ditulis transparan), cara pesan, FAQ, ID/EN, SEO (sitemap, JSON-LD Product), mode gelap.
+**Publik:** homepage, katalog + filter (URL-shareable), detail produk (grade, baterai, foto unit asli, spek), status unit jujur (Check QC / Tersedia), halaman kebijakan (garansi 1 bulan, servis berbayar setelahnya), cara pesan, FAQ, ID/EN, SEO (sitemap, JSON-LD Product), mode gelap.
 **Admin:** login aman, dashboard (inquiry baru, follow-up hari ini, omzet, laba, produk terlaris, konversi inquiry→order), CRUD produk (modal+margin otomatis, simpan harga jual), kategori/merk/definisi spek, pipeline inquiry (kanban + daftar), catatan & jadwal follow-up, order (pembayaran, ongkir, resi), tarif ongkir per zona, supplier, audit log, manajemen admin (OWNER/DEVELOPER/STAFF).
 
 ## Edge case yang ditangani

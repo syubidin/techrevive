@@ -1,11 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { audit, requirePermission } from "@/lib/admin";
-import { invalidateCatalog } from "@/lib/catalog-cache";
+import { revalidateStorefront } from "@/lib/catalog-cache";
 import { logoUrlSchema } from "@/lib/logo-url";
 import { releaseUnusedImages } from "@/lib/image-cleanup";
 import { canDeleteBrand, canDeleteCategory } from "@/lib/delete-guard";
@@ -14,8 +13,7 @@ import { normalizeIdPhone } from "@/lib/phone";
 /** Ubah: Owner dan Developer (taxonomy.edit). Hapus: hanya Admin/Developer (data.manage). */
 const back = (error?: string): never => redirect(error ? `/admin/taxonomy?error=${encodeURIComponent(error)}` : "/admin/taxonomy");
 const done = (): never => {
-  revalidatePath("/", "layout");
-  invalidateCatalog();
+  revalidateStorefront();
   return back();
 };
 const id = z.string().cuid();

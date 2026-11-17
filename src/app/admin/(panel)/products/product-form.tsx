@@ -106,17 +106,18 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
         </div>
         {field("Fitur (pisahkan koma)", "features", values.features, { placeholder: "touchscreen, backlit keyboard, fingerprint" })}
         <div>
-          <label className="label" htmlFor="images">URL foto unit asli (https, satu per baris, yang pertama jadi foto utama)</label>
-          <textarea id="images" name="images" rows={4} className="input font-mono text-xs" value={imgText} onChange={(e) => setImgText(e.target.value)} />
+          <span className="label">Foto unit asli (yang pertama menjadi foto utama)</span>
+          {/* URL tidak ditampilkan; hanya pratinjau. Nilai tetap dikirim lewat field tersembunyi. */}
+          <input type="hidden" name="images" value={imgText} />
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <label className="btn cursor-pointer">
               {uploading ? "Mengunggah…" : "Unggah foto"}
               <input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden disabled={uploading} onChange={(e) => { void upload(e.target.files); e.target.value = ""; }} />
             </label>
-            <span className="muted text-xs" role="status">{uploadMsg || "URL otomatis ditambahkan ke daftar, lalu klik Simpan."}</span>
+            <span className="muted text-xs" role="status">{uploadMsg || "Foto yang diunggah muncul di bawah. Klik Simpan produk untuk menerapkan."}</span>
           </div>
           <p className="muted mt-2 text-xs">Ukuran ideal <strong>1200 x 1200 px (persegi 1:1)</strong>, latar polos/putih, JPG atau WebP, maks. 5 MB. Foto non-persegi tetap utuh (tidak dipotong), sisi terpanjang otomatis diperkecil ke 1600 px. Mengunggah file yang sama dua kali tidak menggandakan penyimpanan, dan foto yang dilepas/diganti otomatis dihapus dari penyimpanan saat disimpan.</p>
-          {imgLines.length > 0 && (
+          {imgLines.length === 0 ? <p className="muted mt-3 rounded-xl border border-dashed border-[var(--line)] p-4 text-center text-xs">Belum ada foto. Produk tanpa foto tidak bisa diterbitkan.</p> : (
             <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6" aria-label="Pratinjau foto">
               {imgLines.map((u, i) => (
                 <li key={u} className="relative">
@@ -167,10 +168,10 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
 
       <section className="card grid gap-4 p-5 sm:grid-cols-2">
         <h2 className="font-bold sm:col-span-2">Ketersediaan & publikasi</h2>
-        {select("Ketersediaan", "availability", values.availability, [["CHECK", "Cek ketersediaan"], ["VERIFIED", "Tersedia (terverifikasi)"], ["PREORDER", "Pre-order"], ["SOLD_OUT", "Habis"]])}
+        {select("Status unit", "availability", values.availability, [["CHECK", "Check QC"], ["VERIFIED", "Tersedia (terverifikasi)"], ["PREORDER", "Pre-order"], ["SOLD_OUT", "Habis"]])}
         {select("Status", "status", values.status, [["DRAFT", "Draft"], ["PUBLISHED", "Terbit"], ["ARCHIVED", "Arsip"]])}
         <label className="flex items-center gap-2 text-sm sm:col-span-2"><input type="checkbox" name="reverify" value="1" className="size-4" /> Saya baru saja mengonfirmasi stok ke supplier (perbarui waktu verifikasi)</label>
-        <p className="muted text-xs sm:col-span-2">Status “Tersedia” otomatis tampil sebagai “Cek Ketersediaan” bila tidak dikonfirmasi ulang dalam 48 jam.</p>
+        <p className="muted text-xs sm:col-span-2">Status “Tersedia” otomatis tampil sebagai “Check QC” bila tidak dikonfirmasi ulang dalam 48 jam.</p>
       </section>
 
       {state.error && <p role="alert" className="card p-4 text-sm font-medium text-[var(--color-danger-600)]">{state.error}</p>}

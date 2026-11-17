@@ -15,7 +15,7 @@
   "hero": {
     "badge": "Second-hand premium & customizable",
     "title": "Perangkat tech pilihan, kondisi jujur.",
-    "subtitle": "Laptop, HP, dan gadget second & refurbished dengan grade yang jelas. Cek ketersediaan langsung via WhatsApp.",
+    "subtitle": "Laptop, HP, dan gadget second & refurbished dengan grade yang jelas, lolos QC dan bergaransi 1 bulan. Pesan langsung via WhatsApp.",
     "browse": "Lihat Katalog",
     "how": "Cara Pesan",
     "searchPlaceholder": "Cari laptop, HP, atau merk…",
@@ -28,7 +28,7 @@
     "floatA": "Grade A",
     "floatAd": "Unit mulus, foto asli",
     "floatB": "Dicek manual",
-    "floatBd": "Stok dikonfirmasi tim"
+    "floatBd": "Lolos QC tim kami"
   },
   "home": {
     "featured": "Pilihan Terbaru",
@@ -40,8 +40,8 @@
         "d": "Setiap unit diberi grade A/B/C dengan foto unit asli dan kesehatan baterai bila ada."
       },
       {
-        "t": "Ketersediaan transparan",
-        "d": "Kami tidak menulis 'Ready Stock' sebelum stok dikonfirmasi. Anda tahu statusnya sejak awal."
+        "t": "Lolos QC & bergaransi",
+        "d": "Setiap unit kami periksa sendiri sebelum dijual dan bergaransi penuh 1 bulan. Kondisi dan grade dijelaskan jujur sejak awal."
       },
       {
         "t": "Dibantu manusia",
@@ -55,16 +55,16 @@
         "d": "Gunakan filter spek, merk, dan fitur sesuai kebutuhan."
       },
       {
-        "t": "Cek stok & pesan",
+        "t": "Pilih & pesan",
         "d": "Isi nama dan nomor WhatsApp, pesan produk terisi otomatis."
       },
       {
         "t": "Kami konfirmasi",
-        "d": "Kami cek stok, kirim harga final dan kondisi unit."
+        "d": "Kami konfirmasi hasil QC unit, harga final, dan jadwal kirim."
       },
       {
         "t": "Bayar & terima",
-        "d": "Bayar setelah stok pasti. Kirim ke area Jabodetabek."
+        "d": "Bayar setelah unit dipastikan siap. Kirim ke area Jabodetabek."
       }
     ],
     "brandsTitle": "Merk yang kami jual",
@@ -93,7 +93,7 @@
     "faqTitle": "Pertanyaan yang sering diajukan",
     "faqAll": "Lihat semua FAQ",
     "ctaTitle": "Belum menemukan yang dicari?",
-    "ctaDesc": "Sebutkan kebutuhan dan anggaran Anda. Tim kami carikan unit yang cocok lewat jaringan supplier kami.",
+    "ctaDesc": "Sebutkan kebutuhan dan anggaran Anda. Tim kami carikan unit yang cocok dan siapkan untuk Anda.",
     "ctaButton": "Tanya via WhatsApp",
     "ctaWaText": "Halo TechRevive, saya ingin mencari perangkat dengan kebutuhan: ",
     "whyIcons": [
@@ -123,7 +123,7 @@
     "price": "Harga (Rp)",
     "min": "Min",
     "max": "Maks",
-    "availability": "Ketersediaan",
+    "availability": "Status unit",
     "features": "Fitur",
     "specs": "Spesifikasi",
     "battery": "Baterai min. (%)",
@@ -149,16 +149,16 @@
     "sku": "SKU",
     "related": "Produk serupa",
     "shipping": "Diantar tim kami atau lewat kurir (Jabodetabek). Ongkos kirim dihitung saat konfirmasi.",
-    "modalTitle": "Cek stok & pesan",
-    "success": "Permintaan tersimpan. Lanjutkan di WhatsApp agar tim kami dapat mengecek stok.",
+    "modalTitle": "Pesan unit ini",
+    "success": "Permintaan tersimpan. Lanjutkan di WhatsApp agar tim kami dapat mengonfirmasi unit Anda.",
     "openWa": "Buka WhatsApp",
     "yes": "Ya",
     "no": "Tidak",
     "breadcrumbCatalog": "Katalog",
-    "orderNow": "Cek stok & pesan",
+    "orderNow": "Pesan sekarang",
     "factsTitle": "Ringkasan unit",
     "gradeGuide": "Apa arti grade?",
-    "noWarrantyTitle": "Tanpa garansi & retur",
+    "noWarrantyTitle": "Garansi 1 bulan penuh",
     "trustTitle": "Belanja dengan tenang",
     "gallery": "Galeri foto",
     "image": "Foto {n}",
@@ -168,7 +168,7 @@
     "priceNote": "Harga final dikunci 24 jam setelah dikonfirmasi."
   },
   "availability": {
-    "CHECK": "Cek Ketersediaan",
+    "CHECK": "Check QC",
     "VERIFIED": "Tersedia",
     "PREORDER": "Pre-order",
     "SOLD_OUT": "Habis"
@@ -183,7 +183,7 @@
     "C": "Grade C — ada cacat fisik"
   },
   "cta": {
-    "checkAndOrder": "Cek Stok & Pesan",
+    "checkAndOrder": "Pesan Sekarang",
     "sending": "Menyiapkan WhatsApp…",
     "copyMessage": "Salin pesan"
   },
@@ -208,19 +208,19 @@
   "trust": {
     "sla": "Dibalas maksimal 15 menit di jam kerja",
     "priceLock": "Harga final dikunci 24 jam setelah dikonfirmasi",
-    "noWarranty": "Seluruh produk dijual tanpa garansi dan retur. Kondisi dijelaskan jujur sebelum Anda membayar.",
+    "noWarranty": "Semua unit bergaransi penuh 1 bulan. Unit yang bermasalah kami servis, dan dapat dijemput serta diantar kembali oleh tim kami. Setelah garansi berakhir, servis tetap tersedia dengan biaya.",
     "area": "Pengiriman khusus Jabodetabek"
   },
   "policy": {
     "title": "Kebijakan",
     "sections": [
       {
-        "t": "Garansi & retur",
-        "d": "Kami menjual barang second dan refurbished yang bersumber dari mitra supplier. Mitra kami tidak menyediakan garansi maupun retur, sehingga TechRevive juga tidak menyediakannya. Karena itu kondisi unit, grade, dan kekurangan yang ada kami jelaskan dengan jujur sebelum Anda membayar. Mohon tanyakan semua hal yang Anda ragukan lebih dulu."
+        "t": "Garansi & servis",
+        "d": "Seluruh unit mendapat garansi penuh selama 1 bulan sejak barang diterima. Jika ada kendala, hubungi kami lewat WhatsApp: unit dapat dijemput dan diantar kembali oleh tim kami. Setelah masa garansi berakhir, layanan servis tetap berjalan namun berbayar, dan biayanya kami informasikan lebih dulu sebelum pengerjaan."
       },
       {
-        "t": "Ketersediaan & harga",
-        "d": "Status 'Cek Ketersediaan' berarti stok belum dikonfirmasi. Harga final dan stok dikonfirmasi lewat WhatsApp, lalu dikunci selama 24 jam. Pembayaran hanya diminta setelah stok dipastikan."
+        "t": "Status unit & harga",
+        "d": "Status 'Check QC' berarti unit sedang atau akan menjalani pengecekan kualitas (QC) oleh tim kami sebelum siap dikirim. Status 'Tersedia' berarti unit sudah lolos QC dan siap. Harga final dan jadwal dikonfirmasi lewat WhatsApp, lalu dikunci selama 24 jam. Pembayaran hanya diminta setelah unit dipastikan siap."
       },
       {
         "t": "Pembayaran",
@@ -228,7 +228,7 @@
       },
       {
         "t": "Pengiriman",
-        "d": "Barang dikirim ke kami terlebih dahulu untuk pengecekan. Setelah itu barang diantar langsung oleh tim kami atau dikirim lewat kurir, sesuai alamat dan kesepakatan saat konfirmasi. Area layanan: Jabodetabek. Estimasi dan ongkos kirim diinformasikan saat konfirmasi."
+        "d": "Unit melewati pengecekan QC kami terlebih dahulu. Setelah itu barang diantar langsung oleh tim kami atau dikirim lewat kurir, sesuai alamat dan kesepakatan saat konfirmasi. Area layanan: Jabodetabek. Estimasi dan ongkos kirim diinformasikan saat konfirmasi."
       },
       {
         "t": "Privasi",
@@ -254,14 +254,14 @@
     "learnMore": "Selengkapnya"
   },
   "availabilityShort": {
-    "CHECK": "Cek stok",
+    "CHECK": "Check QC",
     "VERIFIED": "Tersedia",
     "PREORDER": "Pre-order",
     "SOLD_OUT": "Habis"
   },
   "howPage": {
     "title": "Cara Pesan",
-    "intro": "Belanja di TechRevive dibantu langsung oleh tim kami lewat WhatsApp. Tidak ada keranjang atau pembayaran di muka: Anda membayar setelah stok dipastikan.",
+    "intro": "Belanja di TechRevive dibantu langsung oleh tim kami lewat WhatsApp. Tidak ada keranjang atau pembayaran di muka: Anda membayar setelah unit dipastikan siap.",
     "steps": [
       {
         "t": "Pilih produk",
@@ -269,14 +269,14 @@
       },
       {
         "t": "Kirim permintaan",
-        "d": "Klik Cek Stok & Pesan, isi nama, nomor WhatsApp, dan area. WhatsApp terbuka dengan pesan yang sudah terisi."
+        "d": "Klik Pesan Sekarang, isi nama, nomor WhatsApp, dan area. WhatsApp terbuka dengan pesan yang sudah terisi."
       },
       {
         "t": "Konfirmasi dari kami",
-        "d": "Tim kami mengecek stok ke supplier lalu mengirim harga final dan kondisi unit. Harga dikunci 24 jam."
+        "d": "Tim kami mengonfirmasi hasil QC unit, harga final, dan jadwal kirim. Harga dikunci 24 jam."
       },
       {
-        "t": "Bayar setelah stok pasti",
+        "t": "Bayar setelah unit siap",
         "d": "Transfer bank, virtual account, atau QRIS. Barang dikirim ke kami untuk dicek terlebih dahulu."
       },
       {
@@ -297,7 +297,7 @@
       "Virtual account",
       "QRIS"
     ],
-    "payNote": "Detail pembayaran dikirim setelah penawaran Anda setujui. Kami tidak meminta pembayaran sebelum stok dikonfirmasi.",
+    "payNote": "Detail pembayaran dikirim setelah penawaran Anda setujui. Kami tidak meminta pembayaran sebelum unit dipastikan siap.",
     "deliveryTitle": "Pengiriman",
     "delivery": [
       "Diantar langsung oleh tim TechRevive, atau",
@@ -314,16 +314,16 @@
     "stillAskDesc": "Tim kami membalas maksimal 15 menit di jam kerja.",
     "items": [
       {
-        "q": "Apakah barang bergaransi atau bisa diretur?",
-        "a": "Tidak. Supplier kami tidak menyediakan garansi maupun retur, sehingga TechRevive juga tidak menyediakannya. Karena itu kondisi unit, grade, dan kekurangan yang ada kami jelaskan dengan jujur sebelum Anda membayar."
+        "q": "Apakah barang bergaransi?",
+        "a": "Ya. Semua unit bergaransi penuh selama 1 bulan sejak diterima. Jika ada kendala, unit dapat dijemput dan diantar kembali oleh tim kami. Setelah garansi berakhir, servis tetap tersedia namun berbayar, dan biayanya kami informasikan dulu sebelum pengerjaan."
       },
       {
         "q": "Bagaimana cara memesan?",
-        "a": "Pilih produk lalu klik Cek Stok & Pesan. Isi nama, nomor WhatsApp, dan area pengiriman. Anda akan diarahkan ke WhatsApp dengan pesan yang sudah terisi, lalu tim kami melanjutkan konfirmasi."
+        "a": "Pilih produk lalu klik Pesan Sekarang. Isi nama, nomor WhatsApp, dan area pengiriman. Anda akan diarahkan ke WhatsApp dengan pesan yang sudah terisi, lalu tim kami melanjutkan konfirmasi."
       },
       {
-        "q": "Mengapa statusnya 'Cek Ketersediaan'?",
-        "a": "Kami tidak memiliki stok sendiri. Status ini berarti ketersediaan belum dikonfirmasi ke supplier. Kami tidak menulis 'Ready Stock' sebelum benar-benar pasti."
+        "q": "Apa arti status 'Check QC'?",
+        "a": "Unit dengan status ini sedang atau akan menjalani pengecekan kualitas (QC) oleh tim kami sebelum siap dikirim. Status 'Tersedia' berarti unit sudah lolos QC dan siap. Kami tidak menulis 'Tersedia' sebelum benar-benar pasti."
       },
       {
         "q": "Berapa lama harga dikunci?",
@@ -331,7 +331,7 @@
       },
       {
         "q": "Apa saja metode pembayarannya?",
-        "a": "Transfer bank, virtual account, dan QRIS. Pembayaran baru diminta setelah stok dipastikan dan Anda menyetujui penawaran."
+        "a": "Transfer bank, virtual account, dan QRIS. Pembayaran baru diminta setelah unit dipastikan siap dan Anda menyetujui penawaran."
       },
       {
         "q": "Bagaimana pengiriman dan ongkosnya?",
@@ -355,7 +355,7 @@
     "title": "Hubungi Kami",
     "intro": "Cara tercepat menghubungi kami adalah lewat WhatsApp. Kami membalas langsung, bukan chatbot.",
     "waTitle": "WhatsApp",
-    "waDesc": "Tanya stok, harga, atau kondisi unit.",
+    "waDesc": "Tanya unit, harga, garansi, atau kondisi barang.",
     "waButton": "Chat via WhatsApp",
     "waText": "Halo TechRevive, saya ingin bertanya.",
     "hoursTitle": "Jam layanan",
@@ -366,7 +366,7 @@
     "socialTitle": "Sosial media",
     "noSocial": "Segera hadir.",
     "aboutTitle": "Tentang TechRevive",
-    "aboutDesc": "TechRevive menghubungkan Anda dengan perangkat tech second dan refurbished pilihan lewat jaringan supplier terpercaya. Setiap unit dinilai dengan grade yang jujur dan dikonfirmasi manual oleh tim kami sebelum Anda membayar.",
+    "aboutDesc": "TechRevive menyediakan perangkat tech second dan refurbished pilihan. Setiap unit dinilai dengan grade yang jujur, melewati QC tim kami, dan bergaransi 1 bulan penuh sebelum sampai ke tangan Anda.",
     "formTitle": "Tulis pesan",
     "formDesc": "Pesan Anda akan terbuka di WhatsApp dan tinggal dikirim.",
     "name": "Nama (opsional)",
@@ -418,8 +418,8 @@
         "d": "Tim kami sudah menghubungi Anda. Cek WhatsApp Anda."
       },
       "SUPPLIER_CHECKING": {
-        "t": "Mengecek stok",
-        "d": "Kami sedang memastikan ketersediaan unit ke supplier."
+        "t": "Pengecekan QC",
+        "d": "Tim kami sedang memastikan kondisi dan kesiapan unit Anda."
       },
       "QUOTED": {
         "t": "Penawaran dikirim",
@@ -435,7 +435,7 @@
       },
       "PROCURING": {
         "t": "Barang disiapkan",
-        "d": "Kami memesan unit dari supplier."
+        "d": "Kami sedang menyiapkan unit Anda."
       },
       "RECEIVED_BY_US": {
         "t": "Barang kami terima",

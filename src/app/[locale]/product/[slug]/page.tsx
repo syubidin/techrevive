@@ -133,7 +133,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
 
           <section className="mt-8 grid gap-3 sm:grid-cols-2" aria-label={t.product.trustTitle}>
             <div className="card flex gap-3 p-4">
-              <Icon name="alert" className="mt-0.5 shrink-0 text-amber-600" />
+              <Icon name="shield-check" className="mt-0.5 shrink-0 text-green-600" />
               <div><p className="font-bold">{t.product.noWarrantyTitle}</p><p className="muted mt-1 text-sm">{t.trust.noWarranty}</p></div>
             </div>
             <div className="card flex gap-3 p-4">

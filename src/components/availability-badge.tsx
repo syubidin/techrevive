@@ -9,7 +9,7 @@ const tone = {
   SOLD_OUT: "chip-tone-mute",
 } as const;
 
-/** Satu teks yang sama di mobile dan desktop: "Tersedia", "Cek stok", "Pre-order", "Habis". */
+/** Satu teks yang sama di mobile dan desktop: "Tersedia", "Check QC", "Pre-order", "Habis". */
 export function AvailabilityBadge({ product, t }: { product: Pick<PublicProduct, "availability" | "verifiedAt">; t: Messages; locale?: Locale }) {
   const status = effectiveAvailability(product);
   return <span className={`chip ${tone[status]}`}>{t.availabilityShort[status]}</span>;

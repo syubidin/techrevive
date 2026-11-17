@@ -141,6 +141,8 @@ details[open] > summary .chev { transform: rotate(180deg); }
 @media (prefers-color-scheme: dark) { .brand-logo { filter: grayscale(1) brightness(1.6); } .brand-tile:hover .brand-logo, .brand-tile:focus-visible .brand-logo { filter: none; } }
 @media (hover: none) { .brand-logo { filter: none; opacity: .9; } }
 .logo-checker { background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 50% / 12px 12px; }
+.logo-tile { display: inline-grid; place-items: center; background: #fff; border: 1px solid var(--line); }
+@media (prefers-color-scheme: dark) { .logo-tile { background: #07273e; border-color: #07273e; } }
 .scrollbar-none { scrollbar-width: none; } .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 

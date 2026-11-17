@@ -1,4 +1,4 @@
-import { revalidateTag, unstable_cache } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { db } from "./db";
 
 /** Tag yang di-revalidate setiap kali kategori/merk/spek/produk berubah. */
@@ -27,7 +27,7 @@ export const getShowcase = unstable_cache(
       db.category.findMany({ orderBy: { sortOrder: "asc" }, select: { slug: true, nameId: true, nameEn: true, _count: { select: live } } }),
     ]);
     return {
-      brands: brands.filter((b) => b._count.products > 0).map(({ slug, name, logoUrl }) => ({ slug, name, logoUrl })),
+      brands: brands.filter((b) => b._count.products > 0 || !!b.logoUrl).map(({ slug, name, logoUrl }) => ({ slug, name, logoUrl })),
       categories: categories.filter((c) => c._count.products > 0).map((c) => ({ slug: c.slug, nameId: c.nameId, nameEn: c.nameEn, count: c._count.products })),
     };
   },
@@ -47,4 +47,15 @@ export const getSpecDefs = unstable_cache(
  */
 export function invalidateCatalog(): void {
   (revalidateTag as unknown as (tag: string, profile?: { expire: number }) => void)(CATALOG_TAG, { expire: 0 });
+}
+
+/**
+ * Segarkan seluruh etalase publik setelah admin mengubah produk/merk/kategori. Halaman publik berada di bawah
+ * segmen [locale] (layout akar terpisah dari admin), jadi `revalidatePath("/", "layout")` saja tidak menjangkaunya.
+ */
+export function revalidateStorefront(): void {
+  invalidateCatalog();
+  revalidatePath("/[locale]", "layout");
+  revalidatePath("/id");
+  revalidatePath("/en");
 }

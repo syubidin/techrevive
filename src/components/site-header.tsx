@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { BrandLogo } from "./brand-logo";
 import Link from "next/link";
 import { Suspense } from "react";
 import type { Locale } from "@/config/site";
@@ -22,7 +22,7 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Messages }) {
       <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] backdrop-blur-xl">
         <div className="container-x flex h-16 items-center justify-between gap-3">
           <Link href={`/${locale}`} className="flex items-center gap-2.5" aria-label="TechRevive">
-            <Image src="/logo.jpg" alt="" width={36} height={36} className="rounded-lg mix-blend-multiply dark:mix-blend-normal dark:bg-white" priority />
+            <span className="logo-tile h-10 w-10 rounded-xl"><BrandLogo variant="mark" size={32} className="h-8 w-8" priority /></span>
             <span className="text-lg font-extrabold tracking-tight">TechRevive</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex" aria-label="Main">

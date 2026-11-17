@@ -74,7 +74,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     <div className="space-y-8">
       <AdminPageHeader title="Dashboard" icon="dashboard" />
       {denied && <p className="card flex gap-2 p-4 text-sm text-[var(--color-danger-600)]"><Icon name="lock" size={18} className="shrink-0" />Anda tidak punya akses ke halaman tersebut.</p>}
-      {staleVerified > 0 && <p className="card flex gap-2 p-4 text-sm"><Icon name="alert" size={18} className="mt-0.5 shrink-0 text-amber-600" /><span>{staleVerified} produk berstatus “Tersedia” sudah lebih dari 48 jam dan otomatis tampil sebagai “Cek Ketersediaan”. Konfirmasi ulang ke supplier.</span></p>}
+      {staleVerified > 0 && <p className="card flex gap-2 p-4 text-sm"><Icon name="alert" size={18} className="mt-0.5 shrink-0 text-amber-600" /><span>{staleVerified} produk berstatus “Tersedia” sudah lebih dari 48 jam dan otomatis tampil sebagai “Check QC”. Pastikan unit masih siap, lalu konfirmasi ulang.</span></p>}
 
       {stockReview.length > 0 && (
         <section className="card border-[var(--color-brand-500)] p-5">

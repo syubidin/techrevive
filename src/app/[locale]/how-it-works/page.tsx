@@ -46,7 +46,7 @@ export default async function HowPage({ params }: { params: Promise<{ locale: st
             </ul>
           </section>
           <section className="card flex gap-3 p-5">
-            <Icon name="alert" className="mt-0.5 shrink-0 text-amber-600" />
+            <Icon name="shield-check" className="mt-0.5 shrink-0 text-green-600" />
             <div><p className="font-bold">{t.product.noWarrantyTitle}</p><p className="muted mt-1 text-sm">{t.trust.noWarranty}</p></div>
           </section>
           <div className="flex flex-wrap gap-2">

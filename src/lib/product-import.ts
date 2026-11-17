@@ -27,7 +27,7 @@ export const COLUMN_HELP: Record<Column, { required: boolean; help: string; exam
   harga_jual: { required: false, help: "Opsional. Jika diisi, margin dihitung dari sini (dibulatkan ke atas Rp1.000)", example: "" },
   berat_gram: { required: false, help: "Berat kemasan (gram). Kosong = 1000", example: "2500" },
   stok: { required: false, help: "Jumlah unit. Kosong = tidak diketahui, 0 = habis", example: "" },
-  ketersediaan: { required: false, help: "CEK, TERSEDIA, PREORDER, atau HABIS. Kosong = CEK", example: "CEK" },
+  ketersediaan: { required: false, help: "CEK (tampil Check QC), TERSEDIA, PREORDER, atau HABIS. Kosong = CEK", example: "CEK" },
   status: { required: false, help: "DRAFT atau TERBIT. Kosong = DRAFT. TERBIT wajib punya grade dan foto", example: "DRAFT" },
   supplier: { required: false, help: "Nama supplier. Jika belum ada, dibuat otomatis", example: "" },
   fitur: { required: false, help: "Pisahkan dengan titik koma", example: "touchscreen; backlit-keyboard" },

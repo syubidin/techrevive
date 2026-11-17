@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { BrandLogo } from "@/components/brand-logo";
 import Link from "next/link";
 import { deliveryUrl } from "@/lib/cloudinary-url";
 import { notFound } from "next/navigation";
@@ -64,8 +64,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ul>
           </div>
           <div data-intro className="relative mx-auto w-full max-w-[15rem] sm:max-w-sm">
-            <div data-float className="card relative grid aspect-square place-items-center overflow-hidden bg-white p-6">
-              <Image src="/logo.jpg" alt="TechRevive" width={420} height={420} priority className="h-auto w-full" />
+            <div data-float className="card logo-tile relative aspect-square overflow-hidden !p-6">
+              <BrandLogo variant="full" size={420} alt="TechRevive" priority className="h-auto w-full" />
             </div>
             <div className="card absolute -left-2 top-6 hidden sm:flex items-center gap-2.5 p-3 sm:-left-6">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-green-600/10 text-green-700 dark:text-green-300"><Icon name="badge-check" size={18} /></span>
