@@ -4,6 +4,9 @@ import { can, requirePermission } from "@/lib/admin";
 import { AdminAlert } from "@/components/admin-alert";
 import { AdminPageHeader } from "@/components/admin-page-header";
 import { ConfirmButton } from "../../confirm-button";
+import { DataTable } from "@/components/data-table";
+import { FormDialog } from "@/components/form-dialog";
+import { Icon } from "@/components/icons";
 import { addBrand, addCategory, addSpec, addSupplier } from "./actions";
 import { deleteBrand, deleteCategory, deleteSpec, deleteSupplier, updateBrand, updateCategory, updateSpec, updateSupplier } from "./manage-actions";
 
@@ -20,6 +23,9 @@ const F = ({ label, name, ...p }: { label: string; name: string } & React.InputH
   <div><label className="label" htmlFor={`${name}-${label}`}>{label}</label><input id={`${name}-${label}`} name={name} className="input" {...p} /></div>
 );
 
+const del = "btn btn-ghost btn-sm text-[var(--color-danger-600)]";
+const TYPE = { NUMBER: "Angka", ENUM: "Pilihan", BOOLEAN: "Ya/Tidak" } as const;
+
 export default async function Taxonomy({ searchParams }: { searchParams: Promise<{ error?: string; tab?: string; cat?: string }> }) {
   const me = await requirePermission("taxonomy.manage");
   const edit = can(me.role, "taxonomy.edit"); // ubah: Owner dan Developer
@@ -32,7 +38,9 @@ export default async function Taxonomy({ searchParams }: { searchParams: Promise
     db.supplier.findMany({ orderBy: { name: "asc" } }),
   ]);
   const cat = categories.find((c) => c.id === sp.cat) ?? categories[0];
-  const row = "flex flex-col gap-2 p-4 text-sm";
+  const td = "p-3";
+  const Actions = ({ children }: { children: React.ReactNode }) => <td className="p-3"><div className="flex justify-end gap-2">{children}</div></td>;
+  const Add = ({ label, children }: { label: string; children: React.ReactNode }) => <FormDialog label={label} title={label} icon="plus" variant="primary">{children}</FormDialog>;
 
   return (
     <div className="space-y-5">
@@ -45,29 +53,23 @@ export default async function Taxonomy({ searchParams }: { searchParams: Promise
 
       {tab === "kategori" && (
         <>
-          <details className="card p-4"><summary className="cursor-pointer font-bold">Tambah kategori</summary>
-            <form action={addCategory} className="mt-3 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"><F label="Nama (ID)" name="nameId" required /><F label="Name (EN)" name="nameEn" required /><button className="btn btn-primary">Tambah</button></form>
-          </details>
-          <ul className="card divide-y divide-[var(--line)] overflow-hidden">
-            {categories.length === 0 && <li className="muted p-6 text-center text-sm">Belum ada kategori.</li>}
+          <div className="flex justify-end"><Add label="Tambah kategori"><form action={addCategory} className="grid gap-3"><F label="Nama (ID)" name="nameId" required /><F label="Name (EN)" name="nameEn" required /><button className="btn btn-primary w-fit">Tambah</button></form></Add></div>
+          <DataTable heads={["Nama (ID)", "Name (EN)", "Produk", "Spek", "Aksi"]} min="34rem" empty="Belum ada kategori.">
             {categories.map((c) => (
-              <li key={c.id} className={row}>
-                <p className="font-semibold">{c.nameId} <span className="muted text-xs font-normal">/ {c.nameEn} · {c._count.products} produk · {c.specs.length} spek</span></p>
-                {edit && (
-                  <details>
-                    <summary className="cursor-pointer text-xs font-semibold underline">Ubah{manage ? " / hapus" : ""}</summary>
-                    <form action={updateCategory} className="mt-2 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-                      <input type="hidden" name="id" value={c.id} />
-                      <input name="nameId" className="input" defaultValue={c.nameId} required aria-label="Nama (ID)" />
-                      <input name="nameEn" className="input" defaultValue={c.nameEn} required aria-label="Name (EN)" />
-                      <button className="btn btn-primary">Simpan</button>
-                    </form>
-                    {manage && <form action={deleteCategory} className="mt-2"><input type="hidden" name="id" value={c.id} /><ConfirmButton message={`Hapus kategori “${c.nameId}” beserta definisi spek-nya? Tindakan ini tidak bisa dibatalkan.`}>Hapus kategori</ConfirmButton></form>}
-                  </details>
-                )}
-              </li>
+              <tr key={c.id}>
+                <td className={`${td} font-semibold`}>{c.nameId}</td><td className={`${td} muted`}>{c.nameEn}</td><td className={td}>{c._count.products}</td><td className={td}>{c.specs.length}</td>
+                <Actions>
+                  {edit && <FormDialog label="Edit" title={`Edit kategori`} icon="pencil">
+                    <form action={updateCategory} className="grid gap-3"><input type="hidden" name="id" value={c.id} />
+                      <div><label className="label">Nama (ID)</label><input name="nameId" className="input" defaultValue={c.nameId} required /></div>
+                      <div><label className="label">Name (EN)</label><input name="nameEn" className="input" defaultValue={c.nameEn} required /></div>
+                      <button className="btn btn-primary w-fit">Simpan perubahan</button></form>
+                  </FormDialog>}
+                  {manage && <form action={deleteCategory}><input type="hidden" name="id" value={c.id} /><ConfirmButton className={del} message={`Hapus kategori “${c.nameId}” beserta definisi spek-nya? Tindakan ini tidak bisa dibatalkan.`}><Icon name="trash" size={14} />Hapus</ConfirmButton></form>}
+                </Actions>
+              </tr>
             ))}
-          </ul>
+          </DataTable>
         </>
       )}
 
@@ -79,40 +81,40 @@ export default async function Taxonomy({ searchParams }: { searchParams: Promise
           </nav>
           {cat ? (
             <>
-              <ul className="card divide-y divide-[var(--line)] overflow-hidden">
-                {cat.specs.length === 0 && <li className="muted p-6 text-center text-sm">Belum ada spek untuk {cat.nameId}.</li>}
+              <div className="flex justify-end">
+                <Add label={`Tambah spek`}>
+                  <form action={addSpec} className="grid gap-3 sm:grid-cols-2">
+                    <input type="hidden" name="categoryId" value={cat.id} />
+                    <F label="Kunci (mis. ram_gb)" name="key" required pattern="[a-z][a-z0-9_]{1,39}" />
+                    <div><label className="label" htmlFor="sp-type">Tipe</label><select id="sp-type" name="type" className="input"><option value="NUMBER">Angka (rentang)</option><option value="ENUM">Pilihan</option><option value="BOOLEAN">Ya/Tidak</option></select></div>
+                    <F label="Label (ID)" name="labelId" required /><F label="Label (EN)" name="labelEn" required />
+                    <F label="Satuan (GB, inci…)" name="unit" />
+                    <div className="sm:col-span-2"><F label="Opsi (khusus tipe Pilihan, pisahkan koma)" name="options" placeholder="i3, i5, i7, Ryzen 5" /></div>
+                    <button className="btn btn-primary w-fit sm:col-span-2">Tambah spek untuk {cat.nameId}</button>
+                  </form>
+                </Add>
+              </div>
+              <DataTable heads={["Label", "Kunci", "Tipe", "Satuan", "Opsi", "Aksi"]} min="44rem" empty={`Belum ada spek untuk ${cat.nameId}.`}>
                 {cat.specs.map((s) => (
-                  <li key={s.id} className={row}>
-                    <p className="font-semibold">{s.labelId} <span className="muted text-xs font-normal">· <code>{s.key}</code> · {s.type === "NUMBER" ? "angka" : s.type === "ENUM" ? "pilihan" : "ya/tidak"}{s.unit ? ` (${s.unit})` : ""}{s.options.length ? ` · ${s.options.join(", ")}` : ""}</span></p>
-                    {edit && (
-                      <details>
-                        <summary className="cursor-pointer text-xs font-semibold underline">Ubah{manage ? " / hapus" : ""}</summary>
-                        <form action={updateSpec} className="mt-2 grid gap-2 sm:grid-cols-2">
-                          <input type="hidden" name="id" value={s.id} />
-                          <input name="labelId" className="input" defaultValue={s.labelId} required aria-label="Label (ID)" />
-                          <input name="labelEn" className="input" defaultValue={s.labelEn} required aria-label="Label (EN)" />
-                          <input name="unit" className="input" defaultValue={s.unit ?? ""} placeholder="Satuan" aria-label="Satuan" />
-                          {s.type === "ENUM" && <input name="options" className="input" defaultValue={s.options.join(", ")} placeholder="Opsi dipisah koma" aria-label="Opsi" />}
-                          <button className="btn btn-primary sm:w-fit">Simpan</button>
-                        </form>
-                        <p className="muted mt-1 text-xs">Kunci dan tipe tidak bisa diubah agar data produk tetap valid.</p>
-                        {manage && <form action={deleteSpec} className="mt-1"><input type="hidden" name="id" value={s.id} /><ConfirmButton message={`Hapus spek “${s.key}”? Filter di katalog untuk spek ini akan hilang.`}>Hapus spek</ConfirmButton></form>}
-                      </details>
-                    )}
-                  </li>
+                  <tr key={s.id}>
+                    <td className={`${td} font-semibold`}>{s.labelId}<span className="muted block text-xs font-normal">{s.labelEn}</span></td>
+                    <td className={td}><code className="text-xs">{s.key}</code></td><td className={td}>{TYPE[s.type]}</td><td className={`${td} muted`}>{s.unit ?? "-"}</td>
+                    <td className={`${td} muted max-w-[14rem] text-xs`}>{s.options.length ? s.options.join(", ") : "-"}</td>
+                    <Actions>
+                      {edit && <FormDialog label="Edit" title={`Edit spek ${s.key}`} icon="pencil">
+                        <form action={updateSpec} className="grid gap-3 sm:grid-cols-2"><input type="hidden" name="id" value={s.id} />
+                          <div><label className="label">Label (ID)</label><input name="labelId" className="input" defaultValue={s.labelId} required /></div>
+                          <div><label className="label">Label (EN)</label><input name="labelEn" className="input" defaultValue={s.labelEn} required /></div>
+                          <div><label className="label">Satuan</label><input name="unit" className="input" defaultValue={s.unit ?? ""} /></div>
+                          {s.type === "ENUM" && <div><label className="label">Opsi (pisahkan koma)</label><input name="options" className="input" defaultValue={s.options.join(", ")} /></div>}
+                          <p className="muted text-xs sm:col-span-2">Kunci dan tipe tidak bisa diubah agar data produk tetap valid.</p>
+                          <button className="btn btn-primary w-fit sm:col-span-2">Simpan perubahan</button></form>
+                      </FormDialog>}
+                      {manage && <form action={deleteSpec}><input type="hidden" name="id" value={s.id} /><ConfirmButton className={del} message={`Hapus spek “${s.key}”? Filter di katalog untuk spek ini akan hilang.`}><Icon name="trash" size={14} />Hapus</ConfirmButton></form>}
+                    </Actions>
+                  </tr>
                 ))}
-              </ul>
-              <details className="card p-4"><summary className="cursor-pointer font-bold">Tambah spek untuk {cat.nameId}</summary>
-                <form action={addSpec} className="mt-3 grid gap-3 sm:grid-cols-3">
-                  <input type="hidden" name="categoryId" value={cat.id} />
-                  <F label="Kunci (mis. ram_gb)" name="key" required pattern="[a-z][a-z0-9_]{1,39}" />
-                  <div><label className="label" htmlFor="sp-type">Tipe</label><select id="sp-type" name="type" className="input"><option value="NUMBER">Angka (rentang)</option><option value="ENUM">Pilihan</option><option value="BOOLEAN">Ya/Tidak</option></select></div>
-                  <F label="Satuan (GB, inci…)" name="unit" />
-                  <F label="Label (ID)" name="labelId" required /><F label="Label (EN)" name="labelEn" required />
-                  <div className="sm:col-span-3"><F label="Opsi (khusus tipe Pilihan, pisahkan koma)" name="options" placeholder="i3, i5, i7, Ryzen 5" /></div>
-                  <button className="btn btn-primary sm:col-span-3 sm:w-fit">Tambah spek</button>
-                </form>
-              </details>
+              </DataTable>
             </>
           ) : <p className="muted text-sm">Buat kategori dulu.</p>}
         </>
@@ -120,53 +122,41 @@ export default async function Taxonomy({ searchParams }: { searchParams: Promise
 
       {tab === "merk" && (
         <>
-          <details className="card p-4"><summary className="cursor-pointer font-bold">Tambah merk</summary>
-            <form action={addBrand} className="mt-3 flex items-end gap-2"><div className="flex-1"><F label="Nama merk" name="name" required /></div><button className="btn btn-primary">Tambah</button></form>
-          </details>
-          <ul className="card divide-y divide-[var(--line)] overflow-hidden">
-            {brands.length === 0 && <li className="muted p-6 text-center text-sm">Belum ada merk.</li>}
+          <div className="flex justify-end"><Add label="Tambah merk"><form action={addBrand} className="grid gap-3"><F label="Nama merk" name="name" required /><button className="btn btn-primary w-fit">Tambah</button></form></Add></div>
+          <DataTable heads={["Merk", "Produk", "Aksi"]} min="24rem" empty="Belum ada merk.">
             {brands.map((b) => (
-              <li key={b.id} className={row}>
-                <p className="font-semibold">{b.name} <span className="muted text-xs font-normal">· {b._count.products} produk</span></p>
-                {edit && (
-                  <details>
-                    <summary className="cursor-pointer text-xs font-semibold underline">Ubah{manage ? " / hapus" : ""}</summary>
-                    <form action={updateBrand} className="mt-2 flex gap-2"><input type="hidden" name="id" value={b.id} /><input name="name" className="input" defaultValue={b.name} required aria-label="Nama merk" /><button className="btn btn-primary">Simpan</button></form>
-                    {manage && <form action={deleteBrand} className="mt-2"><input type="hidden" name="id" value={b.id} /><ConfirmButton message={`Hapus merk “${b.name}”?`}>Hapus merk</ConfirmButton></form>}
-                  </details>
-                )}
-              </li>
+              <tr key={b.id}>
+                <td className={`${td} font-semibold`}>{b.name}</td><td className={td}>{b._count.products}</td>
+                <Actions>
+                  {edit && <FormDialog label="Edit" title="Edit merk" icon="pencil"><form action={updateBrand} className="grid gap-3"><input type="hidden" name="id" value={b.id} /><div><label className="label">Nama merk</label><input name="name" className="input" defaultValue={b.name} required /></div><button className="btn btn-primary w-fit">Simpan perubahan</button></form></FormDialog>}
+                  {manage && <form action={deleteBrand}><input type="hidden" name="id" value={b.id} /><ConfirmButton className={del} message={`Hapus merk “${b.name}”?`}><Icon name="trash" size={14} />Hapus</ConfirmButton></form>}
+                </Actions>
+              </tr>
             ))}
-          </ul>
+          </DataTable>
         </>
       )}
 
       {tab === "supplier" && (
         <>
-          <details className="card p-4"><summary className="cursor-pointer font-bold">Tambah supplier</summary>
-            <form action={addSupplier} className="mt-3 grid gap-3 sm:grid-cols-3"><F label="Nama" name="name" required /><F label="No. WhatsApp" name="waNumber" inputMode="tel" /><F label="Catatan" name="notes" /><button className="btn btn-primary sm:w-fit">Tambah</button></form>
-          </details>
-          <ul className="card divide-y divide-[var(--line)] overflow-hidden">
-            {suppliers.length === 0 && <li className="muted p-6 text-center text-sm">Belum ada supplier.</li>}
+          <div className="flex justify-end"><Add label="Tambah supplier"><form action={addSupplier} className="grid gap-3"><F label="Nama" name="name" required /><F label="No. WhatsApp" name="waNumber" inputMode="tel" /><F label="Catatan" name="notes" /><button className="btn btn-primary w-fit">Tambah</button></form></Add></div>
+          <DataTable heads={["Supplier", "WhatsApp", "Catatan", "Aksi"]} min="36rem" empty="Belum ada supplier.">
             {suppliers.map((s) => (
-              <li key={s.id} className={row}>
-                <p className="font-semibold">{s.name}{s.waNumber ? <span className="muted text-xs font-normal"> · {s.waNumber}</span> : ""}</p>
-                {edit && (
-                  <details>
-                    <summary className="cursor-pointer text-xs font-semibold underline">Ubah{manage ? " / hapus" : ""}</summary>
-                    <form action={updateSupplier} className="mt-2 grid gap-2">
-                      <input type="hidden" name="id" value={s.id} />
-                      <input name="name" className="input" defaultValue={s.name} required aria-label="Nama supplier" />
-                      <input name="waNumber" className="input" defaultValue={s.waNumber ?? ""} inputMode="tel" placeholder="No. WhatsApp" aria-label="No. WhatsApp" />
-                      <input name="notes" className="input" defaultValue={s.notes ?? ""} placeholder="Catatan" aria-label="Catatan" />
-                      <button className="btn btn-primary sm:w-fit">Simpan</button>
-                    </form>
-                    {manage && <form action={deleteSupplier} className="mt-2"><input type="hidden" name="id" value={s.id} /><ConfirmButton message={`Hapus supplier “${s.name}”? Produk terkait menjadi “tanpa supplier”.`}>Hapus supplier</ConfirmButton></form>}
-                  </details>
-                )}
-              </li>
+              <tr key={s.id}>
+                <td className={`${td} font-semibold`}>{s.name}</td><td className={`${td} muted`}>{s.waNumber ?? "-"}</td><td className={`${td} muted max-w-[16rem] truncate`}>{s.notes ?? "-"}</td>
+                <Actions>
+                  {edit && <FormDialog label="Edit" title="Edit supplier" icon="pencil">
+                    <form action={updateSupplier} className="grid gap-3"><input type="hidden" name="id" value={s.id} />
+                      <div><label className="label">Nama</label><input name="name" className="input" defaultValue={s.name} required /></div>
+                      <div><label className="label">No. WhatsApp</label><input name="waNumber" className="input" defaultValue={s.waNumber ?? ""} inputMode="tel" /></div>
+                      <div><label className="label">Catatan</label><input name="notes" className="input" defaultValue={s.notes ?? ""} /></div>
+                      <button className="btn btn-primary w-fit">Simpan perubahan</button></form>
+                  </FormDialog>}
+                  {manage && <form action={deleteSupplier}><input type="hidden" name="id" value={s.id} /><ConfirmButton className={del} message={`Hapus supplier “${s.name}”? Produk terkait menjadi “tanpa supplier”.`}><Icon name="trash" size={14} />Hapus</ConfirmButton></form>}
+                </Actions>
+              </tr>
             ))}
-          </ul>
+          </DataTable>
         </>
       )}
     </div>

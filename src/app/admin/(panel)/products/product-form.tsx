@@ -28,8 +28,8 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
     if (!files?.length) return;
     setUploading(true); setUploadMsg("");
     const messages: Record<string, string> = {
-      UPLOAD_NOT_CONFIGURED: "Penyimpanan R2 belum diatur. Tempel URL manual.", UNSUPPORTED_TYPE: "Hanya JPG, PNG, atau WebP.",
-      TOO_LARGE: "Maksimal 5 MB per foto.", RATE_LIMITED: "Terlalu banyak unggahan, coba lagi nanti.", STORAGE_ERROR: "Gagal menyimpan ke R2.",
+      UPLOAD_NOT_CONFIGURED: "Penyimpanan gambar belum diatur. Tempel URL manual.", UNSUPPORTED_TYPE: "Hanya JPG, PNG, atau WebP.",
+      TOO_LARGE: "Maksimal 5 MB per foto.", RATE_LIMITED: "Terlalu banyak unggahan, coba lagi nanti.", STORAGE_ERROR: "Gagal menyimpan gambar ke penyimpanan.",
     };
     for (const file of Array.from(files)) {
       const fd = new FormData(); fd.append("file", file);

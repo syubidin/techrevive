@@ -1,4 +1,5 @@
 import { AdminNav, type AdminNavItem } from "@/components/admin-nav";
+import { ConfirmProvider } from "@/components/confirm-provider";
 import { Icon } from "@/components/icons";
 import { requireAdmin, can } from "@/lib/admin";
 import { ROLE_LABEL, type Permission } from "@/lib/rbac";
@@ -26,11 +27,12 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <p className="text-sm font-semibold">{me.name}</p>
         <p className="muted text-xs">{ROLE_LABEL[me.role]}</p>
         <div className="mt-3 grid gap-1">
-          <form action={logout}><button className="btn btn-ghost btn-sm w-full justify-start"><Icon name="log-out" size={16} />Keluar</button></form>
-          <form action={logoutEverywhere}><button className="btn btn-ghost btn-sm muted w-full justify-start" title="Putus login di semua perangkat"><Icon name="lock" size={16} />Keluar semua perangkat</button></form>
+          <form action={logout} data-confirm="Anda akan keluar dari admin di perangkat ini."><button className="btn btn-ghost btn-sm w-full justify-start"><Icon name="log-out" size={16} />Keluar</button></form>
+          <form action={logoutEverywhere} data-confirm="Semua perangkat yang sedang login dengan akun ini akan dikeluarkan, termasuk perangkat ini."><button className="btn btn-ghost btn-sm muted w-full justify-start" title="Putus login di semua perangkat"><Icon name="lock" size={16} />Keluar semua perangkat</button></form>
         </div>
       </AdminNav>
       <main className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
+      <ConfirmProvider />
     </div>
   );
 }

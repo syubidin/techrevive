@@ -44,3 +44,8 @@ Satu VPS ini cukup untuk ribuan kunjungan per hari karena halaman publik di-cach
 3. R2 → Manage API Tokens → buat token **Object Read & Write** untuk bucket itu. Isi `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`.
 4. Restart aplikasi. Tombol **Unggah foto** muncul aktif di form produk (hanya Owner/Developer). Tanpa konfigurasi, tempel URL manual tetap berfungsi.
 File diperiksa di server (magic bytes JPG/PNG/WebP, maks. 5 MB) dan diberi nama acak.
+
+## Penyimpanan foto tanpa kartu kredit: Cloudinary
+1. Daftar gratis di cloudinary.com (tanpa kartu kredit). Di Dashboard salin **Cloud name**, **API Key**, **API Secret**.
+2. Isi di Vercel: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, dan `IMAGE_HOST=res.cloudinary.com`. Redeploy.
+3. Jika Cloudinary diisi, unggahan foto memakainya; R2 tidak diperlukan. Alternatif tanpa layanan apa pun: tempel URL foto manual di form produk.

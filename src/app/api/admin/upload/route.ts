@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { can, getAdminOrNull } from "@/lib/admin";
 import { getEnv } from "@/lib/env";
 import { sniffImage } from "@/lib/image-sniff";
+import { cloudinaryConfig, uploadToCloudinary } from "@/lib/cloudinary";
 import { putObject, r2Config } from "@/lib/r2";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -19,9 +20,11 @@ export async function POST(req: NextRequest) {
   if (!me) return err(401, "UNAUTHORIZED");
   if (!can(me.role, "upload.image")) return err(403, "FORBIDDEN");
 
+  // Penyimpanan: Cloudinary (gratis tanpa kartu kredit) bila diatur, jika tidak Cloudflare R2.
+  const cld = cloudinaryConfig();
   const cfg = r2Config();
   const host = process.env.IMAGE_HOST?.trim();
-  if (!cfg || !host) return err(503, "UPLOAD_NOT_CONFIGURED");
+  if (!cld && (!cfg || !host)) return err(503, "UPLOAD_NOT_CONFIGURED");
 
   const limit = await rateLimit(`upload:${me.id}`, 30, 600);
   if (!limit.allowed) return err(429, "RATE_LIMITED");
@@ -38,8 +41,14 @@ export async function POST(req: NextRequest) {
   const type = sniffImage(bytes);
   if (!type) return err(415, "UNSUPPORTED_TYPE"); // hanya JPG/PNG/WebP asli
 
+  if (cld) {
+    try { return NextResponse.json({ url: await uploadToCloudinary(cld, bytes, type.mime) }, { headers: { "Cache-Control": "no-store" } }); } catch (e) {
+      console.error(JSON.stringify({ evt: "upload.failed", provider: "cloudinary", message: e instanceof Error ? e.message : "unknown" }));
+      return err(502, "STORAGE_ERROR");
+    }
+  }
   const key = `products/${Date.now().toString(36)}-${randomBytes(8).toString("hex")}.${type.ext}`;
-  try { await putObject(cfg, key, bytes, type.mime); } catch (e) {
+  try { await putObject(cfg!, key, bytes, type.mime); } catch (e) {
     console.error(JSON.stringify({ evt: "upload.failed", message: e instanceof Error ? e.message : "unknown" }));
     return err(502, "STORAGE_ERROR");
   }

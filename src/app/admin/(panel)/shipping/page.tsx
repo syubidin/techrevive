@@ -3,6 +3,9 @@ import { can, requirePermission } from "@/lib/admin";
 import { AdminAlert } from "@/components/admin-alert";
 import { AdminPageHeader } from "@/components/admin-page-header";
 import { ConfirmButton } from "../../confirm-button";
+import { DataTable } from "@/components/data-table";
+import { FormDialog } from "@/components/form-dialog";
+import { Icon } from "@/components/icons";
 import { JABODETABEK_CITIES } from "@/lib/shipping";
 import { deleteRate, saveRate } from "./actions";
 
@@ -37,23 +40,24 @@ export default async function Shipping({ searchParams }: { searchParams: Promise
       <AdminPageHeader title="Tarif ongkir Jabodetabek" icon="truck" />
       <p className="muted text-sm">Berat tertagih = yang terbesar antara berat asli dan volumetrik, dibulatkan ke atas per kg. Kota tersedia: {JABODETABEK_CITIES.join(", ")}. Di luar daftar, isi ongkir manual saat membuat pesanan.</p>
       <AdminAlert message={error} />
-      {rates.map((r) => (
-        <details key={r.id} className="card p-4">
-          <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2">
-            <span className="font-semibold">{r.zone}</span>
-            <span className="muted text-xs">Rp{r.baseFee.toLocaleString("id-ID")} + Rp{r.perKgFee.toLocaleString("id-ID")}/kg · {r.minDays}-{r.maxDays} hari</span>
-            {!r.isActive && <span className="chip chip-tone-mute ml-auto">Nonaktif</span>}
-          </summary>
-          <div className="mt-4">
-            <RateForm r={r} />
-            {manage && <form action={deleteRate} className="mt-2"><input type="hidden" name="id" value={r.id} /><ConfirmButton message={`Hapus zona “${r.zone}”? Inquiry lama tidak terpengaruh.`}>Hapus zona {r.zone}</ConfirmButton></form>}
-          </div>
-        </details>
-      ))}
-      <details className="card p-4" open={rates.length === 0}>
-        <summary className="cursor-pointer font-bold">Tambah zona baru</summary>
-        <div className="mt-4"><RateForm /></div>
-      </details>
+      <div className="flex justify-end"><FormDialog label="Tambah zona" title="Tambah zona baru" icon="plus" variant="primary" size="md"><RateForm /></FormDialog></div>
+      <DataTable heads={["Zona", "Kota", "Tarif", "Estimasi", "Status", "Aksi"]} min="48rem" empty="Belum ada zona ongkir.">
+        {rates.map((r) => (
+          <tr key={r.id}>
+            <td className="p-3 font-semibold">{r.zone}</td>
+            <td className="muted max-w-[16rem] p-3 text-xs">{r.cities.join(", ")}</td>
+            <td className="whitespace-nowrap p-3">Rp{r.baseFee.toLocaleString("id-ID")}<span className="muted block text-xs">+ Rp{r.perKgFee.toLocaleString("id-ID")}/kg</span></td>
+            <td className="whitespace-nowrap p-3">{r.minDays}-{r.maxDays} hari</td>
+            <td className="p-3"><span className={`chip ${r.isActive ? "chip-tone-ok" : "chip-tone-mute"}`}>{r.isActive ? "Aktif" : "Nonaktif"}</span></td>
+            <td className="p-3">
+              <div className="flex justify-end gap-2">
+                <FormDialog label="Edit" title={`Edit zona ${r.zone}`} icon="pencil"><RateForm r={r} /></FormDialog>
+                {manage && <form action={deleteRate}><input type="hidden" name="id" value={r.id} /><ConfirmButton message={`Hapus zona “${r.zone}”? Inquiry lama tidak terpengaruh.`}><Icon name="trash" size={14} />Hapus</ConfirmButton></form>}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </DataTable>
     </div>
   );
 }
