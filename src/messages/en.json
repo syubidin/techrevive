@@ -169,7 +169,7 @@
   },
   "availability": {
     "CHECK": "Check Availability",
-    "VERIFIED": "Available (confirmed {date})",
+    "VERIFIED": "Available",
     "PREORDER": "Pre-order",
     "SOLD_OUT": "Sold out"
   },
@@ -458,7 +458,11 @@
         "d": "The quote has expired. Contact us for an updated price."
       }
     },
-    "timeline": "Status history"
+    "timeline": "Status history",
+    "confirmReceived": "I have received my order",
+    "confirmHint": "Tap once the item is in your hands. If you forget, our team will also mark it complete on delivery.",
+    "thanksTitle": "Thank you for shopping with TechRevive",
+    "thanksBody": "We hope you enjoy it. It was a pleasure serving you, see you on your next order."
   },
   "notFound": {
     "title": "Page not found",

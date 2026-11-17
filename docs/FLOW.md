@@ -48,3 +48,9 @@ Di detail inquiry admin ada satu panel **Langkah berikutnya** yang berubah mengi
 Tombol "Kabari via WhatsApp" selalu menyiapkan pesan sesuai status beserta link Lacak Pesanan.
 Form "Koreksi order (lanjutan)" tetap ada (Owner/Developer) untuk memperbaiki angka atau membatalkan tanda lunas/dikirim.
 Pelanggan melihat status yang sama di halaman Lacak Pesanan (kode inquiry + nomor WhatsApp).
+
+## Impor produk (CSV/Excel)
+Admin > Produk > Impor. Unduh template (.xlsx dengan dropdown, atau .csv), isi satu produk per baris, unggah. Semua-atau-tidak-sama-sekali: satu baris salah = tidak ada yang disimpan, semua kesalahan ditampilkan dengan nomor baris. Centang "Hanya periksa dulu" untuk uji tanpa menyimpan. Maks. 500 produk dan 2 MB per file. Logika: src/lib/product-import.ts.
+
+## Selesai
+Saat status Dikirim, pembeli bisa menekan "Pesanan sudah saya terima" di Lacak Pesanan (butuh kode + nomor WA), atau admin menekan Selesai. Keduanya menghasilkan status Selesai, tahap terakhir bercentang di sisi pembeli dan admin, dan pembeli melihat ucapan terima kasih.

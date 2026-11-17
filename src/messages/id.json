@@ -169,7 +169,7 @@
   },
   "availability": {
     "CHECK": "Cek Ketersediaan",
-    "VERIFIED": "Tersedia (dikonfirmasi {date})",
+    "VERIFIED": "Tersedia",
     "PREORDER": "Pre-order",
     "SOLD_OUT": "Habis"
   },
@@ -458,7 +458,11 @@
         "d": "Masa berlaku penawaran habis. Hubungi kami untuk harga terbaru."
       }
     },
-    "timeline": "Riwayat status"
+    "timeline": "Riwayat status",
+    "confirmReceived": "Pesanan sudah saya terima",
+    "confirmHint": "Tekan setelah barang sampai di tangan Anda. Jika lupa, tim kami juga akan menandai selesai saat barang diterima.",
+    "thanksTitle": "Terima kasih telah berbelanja di TechRevive",
+    "thanksBody": "Semoga barangnya bermanfaat. Kami senang bisa melayani Anda, sampai jumpa di pesanan berikutnya."
   },
   "notFound": {
     "title": "Halaman tidak ditemukan",

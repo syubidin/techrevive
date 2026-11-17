@@ -86,7 +86,7 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
   });
   const waLink = `https://wa.me/${inquiry.phone}?text=${encodeURIComponent(msg)}`;
 
-  const canInvoice = can(me.role, "invoice.issue") && !!o?.paidAt;
+  const canInvoice = can(me.role, "invoice.issue") && !!o;
   const invoiceUrl = o?.invoiceToken ? `${site_}/${lang}/invoice/${o.invoiceToken}` : null;
   const invoiceWa = invoiceUrl ? `https://wa.me/${inquiry.phone}?text=${encodeURIComponent(`Halo ${inquiry.customerName}, terima kasih sudah berbelanja di TechRevive. Berikut bukti pembelian ${invoiceNumber(inquiry.code)}:\n${invoiceUrl}`)}` : null;
   const profit = cost && o ? computeProfit(o.itemPrice, o.itemCost, o.paymentFee) : null;
@@ -200,11 +200,11 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
                     <a href={invoiceUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm"><Icon name="receipt" size={16} />Buka / cetak</a>
                     <a href={invoiceWa!} target="_blank" rel="noopener noreferrer" className="btn btn-accent btn-sm"><Icon name="message-circle" size={16} />Kirim</a>
                   </div>
-                  <form action={revokeInvoice}><input type="hidden" name="inquiryId" value={inquiry.id} /><button className="muted text-xs underline">Cabut link invoice</button></form>
+                  {money && <form action={revokeInvoice}><input type="hidden" name="inquiryId" value={inquiry.id} /><button className="muted text-xs underline">Cabut link invoice</button></form>}
                 </>
               ) : (
                 <>
-                  <p className="muted">Buat link bukti pembelian untuk customer (tanpa modal dan laba).</p>
+                  <p className="muted">Buat link invoice untuk customer (hanya harga jual, tanpa modal dan laba). Status Lunas/Belum lunas ikut otomatis.</p>
                   <form action={issueInvoice}><input type="hidden" name="inquiryId" value={inquiry.id} /><button className="btn btn-primary btn-sm">Buat invoice</button></form>
                 </>
               )}

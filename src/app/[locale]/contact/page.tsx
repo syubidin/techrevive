@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale, site } from "@/config/site";
-import { waLink, waNumber } from "@/lib/contact";
+import { waNumber } from "@/lib/contact";
 import { getMessages } from "@/lib/i18n";
 import { Icon, socialIcon } from "@/components/icons";
 import { ContactForm } from "@/components/contact-form";
@@ -26,10 +26,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     <>
       <PageHero title={c.title} intro={c.intro} icon="phone" />
       <div className="container-x grid gap-6 py-8 sm:py-10 lg:grid-cols-[1fr_1.2fr]">
-        <div className="space-y-4">
-          <ContactForm t={c} waNumber={waNumber()} />
-          <a href={waLink(c.waText)} target="_blank" rel="noopener noreferrer" className="btn btn-ghost w-full"><Icon name="message-circle" size={18} />{c.waButton}</a>
-        </div>
+        <ContactForm t={c} waNumber={waNumber()} />
         <div className="space-y-4">
           <ul className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             {info.map((i) => (

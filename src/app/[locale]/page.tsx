@@ -62,15 +62,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               ))}
             </ul>
           </div>
-          <div data-intro className="relative mx-auto w-full max-w-sm">
+          <div data-intro className="relative mx-auto w-full max-w-[15rem] sm:max-w-sm">
             <div data-float className="card relative grid aspect-square place-items-center overflow-hidden bg-white p-6">
               <Image src="/logo.jpg" alt="TechRevive" width={420} height={420} priority className="h-auto w-full" />
             </div>
-            <div className="card absolute -left-2 top-6 flex items-center gap-2.5 p-3 sm:-left-6">
+            <div className="card absolute -left-2 top-6 hidden sm:flex items-center gap-2.5 p-3 sm:-left-6">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-green-600/10 text-green-700 dark:text-green-300"><Icon name="badge-check" size={18} /></span>
               <div><p className="text-sm font-bold">{t.hero.floatA}</p><p className="muted text-xs">{t.hero.floatAd}</p></div>
             </div>
-            <div className="card absolute -right-2 bottom-8 flex items-center gap-2.5 p-3 sm:-right-6">
+            <div className="card absolute -right-2 bottom-8 hidden sm:flex items-center gap-2.5 p-3 sm:-right-6">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name="shield-check" size={18} /></span>
               <div><p className="text-sm font-bold">{t.hero.floatB}</p><p className="muted text-xs">{t.hero.floatBd}</p></div>
             </div>

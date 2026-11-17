@@ -33,6 +33,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       <AdminPageHeader title={`${archived ? "Arsip produk" : "Produk"} (${total})`} icon="package">
         <div className="flex gap-2">
           <Link href={archived ? "/admin/products" : "/admin/products?view=archived"} className="btn btn-ghost btn-sm">{archived ? <><Icon name="arrow-left" size={16} />Aktif</> : <><Icon name="history" size={16} />Arsip</>}</Link>
+          <Link href="/admin/products/import" className="btn btn-ghost btn-sm"><Icon name="upload" size={16} />Impor</Link>
           <Link href="/admin/products/new" className="btn btn-primary btn-sm"><Icon name="plus" size={16} />Produk baru</Link>
         </div>
       </AdminPageHeader>
@@ -54,25 +55,25 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             const pr = computeProfit(p.sellPrice, p.costPrice);
             const [stLabel, stTone] = STATUS[p.status] ?? [p.status, "chip-tone-mute"];
             return (
-              <li key={p.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-                <div className="min-w-0 flex-1">
+              <li key={p.id} className="grid gap-x-4 gap-y-3 p-4 md:grid-cols-[minmax(0,1fr)_11rem_auto] md:items-center">
+                <div className="min-w-0">
                   <Link href={`/admin/products/${p.id}`} className="block truncate font-semibold hover:underline">{p.nameId}</Link>
                   <p className="muted truncate text-xs">{p.sku} · {p.brand.name}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className={`chip ${stTone}`}>{stLabel}</span>
+                    <span className="chip">{AVAIL[p.availability] ?? p.availability}</span>
+                  </div>
                 </div>
-                <div className="text-sm sm:w-44 sm:text-right">
+                <div className="text-sm md:text-right">
                   <p className="font-bold">{idr(p.sellPrice)}</p>
                   <p className="muted text-xs">Laba {idr(pr.profit)} ({(pr.marginBps / 100).toFixed(0)}%)</p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 sm:w-52 sm:justify-end">
-                  <span className={`chip ${stTone}`}>{stLabel}</span>
-                  <span className="chip">{AVAIL[p.availability] ?? p.availability}</span>
-                </div>
-                <div className="flex gap-2 text-xs sm:w-36 sm:justify-end">
+                <div className="flex flex-wrap items-center gap-2 md:justify-end">
                   <Link href={`/admin/products/${p.id}`} className="btn btn-ghost btn-sm"><Icon name="pencil" size={14} />Ubah</Link>
                   {archived ? (
                     <>
                       <form action={restoreProduct}><input type="hidden" name="id" value={p.id} /><button className="btn btn-ghost btn-sm" aria-label={`Pulihkan ${p.nameId}`}>Pulihkan</button></form>
-                      {manage && <form action={deleteProductPermanently}><input type="hidden" name="id" value={p.id} /><ConfirmButton className="btn btn-ghost btn-sm text-[var(--color-danger-600)]" message={`Hapus permanen “${p.nameId}” (${p.sku})? Tidak bisa dibatalkan.`}><Icon name="trash" size={14} /></ConfirmButton></form>}
+                      {manage && <form action={deleteProductPermanently}><input type="hidden" name="id" value={p.id} /><ConfirmButton className="btn btn-ghost btn-sm text-[var(--color-danger-600)]" message={`Hapus permanen “${p.nameId}” (${p.sku})? Tidak bisa dibatalkan.`}><Icon name="trash" size={14} />Hapus</ConfirmButton></form>}
                     </>
                   ) : (
                     <form action={archiveProduct}><input type="hidden" name="id" value={p.id} /><button className="btn btn-ghost btn-sm" aria-label={`Arsipkan ${p.nameId}`}>Arsipkan</button></form>

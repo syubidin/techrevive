@@ -29,7 +29,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
       inquiry: { select: { code: true, customerName: true, phone: true, status: true, productSnapshot: true, product: { select: { sku: true, nameId: true, nameEn: true, grade: true } } } },
     },
   });
-  if (!order || !order.paidAt || order.inquiry.status === "CANCELLED") notFound();
+  // Invoice tetap bisa dibuka selama pesanan ada (juga sebelum lunas/diterima); hanya pesanan batal yang disembunyikan.
+  if (!order || order.inquiry.status === "CANCELLED") notFound();
+  const paid = !!order.paidAt;
 
   const L = (id: string, en: string) => pick(locale, id, en);
   const { lines, total } = invoiceLines(order, { item: L("Barang", "Item"), shipping: L("Ongkos kirim / antar", "Delivery fee"), insurance: L("Asuransi", "Insurance") });
@@ -46,14 +48,14 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
           </div>
           <div className="text-right">
             <p className="font-mono text-sm font-bold">{invoiceNumber(order.inquiry.code)}</p>
-            <p className="muted text-xs">{formatDate(order.invoiceIssuedAt ?? order.paidAt, locale)}</p>
-            <span className="chip mt-1">{L("LUNAS", "PAID")}</span>
+            <p className="muted text-xs">{formatDate(order.invoiceIssuedAt ?? order.paidAt ?? new Date(), locale)}</p>
+            <span className={`chip mt-1 ${paid ? "chip-tone-ok" : "chip-tone-warn"}`}>{paid ? L("LUNAS", "PAID") : L("BELUM LUNAS", "UNPAID")}</span>
           </div>
         </header>
 
         <section className="grid gap-4 text-sm sm:grid-cols-2">
           <div><p className="muted text-xs font-semibold uppercase">{L("Pembeli", "Customer")}</p><p className="font-semibold">{order.inquiry.customerName}</p><p className="muted">{maskPhone(order.inquiry.phone)}</p></div>
-          <div><p className="muted text-xs font-semibold uppercase">{L("Pembayaran", "Payment")}</p><p>{method}</p><p className="muted">{formatDate(order.paidAt, locale)}</p></div>
+          <div><p className="muted text-xs font-semibold uppercase">{L("Pembayaran", "Payment")}</p><p>{method}</p><p className="muted">{order.paidAt ? formatDate(order.paidAt, locale) : L("Belum dibayar", "Not paid yet")}</p></div>
         </section>
 
         <section>

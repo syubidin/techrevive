@@ -357,13 +357,13 @@ export async function reviewStockAfterSale(formData: FormData): Promise<void> {
 
 const invoiceSchema = z.object({ inquiryId: z.string().cuid() });
 
-/** Membuat link invoice publik. Hanya untuk order yang sudah lunas; link yang sudah ada dipertahankan. */
+/** Membuat link invoice publik. Tersedia sejak pesanan dibuat dan tidak hilang sampai barang diterima; link yang sudah ada dipertahankan. */
 export async function issueInvoice(formData: FormData): Promise<void> {
   const me = await requirePermission("invoice.issue");
   const parsed = invoiceSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return;
-  const order = await db.order.findUnique({ where: { inquiryId: parsed.data.inquiryId }, select: { paidAt: true, invoiceToken: true } });
-  if (!order?.paidAt || order.invoiceToken) return;
+  const order = await db.order.findUnique({ where: { inquiryId: parsed.data.inquiryId }, select: { invoiceToken: true } });
+  if (!order || order.invoiceToken) return;
   await db.order.update({ where: { inquiryId: parsed.data.inquiryId }, data: { invoiceToken: newInvoiceToken(), invoiceIssuedAt: new Date() } });
   await db.inquiryEvent.create({ data: { inquiryId: parsed.data.inquiryId, type: "invoice_issued", actorId: me.id } });
   await audit(me.id, "invoice.issue", "Order", parsed.data.inquiryId);
@@ -372,7 +372,7 @@ export async function issueInvoice(formData: FormData): Promise<void> {
 
 /** Mencabut link invoice (mis. terkirim ke nomor yang salah). Link lama langsung tidak berlaku. */
 export async function revokeInvoice(formData: FormData): Promise<void> {
-  const me = await requirePermission("invoice.issue");
+  const me = await requirePermission("order.write");
   const parsed = invoiceSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return;
   await db.order.updateMany({ where: { inquiryId: parsed.data.inquiryId, invoiceToken: { not: null } }, data: { invoiceToken: null, invoiceIssuedAt: null } });

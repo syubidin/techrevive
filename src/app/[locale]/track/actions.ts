@@ -1,6 +1,7 @@
 "use server";
 
-import { clientIpHash } from "@/lib/admin";
+import { revalidatePath } from "next/cache";
+import { audit, clientIpHash } from "@/lib/admin";
 import { db } from "@/lib/db";
 import { normalizeIdPhone } from "@/lib/phone";
 import { rateLimit } from "@/lib/rate-limit";
@@ -66,6 +67,40 @@ export async function trackAction(_prev: TrackState, formData: FormData): Promis
     };
   } catch (e) {
     console.error(JSON.stringify({ evt: "track.error", message: e instanceof Error ? e.message : "unknown" }));
+    return { ok: false, error: "generic" };
+  }
+}
+
+export type ConfirmState = { ok: true } | { ok: false; error: "notFound" | "rateLimited" | "generic" } | null;
+
+/**
+ * Pembeli mengonfirmasi barang sudah diterima. Wajib kode + nomor WhatsApp yang cocok (sama seperti Lacak Pesanan)
+ * dan hanya berlaku saat status Dikirim. Hasilnya sama dengan admin menekan "Selesai".
+ */
+export async function confirmReceivedAction(formData: FormData): Promise<ConfirmState> {
+  try {
+    const ip = await clientIpHash();
+    const rl = await rateLimit(`track-confirm:${ip}`, 8, 600);
+    if (!rl.allowed) return { ok: false, error: "rateLimited" };
+    const code = normalizeCode(String(formData.get("code") ?? ""));
+    const phone = normalizeIdPhone(String(formData.get("phone") ?? ""));
+    if (!code || !phone) return { ok: false, error: "notFound" };
+    const inq = await db.inquiry.findUnique({ where: { code }, select: { id: true, phone: true, status: true, order: { select: { id: true, deliveredAt: true } } } });
+    if (!inq || inq.phone !== phone) return { ok: false, error: "notFound" };
+    if (inq.status === "DELIVERED") return { ok: true };
+    if (inq.status !== "SHIPPED" || !inq.order) return { ok: false, error: "generic" };
+    await db.$transaction([
+      db.order.update({ where: { id: inq.order.id }, data: { deliveredAt: inq.order.deliveredAt ?? new Date() } }),
+      db.inquiry.update({ where: { id: inq.id }, data: { status: "DELIVERED" } }),
+      db.inquiryEvent.create({ data: { inquiryId: inq.id, type: "status_changed", data: { from: "SHIPPED", to: "DELIVERED", via: "customer" } } }),
+    ]);
+    await audit(null, "order.confirm_received", "Order", inq.id, { via: "customer" });
+    revalidatePath(`/admin/inquiries/${inq.id}`);
+    revalidatePath("/admin");
+    revalidatePath("/admin/inquiries");
+    return { ok: true };
+  } catch (e) {
+    console.error(JSON.stringify({ evt: "track.confirm.error", message: e instanceof Error ? e.message : "unknown" }));
     return { ok: false, error: "generic" };
   }
 }

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/admin";
+import { BackLink } from "@/components/back-link";
 import { ProductForm } from "../product-form";
 
 export const metadata = { title: "Edit produk" };
@@ -19,7 +20,7 @@ export default async function EditProduct({ params }: { params: Promise<{ id: st
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold tracking-tight">Edit produk <span className="muted font-mono text-base">{p.sku}</span></h1>
+      <div><BackLink href="/admin/products">Produk</BackLink><h1 className="mt-1 text-2xl font-extrabold tracking-tight">Edit produk <span className="muted font-mono text-base">{p.sku}</span></h1></div>
       <ProductForm
         values={{
           id: p.id, nameId: p.nameId, nameEn: p.nameEn, descriptionId: p.descriptionId ?? "", descriptionEn: p.descriptionEn ?? "",

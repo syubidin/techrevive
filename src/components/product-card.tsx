@@ -25,8 +25,7 @@ export function ProductCard({ product: p, locale, t, priority }: { product: Publ
         <h3 className="line-clamp-2 text-sm font-semibold leading-snug sm:text-base">{name}</h3>
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:flex-row sm:items-end sm:justify-between">
           <p className="text-base font-extrabold sm:text-lg">{formatIdr(p.sellPrice)}</p>
-          <span className="sm:hidden"><AvailabilityBadge product={p} t={t} locale={locale} compact /></span>
-          <span className="hidden sm:inline"><AvailabilityBadge product={p} t={t} locale={locale} /></span>
+          <AvailabilityBadge product={p} t={t} locale={locale} />
         </div>
       </div>
     </Link>

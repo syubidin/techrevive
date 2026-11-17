@@ -50,7 +50,9 @@ export async function setSessionCookie(token: string): Promise<void> {
 }
 
 export async function clearSessionCookie(): Promise<void> {
-  (await cookies()).delete(SESSION_COOKIE);
+  // Cookie berawalan __Host- hanya bisa ditimpa bila atributnya identik (Secure, path "/"). `cookies().delete()`
+  // tidak menyertakan Secure sehingga ditolak browser dan sesi tetap hidup. Maka kedaluwarsakan secara eksplisit.
+  (await cookies()).set(SESSION_COOKIE, "", { httpOnly: true, secure: isProd, sameSite: "strict", path: "/", maxAge: 0, expires: new Date(0) });
 }
 
 /** Gunakan di setiap server action / route admin. Middleware saja tidak cukup (defense in depth). */

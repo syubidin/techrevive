@@ -1,15 +1,14 @@
-import Link from "next/link";
 import { site, type Locale } from "@/config/site";
 import type { Messages } from "@/lib/i18n";
 import { waLink } from "@/lib/contact";
 import { Icon, socialIcon } from "./icons";
+import { FooterLink } from "./footer-link";
 
 export function SiteFooter({ locale, t, brands = [] }: { locale: Locale; t: Messages; brands?: Array<{ slug: string; name: string }> }) {
   const socials = site.social.filter((s) => s.url);
   const L = (p: string) => `/${locale}${p}`;
   const col = "text-sm";
   const head = "text-xs font-bold uppercase tracking-wider";
-  const link = "muted inline-flex min-h-8 items-center transition hover:text-[var(--fg)]";
   return (
     <footer className="mt-20 border-t border-[var(--line)] bg-[var(--card)]">
       <div className="container-x grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
@@ -20,7 +19,7 @@ export function SiteFooter({ locale, t, brands = [] }: { locale: Locale; t: Mess
             <ul className="mt-4 flex flex-wrap gap-2" aria-label={t.contactPage.socialTitle}>
               {socials.map((s) => (
                 <li key={s.key}>
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} className="btn btn-ghost !h-11 !w-11 !p-0">
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} className="btn btn-ghost footer-social !h-11 !w-11 !p-0">
                     <Icon name={socialIcon(s.key)} size={18} />
                   </a>
                 </li>
@@ -31,20 +30,20 @@ export function SiteFooter({ locale, t, brands = [] }: { locale: Locale; t: Mess
         <nav className={col} aria-label={t.footer.shop}>
           <p className={head}>{t.footer.shop}</p>
           <ul className="mt-3 space-y-1">
-            <li><Link href={L("/catalog")} className={link}>{t.nav.catalog}</Link></li>
+            <li><FooterLink href={L("/catalog")}>{t.nav.catalog}</FooterLink></li>
             {brands.slice(0, 5).map((b) => (
-              <li key={b.slug}><Link href={L(`/catalog?brand=${b.slug}`)} className={link}>{b.name}</Link></li>
+              <li key={b.slug}><FooterLink href={L(`/catalog?brand=${b.slug}`)} match={false}>{b.name}</FooterLink></li>
             ))}
           </ul>
         </nav>
         <nav className={col} aria-label={t.footer.help}>
           <p className={head}>{t.footer.help}</p>
           <ul className="mt-3 space-y-1">
-            <li><Link href={L("/how-it-works")} className={link}>{t.nav.howItWorks}</Link></li>
-            <li><Link href={L("/faq")} className={link}>{t.nav.faq}</Link></li>
-            <li><Link href={L("/track")} className={link}>{t.nav.track}</Link></li>
-            <li><Link href={L("/policy")} className={link}>{t.nav.policy}</Link></li>
-            <li><Link href={L("/contact")} className={link}>{t.nav.contact}</Link></li>
+            <li><FooterLink href={L("/how-it-works")}>{t.nav.howItWorks}</FooterLink></li>
+            <li><FooterLink href={L("/faq")}>{t.nav.faq}</FooterLink></li>
+            <li><FooterLink href={L("/track")}>{t.nav.track}</FooterLink></li>
+            <li><FooterLink href={L("/policy")}>{t.nav.policy}</FooterLink></li>
+            <li><FooterLink href={L("/contact")}>{t.nav.contact}</FooterLink></li>
           </ul>
         </nav>
         <div className={col}>

@@ -35,7 +35,8 @@ export const PERMISSIONS = {
   /** Menandai barang Dikirim / Selesai (operasional harian; tanpa akses angka modal & laba). */
   "order.fulfil": ALL,
   "stock.review": MANAGEMENT,
-  "invoice.issue": MANAGEMENT,
+  /** Membuat/mengirim link invoice (Staff ikut, karena invoice hanya memuat harga jual). Mencabut link butuh order.write. */
+  "invoice.issue": ALL,
   "report.view": MANAGEMENT,
   // Katalog dan pengaturan
   "product.manage": MANAGEMENT,

@@ -1,5 +1,5 @@
 import type { Locale } from "@/config/site";
-import { formatDate, type Messages } from "@/lib/i18n";
+import type { Messages } from "@/lib/i18n";
 import { effectiveAvailability, type PublicProduct } from "@/lib/products";
 
 const tone = {
@@ -9,8 +9,8 @@ const tone = {
   SOLD_OUT: "chip-tone-mute",
 } as const;
 
-export function AvailabilityBadge({ product, t, locale, compact }: { product: Pick<PublicProduct, "availability" | "verifiedAt">; t: Messages; locale: Locale; compact?: boolean }) {
+/** Satu teks yang sama di mobile dan desktop: "Tersedia", "Cek stok", "Pre-order", "Habis". */
+export function AvailabilityBadge({ product, t }: { product: Pick<PublicProduct, "availability" | "verifiedAt">; t: Messages; locale?: Locale }) {
   const status = effectiveAvailability(product);
-  const label = compact ? t.availabilityShort[status] : t.availability[status].replace("{date}", product.verifiedAt ? formatDate(product.verifiedAt, locale) : "");
-  return <span className={`chip ${tone[status]}`}>{label}</span>;
+  return <span className={`chip ${tone[status]}`}>{t.availabilityShort[status]}</span>;
 }

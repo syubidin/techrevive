@@ -6,6 +6,7 @@ const config: NextConfig = {
   output: "standalone", // image Docker kecil untuk VPS
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: { serverActions: { bodySizeLimit: "3mb" } }, // impor produk CSV/Excel
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: imageHost ? [{ protocol: "https", hostname: imageHost }] : [],

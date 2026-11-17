@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/admin";
+import { BackLink } from "@/components/back-link";
 import { ProductForm } from "../product-form";
 
 export const metadata = { title: "Produk baru" };
@@ -16,7 +17,7 @@ export default async function NewProduct() {
   }
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-extrabold tracking-tight">Produk baru</h1>
+      <div><BackLink href="/admin/products">Produk</BackLink><h1 className="mt-1 text-2xl font-extrabold tracking-tight">Produk baru</h1></div>
       <ProductForm
         values={{ nameId: "", nameEn: "", descriptionId: "", descriptionEn: "", categoryId: categories[0].id, brandId: brands[0].id, supplierId: "", condition: "REFURBISHED", grade: "", batteryHealth: "", attributes: "", features: "", weightGram: 2500, stockQty: "", costPrice: 0, marginType: "PERCENT_BPS", marginInput: 10, availability: "CHECK", status: "DRAFT", images: "" }}
         categories={categories.map((c) => ({ id: c.id, name: c.nameId }))}

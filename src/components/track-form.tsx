@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { enter } from "@/lib/anim";
-import { trackAction, type TrackState } from "@/app/[locale]/track/actions";
+import { confirmReceivedAction, trackAction, type TrackState } from "@/app/[locale]/track/actions";
 import type { Locale } from "@/config/site";
 import { formatDate, formatIdr, type Messages } from "@/lib/i18n";
 import { trackStep, TRACK_STEP_COUNT, type TrackStatus } from "@/lib/track";
@@ -14,13 +14,25 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
   const tr = t.track;
   const d = state?.ok ? state.data : null;
   const result = useRef<HTMLDivElement>(null);
+  const creds = useRef({ code: "", phone: "" });
+  const [confirming, startConfirm] = useTransition();
+  const [confirmError, setConfirmError] = useState<"notFound" | "rateLimited" | "generic" | null>(null);
+  const [thanks, setThanks] = useState(false);
   useEffect(() => { if (d) void enter(result.current, "bottom"); }, [d]);
-  const step = d ? trackStep(d.status) : -1;
+  const done = d?.status === "DELIVERED" || thanks;
+  const step = d ? (done ? 5 : trackStep(d.status)) : -1;
   const info = d ? tr.status[d.status as TrackStatus] : null;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[22rem_1fr]">
-      <form action={action} className="card space-y-4 p-5 lg:sticky lg:top-24 lg:self-start">
+      <form
+        action={(fd) => {
+          creds.current = { code: String(fd.get("code") ?? ""), phone: String(fd.get("phone") ?? "") };
+          setThanks(false); setConfirmError(null);
+          return action(fd);
+        }}
+        className="card space-y-4 p-5 lg:sticky lg:top-24 lg:self-start"
+      >
         <div>
           <label htmlFor="code" className="label">{tr.code}</label>
           <input id="code" name="code" className="input uppercase" placeholder={tr.codeHint} required maxLength={20} autoComplete="off" />
@@ -53,8 +65,8 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
               <ol className="grid grid-cols-6 gap-1" aria-label="Progress">
                 {tr.steps.slice(0, TRACK_STEP_COUNT).map((label, i) => (
                   <li key={label} className="flex flex-col items-center gap-1.5 text-center" aria-current={i === step ? "step" : undefined}>
-                    <span className={`grid h-8 w-8 place-items-center rounded-full border text-xs font-bold ${i < step ? "border-green-600 bg-green-600 text-white" : i === step ? "border-[var(--color-ink-900)] bg-[var(--color-ink-900)] text-white" : "border-[var(--line)] muted"}`}>
-                      {i < step ? <Icon name="check" size={14} /> : i + 1}
+                    <span className={`grid h-8 w-8 place-items-center rounded-full border text-xs font-bold ${i < step || (done && i === step) ? "border-green-600 bg-green-600 text-white" : i === step ? "border-[var(--color-ink-900)] bg-[var(--color-ink-900)] text-white" : "border-[var(--line)] muted"}`}>
+                      {i < step || (done && i === step) ? <Icon name="check" size={14} /> : i + 1}
                     </span>
                     <span className={`text-[10px] leading-tight sm:text-xs ${i === step ? "font-bold" : "muted"}`}>{label}</span>
                   </li>
@@ -63,11 +75,41 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
             ) : null}
 
             <div className={`flex gap-3 rounded-xl border p-4 ${step < 0 ? "border-red-500/40 bg-red-500/10" : "border-[var(--line)] bg-[var(--color-ink-100)] dark:bg-[var(--color-ink-800)]"}`}>
-              <Icon name={step < 0 ? "alert" : d.status === "DELIVERED" ? "circle-check" : "info"} className="mt-0.5 shrink-0" />
-              <div><p className="font-bold">{info.t}</p><p className="muted mt-1 text-sm">{info.d}</p></div>
+              <Icon name={step < 0 ? "alert" : done ? "circle-check" : "info"} className={`mt-0.5 shrink-0 ${done ? "text-green-600" : ""}`} />
+              <div><p className="font-bold">{done ? tr.status.DELIVERED.t : info.t}</p><p className="muted mt-1 text-sm">{done ? tr.status.DELIVERED.d : info.d}</p></div>
             </div>
 
-            {d.history.length > 1 && (
+            {done && (
+              <div className="flex gap-3 rounded-xl border border-green-600/40 bg-green-600/10 p-4" role="status">
+                <Icon name="heart" className="mt-0.5 shrink-0 text-green-600" />
+                <div><p className="font-bold">{tr.thanksTitle}</p><p className="mt-1 text-sm">{tr.thanksBody}</p></div>
+              </div>
+            )}
+
+            {d.status === "SHIPPED" && !thanks && (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  disabled={confirming}
+                  className="btn btn-primary w-full sm:w-auto"
+                  onClick={() => {
+                    const fd = new FormData();
+                    fd.set("code", creds.current.code); fd.set("phone", creds.current.phone);
+                    startConfirm(async () => {
+                      const r = await confirmReceivedAction(fd);
+                      if (r?.ok) { setThanks(true); setConfirmError(null); } else setConfirmError(r && !r.ok ? r.error : "generic");
+                    });
+                  }}
+                >
+                  <Icon name={confirming ? "refresh" : "circle-check"} size={18} className={confirming ? "animate-spin" : ""} />
+                  {confirming ? tr.checking : tr.confirmReceived}
+                </button>
+                <p className="muted text-xs">{tr.confirmHint}</p>
+                {confirmError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{tr[confirmError]}</p>}
+              </div>
+            )}
+
+            {d.history.length > 1 && !thanks && (
               <ol className="space-y-2 border-l-2 border-[var(--line)] pl-4 text-sm" aria-label={tr.timeline}>
                 {[...d.history].reverse().map((h, i) => (
                   <li key={`${h.status}-${h.at}`} className="relative">

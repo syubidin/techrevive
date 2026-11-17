@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useActionState } from "react";
 import { Icon } from "@/components/icons";
+import { PasswordInput } from "@/components/password-input";
 import { login, type LoginState } from "./actions";
 
 export default function LoginPage() {
@@ -23,7 +24,7 @@ export default function LoginPage() {
         </div>
         <div>
           <label className="label" htmlFor="password">Kata sandi</label>
-          <input id="password" name="password" type="password" className="input" required autoComplete="current-password" />
+          <PasswordInput id="password" autoComplete="current-password" />
         </div>
         {state.error && <p role="alert" className="flex gap-2 rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300"><Icon name="alert" size={18} className="mt-0.5 shrink-0" />{state.error}</p>}
         <button className="btn btn-primary btn-lg w-full" disabled={pending}><Icon name={pending ? "refresh" : "lock"} size={18} className={pending ? "animate-spin" : ""} />{pending ? "Memproses…" : "Masuk"}</button>
