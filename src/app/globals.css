@@ -122,8 +122,19 @@ details[open] > summary .chev { transform: rotate(180deg); }
 .footer-link { position: relative; display: inline-flex; min-height: 2rem; align-items: center; color: var(--muted); transition: color .2s ease, transform .2s ease; }
 .footer-link::after { content: ""; position: absolute; left: 0; right: 0; bottom: .25rem; height: 2px; border-radius: 2px; background: var(--color-brand-500); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
 .footer-link:hover, .footer-link:focus-visible { color: var(--fg); transform: translateX(3px); }
-.footer-link:hover::after, .footer-link:focus-visible::after, .footer-link[data-active="true"]::after { transform: scaleX(1); }
-.footer-link[data-active="true"] { color: var(--fg); font-weight: 700; }
+.footer-link:hover::after, .footer-link:focus-visible::after { transform: scaleX(1); }
+.nav-link { position: relative; display: inline-flex; align-items: center; min-height: 2.5rem; color: var(--muted); transition: color .2s ease; }
+.nav-link::after { content: ""; position: absolute; left: 0; right: 0; bottom: .35rem; height: 2px; border-radius: 2px; background: var(--color-brand-500); transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
+.nav-link:hover, .nav-link:focus-visible { color: var(--fg); }
+.nav-link:hover::after, .nav-link:focus-visible::after, .nav-link[data-active="true"]::after { transform: scaleX(1); }
+.nav-link[data-active="true"] { color: var(--fg); font-weight: 700; }
+.menu-link { display: flex; min-height: 3rem; align-items: center; gap: .75rem; border-radius: .75rem; padding: 0 .75rem; font-weight: 500; transition: background-color .2s ease, color .2s ease; }
+.menu-link:hover { background: var(--color-ink-100); }
+.menu-link .menu-icon { color: var(--muted); }
+.menu-link[data-active="true"] { background: color-mix(in srgb, var(--color-brand-500) 12%, transparent); color: var(--color-brand-600); font-weight: 700; box-shadow: inset 3px 0 0 var(--color-brand-500); }
+.menu-link[data-active="true"] .menu-icon { color: var(--color-brand-500); }
+@media (prefers-color-scheme: dark) { .menu-link:hover { background: var(--color-ink-800); } .menu-link[data-active="true"] { color: var(--color-brand-300); } }
+@media (prefers-reduced-motion: reduce) { .nav-link, .nav-link::after, .menu-link { transition: none; } }
 .footer-social { transition: transform .2s ease, background-color .2s ease, color .2s ease; }
 .footer-social:hover { transform: translateY(-3px); }
 @media (prefers-reduced-motion: reduce) { .footer-link, .footer-link::after, .footer-social { transition: none; } .footer-link:hover, .footer-social:hover { transform: none; } }

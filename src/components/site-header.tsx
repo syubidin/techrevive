@@ -7,6 +7,7 @@ import { waLink } from "@/lib/contact";
 import { Icon } from "./icons";
 import { LocaleSwitch, LocaleSwitchStatic } from "./locale-switch";
 import { MobileMenu } from "./mobile-menu";
+import { NavLink } from "./nav-link";
 
 export function SiteHeader({ locale, t }: { locale: Locale; t: Messages }) {
   const links = [
@@ -27,7 +28,7 @@ export function SiteHeader({ locale, t }: { locale: Locale; t: Messages }) {
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex" aria-label="Main">
             {links.map((l) => (
-              <Link key={l.href} href={l.href} className="muted transition hover:text-[var(--fg)]">{l.label}</Link>
+              <NavLink key={l.href} href={l.href}>{l.label}</NavLink>
             ))}
           </nav>
           <div className="flex items-center gap-2">

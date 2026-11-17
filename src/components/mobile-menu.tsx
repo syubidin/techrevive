@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink } from "./nav-link";
 import { useEffect, useRef, useState } from "react";
 import { enter } from "@/lib/anim";
 import { Icon, type IconName } from "./icons";
@@ -40,11 +40,11 @@ export function MobileMenu({ links, waHref, labels }: { links: MenuLink[]; waHre
             </div>
             <nav className="grid gap-1" aria-label="Menu">
               {links.map((l) => (
-                <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="flex min-h-12 items-center gap-3 rounded-xl px-3 font-medium hover:bg-[var(--color-ink-100)] dark:hover:bg-[var(--color-ink-800)]">
-                  <Icon name={l.icon} className="muted" />
+                <NavLink key={l.href} href={l.href} variant="menu" onClick={() => setOpen(false)}>
+                  <Icon name={l.icon} className="menu-icon" />
                   {l.label}
                   <Icon name="chevron-right" size={16} className="muted ml-auto" />
-                </Link>
+                </NavLink>
               ))}
             </nav>
             <a href={waHref} target="_blank" rel="noopener noreferrer" className="btn btn-accent btn-lg mt-3 w-full">
