@@ -63,16 +63,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ul>
           </div>
           <div data-intro className="relative mx-auto w-full max-w-[15rem] sm:max-w-sm">
-            {/* Bola 3D dan logo berbagi titik pusat yang sama (inset-0 + grid tengah) sehingga logo tepat di tengah putaran. */}
-            <div data-float className="relative grid aspect-square place-items-center">
-              <div className="pointer-events-none absolute left-1/2 top-1/2 hidden aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 opacity-60 lg:block" aria-hidden><HeroSceneLoader /></div>
-              <BrandLogo variant="full" size={420} alt="TechRevive" priority className="relative h-auto w-[86%]" />
+            {/* Bola 3D (inset-0 lalu diskalakan dari tengah) dan logo mengisi kotak persegi yang SAMA, jadi pusatnya pasti satu titik. */}
+            <div data-float className="relative aspect-square">
+              <div className="pointer-events-none absolute inset-0 hidden origin-center scale-[1.3] opacity-60 lg:block" aria-hidden><HeroSceneLoader /></div>
+              <BrandLogo variant="full" size={420} alt="TechRevive" priority className="relative block h-full w-full object-contain" />
             </div>
-            <div className="card absolute -left-2 top-6 hidden sm:flex items-center gap-2.5 p-3 sm:-left-6">
+            <div className="card absolute -left-2 -top-3 hidden sm:flex items-center gap-2.5 p-3 sm:-left-6">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-green-600/10 text-green-700 dark:text-green-300"><Icon name="badge-check" size={18} /></span>
               <div><p className="text-sm font-bold">{t.hero.floatA}</p><p className="muted text-xs">{t.hero.floatAd}</p></div>
             </div>
-            <div className="card absolute -right-2 bottom-8 hidden sm:flex items-center gap-2.5 p-3 sm:-right-6">
+            <div className="card absolute -bottom-3 -right-2 hidden sm:flex items-center gap-2.5 p-3 sm:-right-6">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name="shield-check" size={18} /></span>
               <div><p className="text-sm font-bold">{t.hero.floatB}</p><p className="muted text-xs">{t.hero.floatBd}</p></div>
             </div>
