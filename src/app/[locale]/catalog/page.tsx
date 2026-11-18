@@ -94,9 +94,9 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t.catalog.title}</h1>
           <p className="muted mt-1 text-sm">{t.catalog.results.replace("{n}", String(total))}</p>
         </div>
-        <form method="get" className="flex w-full gap-2 sm:w-auto" role="search">
+        <form method="get" className="flex w-full min-w-0 gap-2 sm:w-auto" role="search">
           {[...sp.entries()].filter(([k]) => k !== "q" && k !== "page").map(([k, v], i) => <input key={`${k}${i}`} type="hidden" name={k} value={v} />)}
-          <div className="relative flex-1 sm:w-72">
+          <div className="relative min-w-0 flex-1 sm:w-72 sm:flex-none">
             <Icon name="search" size={18} className="muted pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input className="input !pl-10" type="search" name="q" defaultValue={sp.get("q") ?? ""} placeholder={t.catalog.searchPlaceholder} maxLength={60} aria-label={t.catalog.searchLabel} />
           </div>
@@ -104,14 +104,14 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
         </form>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[18rem_1fr] lg:gap-8">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:mt-8 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8">
         <aside className="lg:sticky lg:top-24 lg:self-start">
           <FilterSheet title={t.catalog.filters} count={chips.length} closeLabel={t.catalog.closeFilters}>
             <CatalogFilters locale={locale} t={t} sp={sp} categories={categories} brands={brands} features={features} specs={specs} />
           </FilterSheet>
         </aside>
 
-        <section>
+        <section className="min-w-0">
           {chips.length > 0 && (
             <div className="mb-4 flex flex-wrap items-center gap-2" aria-label={t.catalog.activeFilters}>
               {chips.map((c) => (
@@ -123,7 +123,7 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
             </div>
           )}
 
-          <nav className="scrollbar-none mb-5 flex items-center gap-2 overflow-x-auto text-sm" aria-label={t.catalog.sortLabel}>
+          <nav className="mb-5 flex flex-wrap items-center gap-2 text-sm" aria-label={t.catalog.sortLabel}>
             <span className="muted flex shrink-0 items-center gap-1"><Icon name="sort" size={16} />{t.catalog.sort}:</span>
             {sortOptions.map(([value, label]) => (
               <Link key={value} href={link({ sort: value, page: "1" })} aria-current={sortNow === value ? "true" : undefined}
@@ -144,7 +144,7 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
           )}
 
           {pages > 1 && (
-            <nav className="mt-10 flex items-center justify-center gap-3 text-sm" aria-label="Pagination">
+            <nav className="mt-10 flex flex-wrap items-center justify-center gap-3 text-sm" aria-label="Pagination">
               {page > 1 && <Link className="btn btn-ghost" href={link({ page: String(page - 1) })} rel="prev"><Icon name="chevron-left" size={16} />{t.catalog.prev}</Link>}
               <span className="muted">{page} / {pages}</span>
               {page < pages && <Link className="btn btn-ghost" href={link({ page: String(page + 1) })} rel="next">{t.catalog.next}<Icon name="chevron-right" size={16} /></Link>}

@@ -20,11 +20,11 @@ export function ProductCard({ product: p, locale, t, priority }: { product: Publ
         )}
         <span className="chip absolute left-2 top-2 bg-[var(--card)] !text-[11px] sm:left-3 sm:top-3">{t.condition[p.condition]}{p.grade ? ` \u00b7 ${p.grade}` : ""}</span>
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-3 sm:gap-2 sm:p-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:gap-2 sm:p-4">
         <p className="muted truncate text-xs font-semibold uppercase tracking-wide">{p.brand.name}</p>
         <h3 className="line-clamp-2 text-sm font-semibold leading-snug sm:text-base">{name}</h3>
         <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:flex-row sm:items-end sm:justify-between">
-          <p className="text-base font-extrabold sm:text-lg">{formatIdr(p.sellPrice)}</p>
+          <p className="min-w-0 break-words text-base font-extrabold sm:text-lg">{formatIdr(p.sellPrice)}</p>
           <AvailabilityBadge product={p} t={t} locale={locale} />
         </div>
       </div>
