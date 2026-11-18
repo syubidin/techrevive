@@ -85,15 +85,21 @@ export async function confirmReceivedAction(formData: FormData): Promise<Confirm
     const code = normalizeCode(String(formData.get("code") ?? ""));
     const phone = normalizeIdPhone(String(formData.get("phone") ?? ""));
     if (!code || !phone) return { ok: false, error: "notFound" };
-    const inq = await db.inquiry.findUnique({ where: { code }, select: { id: true, phone: true, status: true, order: { select: { id: true, deliveredAt: true } } } });
+    const inq = await db.inquiry.findUnique({ where: { code }, select: { id: true, phone: true, status: true, order: { select: { id: true, deliveredAt: true, paidAt: true } } } });
     if (!inq || inq.phone !== phone) return { ok: false, error: "notFound" };
     if (inq.status === "DELIVERED") return { ok: true };
-    if (inq.status !== "SHIPPED" || !inq.order) return { ok: false, error: "generic" };
-    await db.$transaction([
-      db.order.update({ where: { id: inq.order.id }, data: { deliveredAt: inq.order.deliveredAt ?? new Date() } }),
-      db.inquiry.update({ where: { id: inq.id }, data: { status: "DELIVERED" } }),
-      db.inquiryEvent.create({ data: { inquiryId: inq.id, type: "status_changed", data: { from: "SHIPPED", to: "DELIVERED", via: "customer" } } }),
-    ]);
+    // Aturan sama dengan admin: "diterima" hanya sah untuk order yang sudah dicatat lunas dan sedang dikirim.
+    if (inq.status !== "SHIPPED" || !inq.order || !inq.order.paidAt) return { ok: false, error: "generic" };
+    const orderId = inq.order.id;
+    // Atomik: hanya berhasil bila status MASIH "Dikirim" (admin bisa menyelesaikannya lebih dulu pada saat yang sama).
+    const moved = await db.$transaction(async (tx) => {
+      const r = await tx.inquiry.updateMany({ where: { id: inq.id, status: "SHIPPED" }, data: { status: "DELIVERED" } });
+      if (r.count === 0) return false;
+      await tx.order.update({ where: { id: orderId }, data: { deliveredAt: inq.order!.deliveredAt ?? new Date() } });
+      await tx.inquiryEvent.create({ data: { inquiryId: inq.id, type: "status_changed", data: { from: "SHIPPED", to: "DELIVERED", via: "customer" } } });
+      return true;
+    });
+    if (!moved) return { ok: true }; // sudah diselesaikan pihak lain; hasil akhirnya sama
     await audit(null, "order.confirm_received", "Order", inq.id, { via: "customer" });
     revalidatePath(`/admin/inquiries/${inq.id}`);
     revalidatePath("/admin");

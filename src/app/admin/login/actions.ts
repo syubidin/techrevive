@@ -32,12 +32,11 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
 
   if (!user || !user.isActive || locked || !ok) {
     if (user && !locked) {
-      const fails = user.failedLogins + 1;
-      await db.adminUser.update({
-        where: { id: user.id },
-        data: fails >= MAX_FAILS ? { failedLogins: 0, lockedUntil: new Date(Date.now() + LOCK_MS) } : { failedLogins: fails },
-      });
-      await audit(user.id, fails >= MAX_FAILS ? "auth.locked" : "auth.failed", "AdminUser", user.id);
+      // Penambahan atomik agar percobaan paralel tidak "lolos" dari hitungan kunci akun.
+      const { failedLogins } = await db.adminUser.update({ where: { id: user.id }, data: { failedLogins: { increment: 1 } }, select: { failedLogins: true } });
+      const lock = failedLogins >= MAX_FAILS;
+      if (lock) await db.adminUser.update({ where: { id: user.id }, data: { failedLogins: 0, lockedUntil: new Date(Date.now() + LOCK_MS) } });
+      await audit(user.id, lock ? "auth.locked" : "auth.failed", "AdminUser", user.id);
     }
     return { error: locked ? "Akun terkunci sementara. Coba lagi nanti." : GENERIC };
   }

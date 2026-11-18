@@ -43,7 +43,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <section className="relative overflow-hidden">
         <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" aria-hidden />
         <div className="hero-glow absolute -top-32 left-1/2 h-96 w-[48rem] -translate-x-1/2" aria-hidden />
-        <div className="absolute inset-y-0 right-0 hidden w-1/2 opacity-60 lg:block" aria-hidden><HeroSceneLoader /></div>
         <div className="container-x relative grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
           <div data-intro>
             <span className="chip bg-[var(--card)]"><Icon name="badge-check" size={14} />{t.hero.badge}</span>
@@ -64,8 +63,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </ul>
           </div>
           <div data-intro className="relative mx-auto w-full max-w-[15rem] sm:max-w-sm">
-            <div data-float className="card logo-tile relative aspect-square overflow-hidden !p-6">
-              <BrandLogo variant="full" size={420} alt="TechRevive" priority className="h-auto w-full" />
+            {/* Bola 3D dan logo berbagi titik pusat yang sama (inset-0 + grid tengah) sehingga logo tepat di tengah putaran. */}
+            <div data-float className="relative grid aspect-square place-items-center">
+              <div className="pointer-events-none absolute left-1/2 top-1/2 hidden aspect-square w-[130%] -translate-x-1/2 -translate-y-1/2 opacity-60 lg:block" aria-hidden><HeroSceneLoader /></div>
+              <BrandLogo variant="full" size={420} alt="TechRevive" priority className="relative h-auto w-[86%]" />
             </div>
             <div className="card absolute -left-2 top-6 hidden sm:flex items-center gap-2.5 p-3 sm:-left-6">
               <span className="grid h-9 w-9 place-items-center rounded-lg bg-green-600/10 text-green-700 dark:text-green-300"><Icon name="badge-check" size={18} /></span>

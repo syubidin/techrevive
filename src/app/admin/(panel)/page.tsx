@@ -30,8 +30,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       select: { id: true, code: true, customerName: true, followUpAt: true, productSnapshot: true },
     }),
     db.inquiry.findMany({ where: { status: "NEW" }, orderBy: { createdAt: "desc" }, take: 6, select: { id: true, code: true, customerName: true, createdAt: true, productSnapshot: true } }),
-    db.order.findMany({ where: { paidAt: { gte: startMonth } }, select: { itemPrice: true, itemCost: true, paymentFee: true } }),
-    db.inquiry.findMany({ where: { createdAt: { gte: since14 } }, select: { createdAt: true } }),
+    db.order.aggregate({ where: { paidAt: { gte: startMonth } }, _sum: { itemPrice: true } }),
+    // Dihitung di database (bukan memuat semua baris): jumlah inquiry per hari WIB.
+    db.$queryRaw<Array<{ d: string; n: bigint }>>`SELECT to_char(("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD') AS d, count(*) AS n FROM "Inquiry" WHERE "createdAt" >= ${since14} GROUP BY 1`,
     db.product.count({ where: { status: "PUBLISHED", deletedAt: null, availability: "VERIFIED", verifiedAt: { lt: new Date(now.getTime() - 48 * 3600 * 1000) } } }),
     can(me.role, "stock.review")
       ? db.order.findMany({
@@ -44,7 +45,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   const statusCount = Object.fromEntries(byStatus.map((s) => [s.status, s._count._all])) as Record<string, number>;
 
-  const revenue = orders.reduce((a, o) => a + o.itemPrice, 0);
+  const revenue = orders._sum.itemPrice ?? 0;
 
   // 14 hari terakhir, bucket per hari WIB
   const buckets = Array.from({ length: 14 }, (_, i) => {
@@ -52,9 +53,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     return { key: d.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" }), n: 0 };
   });
   for (const r of daily) {
-    const k = r.createdAt.toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" });
-    const b = buckets.find((x) => x.key === k);
-    if (b) b.n += 1;
+    const b = buckets.find((x) => x.key === r.d);
+    if (b) b.n += Number(r.n);
   }
   const max = Math.max(1, ...buckets.map((b) => b.n));
 

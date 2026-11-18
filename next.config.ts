@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
-const imageHost = process.env.IMAGE_HOST; // mis. cdn.techrevive.com (Cloudflare R2 / custom domain)
+const imageHost = process.env.IMAGE_HOST?.trim(); // mis. cdn.techrevive.com (Cloudflare R2 / custom domain)
+const imageHosts = [...new Set([imageHost, process.env.CLOUDINARY_CLOUD_NAME?.trim() ? "res.cloudinary.com" : undefined].filter((h): h is string => !!h))];
 
 const config: NextConfig = {
   output: "standalone", // image Docker kecil untuk VPS
@@ -9,7 +10,7 @@ const config: NextConfig = {
   experimental: { serverActions: { bodySizeLimit: "3mb" } }, // impor produk CSV/Excel
   images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: imageHost ? [{ protocol: "https", hostname: imageHost }] : [],
+    remotePatterns: imageHosts.map((hostname) => ({ protocol: "https" as const, hostname })),
   },
   async headers() {
     // CSP dengan nonce diset di middleware; header statis di sini.

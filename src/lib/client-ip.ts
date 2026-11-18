@@ -16,7 +16,8 @@ export function getClientIp(h: Headers): string {
     const parts = xff.split(",");
     return parts[parts.length - 1]!.trim() || "unknown";
   }
-  return "unknown";
+  // Tanpa X-Forwarded-For (mis. proxy lain): pakai X-Real-IP bila ada agar semua pengunjung tidak berbagi satu "unknown".
+  return h.get("x-real-ip")?.trim() || "unknown";
 }
 
 export function hashIp(ip: string, secret: string): string {

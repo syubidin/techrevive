@@ -46,7 +46,6 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </ul>
             ) : <p className="muted mt-2 text-sm">{c.noSocial}</p>}
           </section>
-          <section className="card p-5"><h2 className="font-bold">{c.aboutTitle}</h2><p className="muted mt-2 text-sm leading-relaxed">{c.aboutDesc}</p></section>
         </div>
       </div>
     </>

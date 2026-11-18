@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { PaymentMethod } from "@prisma/client";
 import { db } from "@/lib/db";
 import { audit, requireAdmin, requirePermission } from "@/lib/admin";
-import { ALL_STATUSES, checkStatusChange } from "@/lib/status-guard";
+import { checkStatusChange } from "@/lib/status-guard";
 import { planStockAdjustment } from "@/lib/stock";
 import { newInvoiceToken } from "@/lib/invoice";
 import { redirect } from "next/navigation";
@@ -16,54 +16,7 @@ import { site } from "@/config/site";
 
 export interface ActionState { ok?: boolean; error?: string }
 
-const STATUSES = ALL_STATUSES as unknown as [string, ...string[]];
 const intField = (max = 2_000_000_000) => z.coerce.number().int().min(0).max(max);
-
-const updateSchema = z.object({
-  id: z.string().cuid(),
-  expectedUpdatedAt: z.string().datetime(),
-  status: z.enum(STATUSES),
-  quotedPrice: z.union([z.literal(""), intField()]).transform((v) => (v === "" ? null : v)),
-  quoteValidHours: z.coerce.number().int().min(1).max(168).default(site.quoteValidHours),
-  internalNote: z.string().trim().max(2000).optional().transform((v) => v || null),
-  // datetime-local dikirim tanpa zona waktu: dianggap WIB (UTC+7)
-  followUpAt: z.string().optional().transform((v) => (v ? new Date(`${v}:00+07:00`) : null)),
-});
-
-export async function updateInquiry(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  const me = await requireAdmin();
-  const parsed = updateSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { error: "Data tidak valid. Periksa harga, tanggal, dan status." };
-  const d = parsed.data;
-  if (d.followUpAt && Number.isNaN(d.followUpAt.getTime())) return { error: "Tanggal follow-up tidak valid." };
-
-  const current = await db.inquiry.findUnique({ where: { id: d.id }, include: { order: { select: { paidAt: true } } } });
-  if (!current) return { error: "Inquiry tidak ditemukan." };
-  const guardError = checkStatusChange({ role: me.role, current: current.status, target: d.status as typeof current.status, orderPaid: !!current.order?.paidAt });
-  if (guardError) return { error: guardError };
-  if (d.status === "QUOTED" && !d.quotedPrice) return { error: "Isi harga penawaran sebelum status “Quoted”." };
-  if (d.quotedPrice && d.quotedPrice < 1) return { error: "Harga penawaran harus lebih dari 0." };
-
-  const statusChanged = d.status !== current.status;
-  const quoteExpiresAt = d.status === "QUOTED" && (statusChanged || current.quotedPrice !== d.quotedPrice)
-    ? new Date(Date.now() + d.quoteValidHours * 3600 * 1000)
-    : current.quoteExpiresAt;
-
-  // Optimistic locking: tolak jika admin lain mengubah data setelah halaman ini dimuat.
-  const res = await db.inquiry.updateMany({
-    where: { id: d.id, updatedAt: new Date(d.expectedUpdatedAt) },
-    data: { status: d.status as typeof current.status, quotedPrice: d.quotedPrice, quoteExpiresAt, internalNote: d.internalNote, followUpAt: d.followUpAt },
-  });
-  if (res.count === 0) return { error: "Data sudah diubah admin lain. Muat ulang halaman lalu coba lagi." };
-
-  if (statusChanged) await db.inquiryEvent.create({ data: { inquiryId: d.id, type: "status_changed", actorId: me.id, data: { from: current.status, to: d.status } } });
-  if (current.quotedPrice !== d.quotedPrice && d.quotedPrice) await db.inquiryEvent.create({ data: { inquiryId: d.id, type: "quote_set", actorId: me.id, data: { price: d.quotedPrice } } });
-  await audit(me.id, "inquiry.update", "Inquiry", d.id, { status: [current.status, d.status], quotedPrice: [current.quotedPrice, d.quotedPrice] });
-
-  revalidatePath(`/admin/inquiries/${d.id}`);
-  revalidatePath("/admin/inquiries");
-  return { ok: true };
-}
 
 const orderSchema = z.object({
   inquiryId: z.string().cuid(),
@@ -98,44 +51,49 @@ async function saveOrderCore(me: Me, d: OrderInput): Promise<ActionState> {
   if (d.itemPrice < 1) return { error: "Harga jual harus lebih dari 0." };
   if (d.paid && !d.paymentMethod) return { error: "Pilih metode pembayaran sebelum menandai lunas." };
 
-  const inquiry = await db.inquiry.findUnique({ where: { id: d.inquiryId }, include: { order: true, product: { select: { id: true, stockQty: true } } } });
-  if (!inquiry) return { error: "Inquiry tidak ditemukan." };
-  if (["CANCELLED", "EXPIRED"].includes(inquiry.status)) return { error: "Inquiry sudah dibatalkan/kedaluwarsa. Buka ulang dulu." };
-
-  const flow = resolveDelivery({
-    method: d.deliveryMethod,
-    paid: !!d.paid,
-    dispatched: !!d.dispatched,
-    delivered: !!d.delivered,
-    courier: d.courier,
-    trackingNumber: d.trackingNumber,
-    deliveredBy: d.deliveredBy,
-  });
-  if (flow.error) return { error: flow.error };
-
   const own = d.deliveryMethod === "OWN_TEAM";
   const total = d.itemPrice + d.shippingFee + d.insuranceFee;
-  const paidAt = d.paid ? inquiry.order?.paidAt ?? new Date() : null;
-  const shippedAt = flow.dispatched ? inquiry.order?.shippedAt ?? new Date() : null;
-  const deliveredAt = flow.delivered ? inquiry.order?.deliveredAt ?? new Date() : null;
-  const data = {
-    itemPrice: d.itemPrice, itemCost: d.itemCost, shippingFee: d.shippingFee, insuranceFee: d.insuranceFee, paymentFee: d.paymentFee, total,
-    paymentMethod: d.paymentMethod, paidAt,
-    deliveryMethod: d.deliveryMethod, deliveryNote: d.deliveryNote,
-    // Kolom yang tidak relevan untuk metode terpilih dikosongkan agar data tidak ganda.
-    deliveredBy: own ? d.deliveredBy : null,
-    courier: own ? null : d.courier,
-    trackingNumber: own ? null : d.trackingNumber,
-    shippedAt, deliveredAt,
-  };
-  const stock = planStockAdjustment({
-    stockQty: inquiry.product.stockQty,
-    paidBefore: !!inquiry.order?.paidAt,
-    paidNow: !!paidAt,
-    autoApplied: !!inquiry.order?.stockAutoApplied,
-  });
 
-  await db.$transaction(async (tx) => {
+  type TxResult = { error: string } | { total: number; paid: boolean; status: string; stockAction: string };
+  const result: TxResult = await db.$transaction(async (tx) => {
+    // Kunci baris inquiry: dua admin yang menyimpan order bersamaan diproses berurutan, sehingga stok
+    // dan status dihitung dari kondisi terbaru (bukan dari data yang sudah usang).
+    await tx.$queryRaw`SELECT "id" FROM "Inquiry" WHERE "id" = ${d.inquiryId} FOR UPDATE`;
+    const inquiry = await tx.inquiry.findUnique({ where: { id: d.inquiryId }, include: { order: true, product: { select: { id: true, stockQty: true } } } });
+    if (!inquiry) return { error: "Inquiry tidak ditemukan." };
+    if (["CANCELLED", "EXPIRED"].includes(inquiry.status)) return { error: "Inquiry sudah dibatalkan/kedaluwarsa. Buka ulang dulu." };
+
+    const flow = resolveDelivery({
+      method: d.deliveryMethod,
+      paid: !!d.paid,
+      dispatched: !!d.dispatched,
+      delivered: !!d.delivered,
+      courier: d.courier,
+      trackingNumber: d.trackingNumber,
+      deliveredBy: d.deliveredBy,
+    });
+    if (flow.error) return { error: flow.error };
+
+    const paidAt = d.paid ? inquiry.order?.paidAt ?? new Date() : null;
+    const shippedAt = flow.dispatched ? inquiry.order?.shippedAt ?? new Date() : null;
+    const deliveredAt = flow.delivered ? inquiry.order?.deliveredAt ?? new Date() : null;
+    const data = {
+      itemPrice: d.itemPrice, itemCost: d.itemCost, shippingFee: d.shippingFee, insuranceFee: d.insuranceFee, paymentFee: d.paymentFee, total,
+      paymentMethod: d.paymentMethod, paidAt,
+      deliveryMethod: d.deliveryMethod, deliveryNote: d.deliveryNote,
+      // Kolom yang tidak relevan untuk metode terpilih dikosongkan agar data tidak ganda.
+      deliveredBy: own ? d.deliveredBy : null,
+      courier: own ? null : d.courier,
+      trackingNumber: own ? null : d.trackingNumber,
+      shippedAt, deliveredAt,
+    };
+    const stock = planStockAdjustment({
+      stockQty: inquiry.product.stockQty,
+      paidBefore: !!inquiry.order?.paidAt,
+      paidNow: !!paidAt,
+      autoApplied: !!inquiry.order?.stockAutoApplied,
+    });
+
     const stockData = { stockAutoApplied: stock.autoApplied };
     await tx.order.upsert({ where: { inquiryId: d.inquiryId }, create: { inquiryId: d.inquiryId, ...data, ...stockData }, update: { ...data, ...stockData } });
     if (stock.action !== "none") {
@@ -153,8 +111,10 @@ async function saveOrderCore(me: Me, d: OrderInput): Promise<ActionState> {
       await tx.inquiry.update({ where: { id: d.inquiryId }, data: { status: flow.status } });
       await tx.inquiryEvent.create({ data: { inquiryId: d.inquiryId, type: "status_changed", actorId: me.id, data: { from: inquiry.status, to: flow.status, via: "order", delivery: d.deliveryMethod } } });
     }
-  });
-  await audit(me.id, "order.save", "Order", d.inquiryId, { total, paid: !!d.paid, delivery: d.deliveryMethod, status: flow.status, stock: stock.action });
+    return { total, paid: !!d.paid, status: flow.status, stockAction: stock.action };
+  }, { timeout: 15_000 });
+  if ("error" in result) return { error: result.error };
+  await audit(me.id, "order.save", "Order", d.inquiryId, { total: result.total, paid: result.paid, delivery: d.deliveryMethod, status: result.status, stock: result.stockAction });
   revalidatePath(`/admin/inquiries/${d.inquiryId}`);
   revalidatePath("/admin");
   revalidatePath("/admin/inquiries");

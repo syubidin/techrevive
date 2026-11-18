@@ -15,7 +15,7 @@ export function OrderStepper({ status }: { status: TrackStatus }) {
           <span className={`grid h-8 w-8 place-items-center rounded-full border text-xs font-bold ${i < step || (status === "DELIVERED" && i === step) ? "border-green-600 bg-green-600 text-white" : i === step ? "border-[var(--color-ink-900)] bg-[var(--color-ink-900)] text-white" : "border-[var(--line)] muted"}`}>
             {i < step || (status === "DELIVERED" && i === step) ? <Icon name="check" size={14} /> : i + 1}
           </span>
-          <span className={`text-[10px] leading-tight sm:text-xs ${i === step ? "font-bold" : "muted"}`}>{l}</span>
+          <span className={`text-[11px] leading-tight sm:text-xs ${i === step ? "font-bold" : "muted"}`}>{l}</span>
         </li>
       ))}
     </ol>

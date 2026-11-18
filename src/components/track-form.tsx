@@ -68,7 +68,7 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
                     <span className={`grid h-8 w-8 place-items-center rounded-full border text-xs font-bold ${i < step || (done && i === step) ? "border-green-600 bg-green-600 text-white" : i === step ? "border-[var(--color-ink-900)] bg-[var(--color-ink-900)] text-white" : "border-[var(--line)] muted"}`}>
                       {i < step || (done && i === step) ? <Icon name="check" size={14} /> : i + 1}
                     </span>
-                    <span className={`text-[10px] leading-tight sm:text-xs ${i === step ? "font-bold" : "muted"}`}>{label}</span>
+                    <span className={`text-[11px] leading-tight sm:text-xs ${i === step ? "font-bold" : "muted"}`}>{label}</span>
                   </li>
                 ))}
               </ol>

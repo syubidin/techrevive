@@ -44,8 +44,6 @@ export const getAdminOrNull = cache(async (): Promise<AdminContext | null> => {
 });
 
 export { can };
-/** @deprecated gunakan can(role, "finance.view") */
-export const canSeeCost = (role: AdminRole) => can(role, "finance.view");
 
 export async function clientIpHash(): Promise<string> {
   return hashIp(getClientIp(await headers()), getEnv().IP_HASH_SECRET);

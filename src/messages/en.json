@@ -10,12 +10,13 @@
     "menu": "Menu",
     "close": "Close",
     "openMenu": "Open menu",
-    "skip": "Skip to main content"
+    "skip": "Skip to main content",
+    "about": "About Us"
   },
   "hero": {
     "badge": "Second-hand premium & customizable",
     "title": "Curated tech, honestly graded.",
-    "subtitle": "Second-hand and refurbished laptops, phones and gadgets with clear grading, QC-checked and covered by a 1-month warranty. Order directly on WhatsApp.",
+    "subtitle": "Upgrade your devices with quality laptops, smartphones and gadgets, new to refurbished, to fit your needs and budget. Transparent product info, easy ordering on WhatsApp.",
     "browse": "Browse Catalog",
     "how": "How to Order",
     "searchPlaceholder": "Search laptops, phones or brands…",
@@ -243,7 +244,7 @@
     "help": "Help",
     "brands": "Brands",
     "company": "TechRevive",
-    "tagline": "Second-hand & refurbished tech with honest grading."
+    "tagline": "Upgrade your devices with quality laptops, smartphones and gadgets, from new to refurbished."
   },
   "common": {
     "whatsapp": "WhatsApp",
@@ -365,8 +366,6 @@
     "responseDesc": "Within 15 minutes during business hours.",
     "socialTitle": "Social media",
     "noSocial": "Coming soon.",
-    "aboutTitle": "About TechRevive",
-    "aboutDesc": "TechRevive offers curated second-hand and refurbished tech. Every unit is graded honestly, passes our QC and comes with a full 1-month warranty before it reaches you.",
     "formTitle": "Write a message",
     "formDesc": "Your message opens in WhatsApp, ready to send.",
     "name": "Name (optional)",
@@ -474,5 +473,60 @@
     "title": "Something went wrong",
     "desc": "The page failed to load. Please try again.",
     "retry": "Try again"
+  },
+  "aboutPage": {
+    "title": "About TechRevive",
+    "intro": "A direct supplier of quality laptops, smartphones and gadgets, from new to refurbished, with honest information and a simple ordering process.",
+    "storyTitle": "Who we are",
+    "story": [
+      "TechRevive makes upgrading your devices easy and worry-free. We offer curated laptops, smartphones and gadgets for studying, working and creating, from new units to refurbished ones to fit your needs and budget.",
+      "As a direct supplier, every unit passes our Check QC before it reaches you. You get a clear grade, real photos of the actual unit and transparent pricing, with no surprises."
+    ],
+    "missionTitle": "Mission",
+    "mission": "Make quality devices affordable and easy to choose, with honest information and dependable service.",
+    "visionTitle": "Vision",
+    "vision": "To be the first place people trust for upgrading their tech in Greater Jakarta.",
+    "valuesTitle": "What we stand for",
+    "values": [
+      {
+        "t": "Honest grading",
+        "d": "Every unit gets an A/B/C grade based on its real condition, with photos of the actual unit."
+      },
+      {
+        "t": "Check QC",
+        "d": "Our team checks each unit before it ships, including core functions and battery health where applicable."
+      },
+      {
+        "t": "1-month warranty",
+        "d": "Every item has a full 1-month warranty. After it ends, service is still available for a fee."
+      },
+      {
+        "t": "Transparent pricing",
+        "d": "Clear prices, and quotes stay locked for their validity period, with no hidden fees."
+      }
+    ],
+    "processTitle": "How we work",
+    "process": [
+      {
+        "t": "Pick a unit",
+        "d": "Browse the catalog with spec filters, then send an inquiry."
+      },
+      {
+        "t": "We confirm",
+        "d": "Our team replies on WhatsApp, checks the unit and sends a quote."
+      },
+      {
+        "t": "Pay and we prepare",
+        "d": "After payment the unit goes through Check QC and is packed."
+      },
+      {
+        "t": "Delivered to you",
+        "d": "Delivered by our team or by courier. Follow it on Track Order."
+      }
+    ],
+    "ctaTitle": "Ready to upgrade?",
+    "ctaDesc": "Browse the catalog or tell us what you need, and we will reply quickly.",
+    "ctaCatalog": "Browse Catalog",
+    "ctaContact": "Contact Us"
   }
 }

@@ -156,8 +156,6 @@ details[open] > summary .chev { transform: rotate(180deg); }
 @media (hover: none) { .brand-logo { filter: none; opacity: .92; } }
 @media (prefers-reduced-motion: reduce) { .brand-tile { transition: none; } .brand-tile:hover { transform: none; } }
 .logo-checker { background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 50% / 12px 12px; }
-.logo-tile { display: inline-grid; place-items: center; background: #fff; border: 1px solid var(--line); }
-@media (prefers-color-scheme: dark) { .logo-tile { background: #07273e; border-color: #07273e; } }
 .scrollbar-none { scrollbar-width: none; } .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 
@@ -188,3 +186,9 @@ details[open] > summary .chev { transform: rotate(180deg); }
 @keyframes dialog-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .dialog, .dialog::backdrop { animation: none; } }
+
+/* ---- Aksesibilitas & sentuhan (audit UI/UX) ---- */
+html { scroll-padding-top: 5rem; }
+:where(a, button, summary, select, textarea, [role="button"]):focus-visible { outline: 2px solid var(--color-brand-500); outline-offset: 2px; }
+@media (pointer: coarse) { .btn-sm { min-height: 2.75rem; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

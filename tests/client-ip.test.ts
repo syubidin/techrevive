@@ -14,3 +14,9 @@ test("CF-Connecting-IP diabaikan kecuali dipercaya", () => {
   assert.equal(getClientIp(new Headers({ "cf-connecting-ip": "2.2.2.2", "x-forwarded-for": "5.5.5.5" })), "2.2.2.2");
   delete process.env.TRUST_CLOUDFLARE;
 });
+
+test("tanpa X-Forwarded-For memakai X-Real-IP, jika tidak ada baru unknown", () => {
+  delete process.env.TRUST_CLOUDFLARE;
+  assert.equal(getClientIp(new Headers({ "x-real-ip": "4.4.4.4" })), "4.4.4.4");
+  assert.equal(getClientIp(new Headers()), "unknown");
+});

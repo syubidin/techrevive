@@ -10,12 +10,13 @@
     "menu": "Menu",
     "close": "Tutup",
     "openMenu": "Buka menu",
-    "skip": "Lewati ke konten utama"
+    "skip": "Lewati ke konten utama",
+    "about": "Tentang Kami"
   },
   "hero": {
     "badge": "Second-hand premium & customizable",
     "title": "Perangkat tech pilihan, kondisi jujur.",
-    "subtitle": "Laptop, HP, dan gadget second & refurbished dengan grade yang jelas, lolos QC dan bergaransi 1 bulan. Pesan langsung via WhatsApp.",
+    "subtitle": "Upgrade perangkatmu dengan laptop, smartphone, dan gadget berkualitas, baru hingga refurbished sesuai kebutuhan dan budget. Info produk transparan, pesan praktis via WhatsApp.",
     "browse": "Lihat Katalog",
     "how": "Cara Pesan",
     "searchPlaceholder": "Cari laptop, HP, atau merk…",
@@ -243,7 +244,7 @@
     "help": "Bantuan",
     "brands": "Merk",
     "company": "TechRevive",
-    "tagline": "Perangkat tech second & refurbished dengan grade jujur."
+    "tagline": "Upgrade perangkatmu dengan laptop, smartphone, dan gadget berkualitas, baru hingga refurbished."
   },
   "common": {
     "whatsapp": "WhatsApp",
@@ -365,8 +366,6 @@
     "responseDesc": "Maksimal 15 menit di jam kerja.",
     "socialTitle": "Sosial media",
     "noSocial": "Segera hadir.",
-    "aboutTitle": "Tentang TechRevive",
-    "aboutDesc": "TechRevive menyediakan perangkat tech second dan refurbished pilihan. Setiap unit dinilai dengan grade yang jujur, melewati QC tim kami, dan bergaransi 1 bulan penuh sebelum sampai ke tangan Anda.",
     "formTitle": "Tulis pesan",
     "formDesc": "Pesan Anda akan terbuka di WhatsApp dan tinggal dikirim.",
     "name": "Nama (opsional)",
@@ -474,5 +473,60 @@
     "title": "Terjadi kendala",
     "desc": "Halaman gagal dimuat. Coba muat ulang.",
     "retry": "Coba lagi"
+  },
+  "aboutPage": {
+    "title": "Tentang TechRevive",
+    "intro": "Supplier langsung laptop, smartphone, dan gadget berkualitas, dari baru hingga refurbished, dengan informasi yang jujur dan proses pesan yang praktis.",
+    "storyTitle": "Siapa kami",
+    "story": [
+      "TechRevive hadir untuk membuat upgrade perangkat terasa mudah dan tenang. Kami menyediakan laptop, smartphone, dan gadget pilihan untuk menunjang aktivitas belajar, bekerja, dan berkreasi, dengan pilihan dari unit baru sampai refurbished sesuai kebutuhan dan budget.",
+      "Karena kami supplier langsung, setiap unit melewati Check QC tim kami sebelum sampai ke Anda. Anda mendapat grade yang jelas, foto unit asli, dan harga yang transparan, tanpa kejutan."
+    ],
+    "missionTitle": "Misi",
+    "mission": "Membuat perangkat berkualitas terjangkau dan mudah dipilih, dengan informasi yang jujur dan layanan yang bisa diandalkan.",
+    "visionTitle": "Visi",
+    "vision": "Menjadi tempat pertama yang dipercaya untuk upgrade perangkat tech di Jabodetabek.",
+    "valuesTitle": "Yang kami pegang",
+    "values": [
+      {
+        "t": "Grade jujur",
+        "d": "Setiap unit diberi grade A/B/C berdasarkan kondisi sebenarnya, lengkap dengan foto unit asli."
+      },
+      {
+        "t": "Check QC",
+        "d": "Unit dicek tim kami sebelum dikirim, termasuk fungsi utama dan kesehatan baterai bila ada."
+      },
+      {
+        "t": "Garansi 1 bulan",
+        "d": "Semua barang bergaransi 1 bulan penuh. Setelah garansi berakhir, service tetap tersedia dengan biaya."
+      },
+      {
+        "t": "Harga transparan",
+        "d": "Harga jelas dan penawaran dikunci selama masa berlaku, tanpa biaya tersembunyi."
+      }
+    ],
+    "processTitle": "Cara kami bekerja",
+    "process": [
+      {
+        "t": "Pilih unit",
+        "d": "Jelajahi katalog dengan filter spesifikasi, lalu kirim inquiry."
+      },
+      {
+        "t": "Kami konfirmasi",
+        "d": "Tim membalas lewat WhatsApp, mengecek unit, dan mengirim penawaran."
+      },
+      {
+        "t": "Bayar dan kami siapkan",
+        "d": "Setelah pembayaran, unit melewati Check QC dan dikemas."
+      },
+      {
+        "t": "Diantar ke Anda",
+        "d": "Diantar tim kami atau lewat kurir. Pantau lewat Lacak Pesanan."
+      }
+    ],
+    "ctaTitle": "Siap upgrade perangkatmu?",
+    "ctaDesc": "Lihat katalog atau tanyakan langsung kebutuhanmu, kami balas cepat.",
+    "ctaCatalog": "Lihat Katalog",
+    "ctaContact": "Hubungi Kami"
   }
 }

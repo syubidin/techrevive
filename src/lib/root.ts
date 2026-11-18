@@ -6,7 +6,7 @@ export const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font
 export const rootMetadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: { default: "TechRevive — Second-hand Premium & Customizable", template: "%s · TechRevive" },
-  description: "Laptop, HP, dan gadget second & refurbished dengan grade jujur. Lolos QC, garansi 1 bulan. Pesan via WhatsApp.",
+  description: "Upgrade perangkatmu dengan laptop, smartphone, dan gadget berkualitas, baru hingga refurbished. Info transparan, Check QC, garansi 1 bulan, pesan via WhatsApp.",
   icons: {
     icon: [
       { url: "/brand/icon-light.png", type: "image/png", sizes: "128x128", media: "(prefers-color-scheme: light)" },

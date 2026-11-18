@@ -16,7 +16,8 @@ function buildCsp(nonce: string | null): string {
   const scriptSrc = nonce
     ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://challenges.cloudflare.com${dev ? " 'unsafe-eval'" : ""}`
     : `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${dev ? " 'unsafe-eval'" : ""}`;
-  const imageHost = process.env.IMAGE_HOST ? ` https://${process.env.IMAGE_HOST}` : "";
+  const hosts = [process.env.IMAGE_HOST?.trim(), process.env.CLOUDINARY_CLOUD_NAME?.trim() ? "res.cloudinary.com" : undefined].filter(Boolean);
+  const imageHost = hosts.length ? ` ${[...new Set(hosts)].map((h) => `https://${h}`).join(" ")}` : "";
   return [
     "default-src 'self'",
     scriptSrc,

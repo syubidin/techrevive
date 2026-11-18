@@ -55,15 +55,6 @@ export async function clearSessionCookie(): Promise<void> {
   (await cookies()).set(SESSION_COOKIE, "", { httpOnly: true, secure: isProd, sameSite: "strict", path: "/", maxAge: 0, expires: new Date(0) });
 }
 
-/** Gunakan di setiap server action / route admin. Middleware saja tidak cukup (defense in depth). */
-export async function requireRole(...allowed: AdminRole[]): Promise<SessionPayload> {
-  const session = await readSession();
-  if (!session || (allowed.length && !allowed.includes(session.role))) {
-    throw new Response(JSON.stringify({ error: "FORBIDDEN" }), { status: 403 });
-  }
-  return session;
-}
-
 export const hashPassword = (password: string) => hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1 });
 
 // Hash tiruan agar waktu respons login sama baik email ada maupun tidak (anti user enumeration).

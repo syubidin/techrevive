@@ -108,6 +108,7 @@ model AuditLog {
 
   @@index([entity, entityId])
   @@index([createdAt])
+  @@index([actorId])
 }
 
 // ---------- Katalog ----------
@@ -198,6 +199,11 @@ model Product {
 
   @@index([status, deletedAt, categoryId, brandId])
   @@index([sellPrice])
+  @@index([status, deletedAt, createdAt]) // urutan "terbaru" di beranda & katalog
+  @@index([deletedAt, updatedAt])         // daftar produk admin
+  @@index([brandId])
+  @@index([categoryId])
+  @@index([supplierId])
   @@index([attributes], type: Gin)
   @@index([features], type: Gin)
 }
@@ -244,6 +250,9 @@ model Inquiry {
   @@index([phone, productId, createdAt])
   @@index([status, createdAt])
   @@index([followUpAt])
+  @@index([productId])
+  @@index([createdAt])
+  @@index([status, quoteExpiresAt]) // kedaluwarsa penawaran otomatis
 }
 
 model InquiryEvent {

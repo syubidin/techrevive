@@ -39,6 +39,7 @@ export function SiteFooter({ locale, t, brands = [] }: { locale: Locale; t: Mess
         <nav className={col} aria-label={t.footer.help}>
           <p className={head}>{t.footer.help}</p>
           <ul className="mt-3 space-y-1">
+            <li><FooterLink href={L("/about")}>{t.nav.about}</FooterLink></li>
             <li><FooterLink href={L("/how-it-works")}>{t.nav.howItWorks}</FooterLink></li>
             <li><FooterLink href={L("/faq")}>{t.nav.faq}</FooterLink></li>
             <li><FooterLink href={L("/track")}>{t.nav.track}</FooterLink></li>
