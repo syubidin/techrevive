@@ -15,7 +15,7 @@
   },
   "hero": {
     "badge": "Second-hand premium & customizable",
-    "title": "Gadget kelas atas, budget pas.",
+    "title": "Tech pilihan, grade apa adanya.",
     "subtitle": "Upgrade perangkatmu dengan laptop, smartphone, dan gadget berkualitas, baru hingga refurbished sesuai kebutuhan dan budget. Info produk transparan, pesan praktis via WhatsApp.",
     "browse": "Lihat Katalog",
     "how": "Cara Pesan",
@@ -528,5 +528,14 @@
     "ctaDesc": "Lihat katalog atau tanyakan langsung kebutuhanmu, kami balas cepat.",
     "ctaCatalog": "Lihat Katalog",
     "ctaContact": "Hubungi Kami"
+  },
+  "meta": {
+    "homeTitle": "TechRevive: Laptop, Smartphone & Gadget Berkualitas, Baru hingga Refurbished",
+    "homeDescription": "Upgrade perangkatmu dengan laptop, smartphone, dan gadget berkualitas, baru hingga refurbished sesuai kebutuhan dan budget. Lolos Check QC, garansi 1 bulan, diantar Jabodetabek, pesan via WhatsApp.",
+    "catalogDescription": "Katalog laptop, smartphone, dan gadget berkualitas dengan grade jujur A/B/C, spesifikasi lengkap, dan harga transparan. Filter berdasarkan kategori, merk, spesifikasi, dan budget.",
+    "categoryTitle": "{name} Berkualitas, Baru hingga Refurbished",
+    "categoryDescription": "Pilihan {name} berkualitas dengan grade jujur, lolos Check QC, dan garansi 1 bulan. Info produk transparan, pesan praktis via WhatsApp, diantar Jabodetabek.",
+    "ogAlt": "TechRevive: laptop, smartphone, dan gadget berkualitas",
+    "orgDescription": "TechRevive adalah supplier langsung laptop, smartphone, dan gadget berkualitas, baru hingga refurbished, dengan Check QC, garansi 1 bulan, dan pengantaran Jabodetabek."
   }
 }

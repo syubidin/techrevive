@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { SignJWT, jwtVerify } from "jose";
+import { isIdleExpired, lastActivity, needsTouch } from "@/lib/session-policy";
 
 const LOCALES = ["id", "en"] as const;
 const COOKIE = process.env.NODE_ENV === "production" ? "__Host-tr_session" : "tr_session";
@@ -34,15 +35,35 @@ function buildCsp(nonce: string | null): string {
   ].join("; ");
 }
 
-async function isAdminSession(req: NextRequest): Promise<boolean> {
+type AdminCheck = { ok: false; idle: boolean } | { ok: true; touch?: { token: string; maxAge: number } };
+
+/**
+ * Memeriksa sesi admin. Selain tanda tangan dan masa berlaku mutlak, di sini juga ditegakkan batas diam
+ * dan cap aktivitas terakhir (`la`) diperbarui (maksimal sekali per menit) agar sesi aktif tidak mati.
+ */
+async function checkAdminSession(req: NextRequest): Promise<AdminCheck> {
   const token = req.cookies.get(COOKIE)?.value;
   const secret = process.env.SESSION_SECRET;
-  if (!token || !secret) return false;
+  if (!token || !secret) return { ok: false, idle: false };
   try {
-    await jwtVerify(token, new TextEncoder().encode(secret), { algorithms: ["HS256"] });
-    return true;
+    const key = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, key, { algorithms: ["HS256"] });
+    const now = Math.floor(Date.now() / 1000);
+    const la = lastActivity(payload);
+    if (isIdleExpired(la, now)) return { ok: false, idle: true };
+    // POST (server action, termasuk logout) tidak menulis ulang cookie agar tidak menimpa penghapusan sesi.
+    if (req.method === "GET" && needsTouch(la, now) && typeof payload.exp === "number" && typeof payload.iat === "number" && payload.sub) {
+      const fresh = await new SignJWT({ role: payload.role, sv: payload.sv, la: now })
+        .setProtectedHeader({ alg: "HS256" })
+        .setSubject(payload.sub)
+        .setIssuedAt(payload.iat)
+        .setExpirationTime(payload.exp)
+        .sign(key);
+      return { ok: true, touch: { token: fresh, maxAge: Math.max(1, payload.exp - now) } };
+    }
+    return { ok: true };
   } catch {
-    return false;
+    return { ok: false, idle: false };
   }
 }
 
@@ -60,12 +81,17 @@ export async function middleware(req: NextRequest) {
   // Admin: wajib sesi valid (pemeriksaan role tetap dilakukan di server action/route).
   const isAdminPage = pathname.startsWith("/admin") && pathname !== "/admin/login";
   const isAdminApi = pathname.startsWith("/api/admin");
-  if ((isAdminPage || isAdminApi) && !(await isAdminSession(req))) {
-    if (isAdminApi) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
-    const url = req.nextUrl.clone();
-    url.pathname = "/admin/login";
-    url.search = "";
-    return NextResponse.redirect(url);
+  let touch: { token: string; maxAge: number } | undefined;
+  if (isAdminPage || isAdminApi) {
+    const check = await checkAdminSession(req);
+    if (!check.ok) {
+      if (isAdminApi) return NextResponse.json({ error: check.idle ? "SESSION_EXPIRED" : "UNAUTHORIZED" }, { status: 401 });
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin/login";
+      url.search = check.idle ? "?expired=1" : "";
+      return NextResponse.redirect(url);
+    }
+    touch = check.touch;
   }
 
   // Halaman publik: pastikan ada prefix locale.
@@ -84,6 +110,9 @@ export async function middleware(req: NextRequest) {
   }
   const res = NextResponse.next({ request: { headers } });
   res.headers.set("Content-Security-Policy", csp);
+  if (touch) {
+    res.cookies.set(COOKIE, touch.token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", path: "/", maxAge: touch.maxAge });
+  }
   if (pathname.startsWith("/admin") || pathname.startsWith("/api")) {
     res.headers.set("Cache-Control", "no-store");
     res.headers.set("X-Robots-Tag", "noindex, nofollow");

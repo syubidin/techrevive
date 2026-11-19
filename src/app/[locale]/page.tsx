@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
 import { BrandLogo } from "@/components/brand-logo";
+import { JsonLd } from "@/components/json-ld";
+import { organizationLd, pageMetadata, websiteLd } from "@/lib/seo";
 import Link from "next/link";
 import { deliveryUrl } from "@/lib/cloudinary-url";
 import { notFound } from "next/navigation";
@@ -22,6 +25,15 @@ function cycle<T>(items: T[], min = 12): T[] {
   return out;
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = getMessages(locale);
+  // Judul beranda memakai absolute agar tidak ditambah akhiran "· TechRevive" dua kali.
+  const m = pageMetadata({ locale, title: t.meta.homeTitle, description: t.meta.homeDescription });
+  return { ...m, title: { absolute: t.meta.homeTitle } };
+}
+
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
@@ -39,6 +51,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
+      <JsonLd data={[organizationLd(locale), websiteLd(locale)]} />
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" aria-hidden />

@@ -1,5 +1,6 @@
 import { AdminNav, type AdminNavItem } from "@/components/admin-nav";
 import { ConfirmProvider } from "@/components/confirm-provider";
+import { SessionGuard } from "@/components/session-guard";
 import { Icon } from "@/components/icons";
 import { requireAdmin, can } from "@/lib/admin";
 import { ROLE_LABEL, type Permission } from "@/lib/rbac";
@@ -33,6 +34,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       </AdminNav>
       <main className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
       <ConfirmProvider />
+      <SessionGuard />
     </div>
   );
 }

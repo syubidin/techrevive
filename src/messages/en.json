@@ -528,5 +528,14 @@
     "ctaDesc": "Browse the catalog or tell us what you need, and we will reply quickly.",
     "ctaCatalog": "Browse Catalog",
     "ctaContact": "Contact Us"
+  },
+  "meta": {
+    "homeTitle": "TechRevive: Quality Laptops, Smartphones & Gadgets, New to Refurbished",
+    "homeDescription": "Upgrade your devices with quality laptops, smartphones and gadgets, from new to refurbished, to fit your needs and budget. Check QC, 1-month warranty, Jabodetabek delivery, order on WhatsApp.",
+    "catalogDescription": "Catalog of quality laptops, smartphones and gadgets with honest A/B/C grading, full specs and transparent prices. Filter by category, brand, specs and budget.",
+    "categoryTitle": "Quality {name}, New to Refurbished",
+    "categoryDescription": "Quality {name} with honest grading, Check QC and a 1-month warranty. Transparent product info, easy ordering on WhatsApp, delivery across Jabodetabek.",
+    "ogAlt": "TechRevive: quality laptops, smartphones and gadgets",
+    "orgDescription": "TechRevive is a direct supplier of quality laptops, smartphones and gadgets, from new to refurbished, with Check QC, a 1-month warranty and delivery across Greater Jakarta (Jabodetabek)."
   }
 }

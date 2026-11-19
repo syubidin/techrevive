@@ -12,6 +12,8 @@ import { ProductCard } from "@/components/product-card";
 import { Gallery } from "@/components/gallery";
 import { Icon, categoryIcon } from "@/components/icons";
 import { waLink } from "@/lib/contact";
+import { JsonLd } from "@/components/json-ld";
+import { abs, breadcrumbLd, pageMetadata, siteUrl } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -40,12 +42,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const p = await load(slug);
   if (!p) return {};
   const name = pick(locale, p.nameId, p.nameEn);
-  return {
-    title: name,
-    description: (pick(locale, p.descriptionId, p.descriptionEn) || name).slice(0, 155),
-    alternates: { languages: { id: `/id/product/${slug}`, en: `/en/product/${slug}` } },
-    openGraph: { title: name, images: p.images[0] ? [p.images[0].url] : undefined },
-  };
+  const t = getMessages(locale);
+  const cat = pick(locale, p.category.nameId, p.category.nameEn);
+  const base = (pick(locale, p.descriptionId, p.descriptionEn) || "").replace(/\s+/g, " ").trim();
+  const description = (base || `${name}. ${p.brand.name}, ${t.condition[p.condition]}${p.grade ? `, ${t.grade[p.grade]}` : ""}. ${t.meta.homeDescription}`).slice(0, 158);
+  return pageMetadata({ locale, path: `/product/${slug}`, title: `${name} (${cat})`.slice(0, 70), description, images: p.images.slice(0, 3).map((i) => i.url) });
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
@@ -64,21 +65,44 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
     .catch(() => []);
 
   // JSON-LD: availability sengaja tidak dinyatakan InStock kecuali sudah terverifikasi.
+  const url = abs(`/${locale}/product/${p.slug}`);
+  const catLabel = pick(locale, p.category.nameId, p.category.nameEn);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `${url}#product`,
+    url,
     name,
     sku: p.sku,
+    mpn: p.sku,
+    description: (desc || name).replace(/\s+/g, " ").trim().slice(0, 500),
+    category: catLabel,
     brand: { "@type": "Brand", name: p.brand.name },
     itemCondition: p.condition === "REFURBISHED" ? "https://schema.org/RefurbishedCondition" : "https://schema.org/UsedCondition",
     image: p.images.map((i) => i.url),
+    additionalProperty: [
+      ...(p.grade ? [{ "@type": "PropertyValue", name: "Grade", value: p.grade }] : []),
+      ...(p.batteryHealth != null ? [{ "@type": "PropertyValue", name: "Battery health", value: p.batteryHealth, unitText: "%" }] : []),
+      ...attrs.map(([k, v]) => ({ "@type": "PropertyValue", name: k, value: String(v) })),
+    ],
+    warranty: { "@type": "WarrantyPromise", durationOfWarranty: { "@type": "QuantitativeValue", value: 1, unitCode: "MON" }, warrantyScope: "https://schema.org/FullWarranty" },
     offers: {
       "@type": "Offer",
+      url,
       priceCurrency: "IDR",
       price: p.sellPrice,
+      itemCondition: p.condition === "REFURBISHED" ? "https://schema.org/RefurbishedCondition" : "https://schema.org/UsedCondition",
       availability: status === "VERIFIED" ? "https://schema.org/InStock" : status === "PREORDER" ? "https://schema.org/PreOrder" : status === "SOLD_OUT" ? "https://schema.org/OutOfStock" : "https://schema.org/LimitedAvailability",
+      seller: { "@type": "Organization", "@id": `${siteUrl()}/#organization`, name: "TechRevive" },
+      areaServed: "Jabodetabek",
     },
   };
+  const crumbs = breadcrumbLd([
+    { name: t.common.home, path: `/${locale}` },
+    { name: t.product.breadcrumbCatalog, path: `/${locale}/catalog` },
+    { name: catLabel, path: `/${locale}/catalog?category=${p.category.slug}` },
+    { name: name, path: `/${locale}/product/${p.slug}` },
+  ]);
 
   const catName = pick(locale, p.category.nameId, p.category.nameEn);
   const L = (x: string) => `/${locale}${x}`;
@@ -91,8 +115,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
 
   return (
     <div className="container-x py-6 pb-28 sm:py-10 lg:pb-10">
-      {/* eslint-disable-next-line react/no-danger -- JSON.stringify output; "<" di-escape agar tidak menutup tag script */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <JsonLd data={[jsonLd, crumbs]} />
 
       <nav aria-label="Breadcrumb" className="muted mb-5 flex flex-wrap items-center gap-1 text-sm">
         <Link href={L("")} className="hover:text-[var(--fg)]">{t.common.home}</Link>

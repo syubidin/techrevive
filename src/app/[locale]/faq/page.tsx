@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/json-ld";
+import { breadcrumbLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { waLink } from "@/lib/contact";
@@ -8,7 +11,9 @@ import { PageHero } from "@/components/page-hero";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: isLocale(locale) ? getMessages(locale).faqPage.title : "FAQ" };
+  if (!isLocale(locale)) return {};
+  const t = getMessages(locale);
+  return pageMetadata({ locale, path: "/faq", title: t.faqPage.title, description: t.faqPage.intro });
 }
 
 export default async function FaqPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -23,8 +28,7 @@ export default async function FaqPage({ params }: { params: Promise<{ locale: st
   };
   return (
     <>
-      {/* eslint-disable-next-line react/no-danger -- JSON.stringify output; "<" di-escape */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <JsonLd data={[jsonLd, breadcrumbLd([{ name: t.common.home, path: `/${locale}` }, { name: f.title, path: `/${locale}/faq` }])]} />
       <PageHero title={f.title} intro={f.intro} icon="message-circle" />
       <div className="container-x grid gap-8 py-8 sm:py-10 lg:grid-cols-[1.6fr_1fr]">
         <div className="space-y-3">

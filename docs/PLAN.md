@@ -28,7 +28,7 @@
 | Salah hitung rupiah | Integer saja, pembulatan, batas overflow, tes unit |
 | Jual di bawah margin minimum | `meetsMinimumMargin` + peringatan di form admin |
 | Brute force login | Argon2id, lockout, hash tiruan (anti enumerasi), rate limit |
-| Pencurian sesi / CSRF | Cookie `__Host-` HttpOnly Secure SameSite=Strict, JWT 12 jam, cek Origin di POST |
+| Pencurian sesi / CSRF | Cookie `__Host-` HttpOnly Secure SameSite=Strict, JWT maks. 1,5 jam + batas diam 45 menit (detak aktivitas dari browser), cek Origin di POST |
 | XSS | CSP nonce + `strict-dynamic`, React escape default, tanpa `dangerouslySetInnerHTML` |
 | Ongkir di luar area | `OUT_OF_AREA` → tawarkan tanya admin; berat volumetrik dihitung |
 | Produk dihapus tetapi ada inquiry | Soft delete; inquiry menyimpan snapshot |

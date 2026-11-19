@@ -7,6 +7,7 @@ export const metadata = { title: "Masuk" };
  */
 export const dynamic = "force-dynamic";
 
-export default function LoginPage() {
-  return <LoginForm />;
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ expired?: string }> }) {
+  const { expired } = await searchParams;
+  return <LoginForm expired={expired === "1"} />;
 }

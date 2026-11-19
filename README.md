@@ -251,6 +251,9 @@ and [`docs/CRON.md`](docs/CRON.md).
 - [`docs/FLOW.md`](docs/FLOW.md) - inquiry, order and status flow
 - [`docs/HOSTING.md`](docs/HOSTING.md) - deployment and third-party setup
 - [`docs/CRON.md`](docs/CRON.md) - scheduled maintenance jobs
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) - layers, scaling rules and how to add a feature
+- [`docs/SEO.md`](docs/SEO.md) - SEO and generative-engine (GEO) setup
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) - designed next features
 
 ## Roadmap
 
@@ -268,6 +271,6 @@ Contact the author for reuse. (Replace with MIT or another license if you prefer
 
 <div align="center">
 
-Built by **[Syuby](https://github.com/syubidin)** &nbsp;|&nbsp; Jakarta, Indonesia
+Built by **[Your Name](https://github.com/<your-username>)** &nbsp;|&nbsp; Jakarta, Indonesia
 
 </div>

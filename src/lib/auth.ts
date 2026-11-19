@@ -3,6 +3,7 @@ import { hash, verify } from "@node-rs/argon2";
 import { cookies } from "next/headers";
 import { getEnv } from "./env";
 import { normalizeSv } from "./session-version";
+import { SESSION_ABSOLUTE_SEC, isIdleExpired, lastActivity } from "./session-policy";
 
 export type AdminRole = "OWNER" | "DEVELOPER" | "STAFF";
 export interface SessionPayload {
@@ -12,18 +13,18 @@ export interface SessionPayload {
   sv: number;
 }
 
-const SESSION_TTL_SEC = 60 * 60 * 12; // 12 jam
 const isProd = process.env.NODE_ENV === "production";
 export const SESSION_COOKIE = isProd ? "__Host-tr_session" : "tr_session";
 
 const key = () => new TextEncoder().encode(getEnv().SESSION_SECRET);
 
 export async function createSessionToken(payload: Omit<SessionPayload, "sv"> & { sv?: number }): Promise<string> {
-  return new SignJWT({ role: payload.role, sv: normalizeSv(payload.sv) })
+  const now = Math.floor(Date.now() / 1000);
+  return new SignJWT({ role: payload.role, sv: normalizeSv(payload.sv), la: now })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.sub)
-    .setIssuedAt()
-    .setExpirationTime(`${SESSION_TTL_SEC}s`)
+    .setIssuedAt(now)
+    .setExpirationTime(now + SESSION_ABSOLUTE_SEC)
     .sign(key());
 }
 
@@ -33,6 +34,8 @@ export async function readSession(): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, key(), { algorithms: ["HS256"] });
     if (!payload.sub || typeof payload.role !== "string") return null;
+    // Batas diam: terlalu lama tanpa aktivitas = sesi dianggap berakhir (pembaruan `la` dilakukan middleware).
+    if (isIdleExpired(lastActivity(payload), Math.floor(Date.now() / 1000))) return null;
     return { sub: payload.sub, role: payload.role as AdminRole, sv: normalizeSv(payload.sv) };
   } catch {
     return null;
@@ -45,7 +48,7 @@ export async function setSessionCookie(token: string): Promise<void> {
     secure: isProd,
     sameSite: "strict",
     path: "/",
-    maxAge: SESSION_TTL_SEC,
+    maxAge: SESSION_ABSOLUTE_SEC,
   });
 }
 

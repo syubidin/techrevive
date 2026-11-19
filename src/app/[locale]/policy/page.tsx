@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { getMessages } from "@/lib/i18n";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: isLocale(locale) ? getMessages(locale).policy.title : "Policy" };
+  if (!isLocale(locale)) return {};
+  const t = getMessages(locale);
+  return pageMetadata({ locale, path: "/policy", title: t.policy.title, description: t.meta.homeDescription });
 }
 
 export default async function PolicyPage({ params }: { params: Promise<{ locale: string }> }) {

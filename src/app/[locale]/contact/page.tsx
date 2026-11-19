@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { isLocale, site } from "@/config/site";
 import { waNumber } from "@/lib/contact";
@@ -9,7 +10,9 @@ import { PageHero } from "@/components/page-hero";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: isLocale(locale) ? getMessages(locale).contactPage.title : "Contact" };
+  if (!isLocale(locale)) return {};
+  const t = getMessages(locale);
+  return pageMetadata({ locale, path: "/contact", title: t.contactPage.title, description: t.contactPage.intro });
 }
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {

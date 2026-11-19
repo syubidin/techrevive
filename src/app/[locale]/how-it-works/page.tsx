@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
@@ -8,7 +9,9 @@ import { PageHero } from "@/components/page-hero";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: isLocale(locale) ? getMessages(locale).howPage.title : "How to order" };
+  if (!isLocale(locale)) return {};
+  const t = getMessages(locale);
+  return pageMetadata({ locale, path: "/how-it-works", title: t.howPage.title, description: t.howPage.intro });
 }
 
 export default async function HowPage({ params }: { params: Promise<{ locale: string }> }) {

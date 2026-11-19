@@ -12,14 +12,32 @@ import { ProductCard } from "@/components/product-card";
 import { FilterSheet } from "@/components/filter-sheet";
 import { Icon } from "@/components/icons";
 import { buildFilterChips } from "@/lib/filter-chips";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic"; // bergantung pada query string
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<SearchParams> }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: isLocale(locale) ? getMessages(locale).catalog.title : "Catalog" };
+  if (!isLocale(locale)) return { title: "Catalog" };
+  const t = getMessages(locale);
+  const sp = toParams(await searchParams);
+  const keys = [...new Set(sp.keys())];
+  if (keys.length === 0) return pageMetadata({ locale, path: "/catalog", title: t.catalog.title, description: t.meta.catalogDescription });
+
+  // Hanya "satu kategori tanpa filter lain" yang layak diindeks (halaman kategori). Kombinasi filter, pencarian,
+  // urutan, dan halaman ke-2 dst. diberi noindex agar tidak ada ribuan URL kembar di mesin pencari.
+  const slug = sp.get("category") ?? "";
+  if (keys.length === 1 && keys[0] === "category" && sp.getAll("category").length === 1 && /^[a-z0-9-]{1,60}$/.test(slug)) {
+    const { categories } = await getCatalogMeta().catch(() => ({ categories: [] as Array<{ slug: string; nameId: string; nameEn: string }> }));
+    const c = categories.find((x) => x.slug === slug);
+    if (c) {
+      const name = pick(locale, c.nameId, c.nameEn);
+      return pageMetadata({ locale, path: "/catalog", canonicalQuery: `?category=${slug}`, title: t.meta.categoryTitle.replace("{name}", name), description: t.meta.categoryDescription.replaceAll("{name}", name) });
+    }
+  }
+  return pageMetadata({ locale, path: "/catalog", title: t.catalog.title, description: t.meta.catalogDescription, noindex: true });
 }
 
 function toParams(raw: SearchParams): URLSearchParams {

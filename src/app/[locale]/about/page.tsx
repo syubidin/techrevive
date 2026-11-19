@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
@@ -8,9 +9,9 @@ import { PageHero } from "@/components/page-hero";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  if (!isLocale(locale)) return { title: "About" };
-  const a = getMessages(locale).aboutPage;
-  return { title: a.title, description: a.intro, alternates: { languages: { id: "/id/about", en: "/en/about" } } };
+  if (!isLocale(locale)) return {};
+  const t = getMessages(locale);
+  return pageMetadata({ locale, path: "/about", title: t.aboutPage.title, description: t.aboutPage.intro });
 }
 
 const VALUE_ICONS: IconName[] = ["badge-check", "shield-check", "clock", "wallet"];
