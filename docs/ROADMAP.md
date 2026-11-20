@@ -1,6 +1,15 @@
 # Rancangan fitur berikutnya
 
-Dokumen ini hanya rancangan. Belum ada kode. Setiap fitur sudah memuat model data, alur, kasus tepi, keamanan, dan performa supaya implementasinya benar sejak awal. Urutan prioritas ada di bagian akhir.
+## Status implementasi
+
+| Fitur | Status | Catatan penyimpangan dari rancangan |
+|---|---|---|
+| 1. Klaim garansi dan service | Selesai | Kode `CL-YYMMDD-XXXX`, 8 status (SUBMITTED, REVIEWING, APPROVED, IN_SERVICE, READY, RESOLVED, REJECTED, CANCELLED). Tanpa unggah foto publik (menghindari penyalahgunaan unggahan anonim); biaya service dibahas lewat WhatsApp. Garansi 30 hari dihitung dari `deliveredAt`. |
+| 6. Penugasan dan catatan internal | Selesai | Catatan tim memakai `InquiryEvent` bertipe `note` (riwayat, tidak menimpa), bukan tabel baru. Izin `inquiry.assign` (ambil/lepas sendiri, catatan) dan `inquiry.assignOthers` (menugaskan orang lain, ambil alih). |
+| 9. Pencarian pintar | Selesai | `pg_trgm` + endpoint `/api/search/suggest` + urutan relevansi. Jika ekstensi belum aktif, otomatis memakai ILIKE. |
+| 10. Perbandingan produk | Sebagian | Perbandingan selesai (maks 4 produk, URL bisa dibagikan, noindex). Favorit belum dibuat. |
+
+Fitur lain di bawah masih berupa rancangan. Setiap fitur sudah memuat model data, alur, kasus tepi, keamanan, dan performa supaya implementasinya benar sejak awal. Urutan prioritas ada di bagian akhir.
 
 Aturan yang berlaku untuk semua fitur (lihat `docs/ARCHITECTURE.md`): izin lewat RBAC, validasi zod di server, audit log, teks dua bahasa, index untuk setiap filter, tes untuk logika murni.
 

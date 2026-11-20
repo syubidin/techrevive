@@ -16,6 +16,7 @@ import { STATUS_LABEL } from "@/lib/inquiry-status";
 import type { TrackStatus } from "@/lib/track";
 import { site } from "@/config/site";
 import { FlowPanel, NoteForm } from "./flow-panel";
+import { AssigneePanel, NoteThread } from "../../assignment-panel";
 import { OrderForm } from "./forms";
 
 export const metadata = { title: "Detail inquiry" };
@@ -33,6 +34,8 @@ function eventText(type: string, data: unknown): string {
     case "stock_reviewed": return "Stok ditinjau";
     case "invoice_issued": return "Invoice dibuat";
     case "invoice_revoked": return "Link invoice dicabut";
+    case "note": return "Catatan tim ditambahkan";
+    case "assigned": return "Penanggung jawab diubah";
     default: return type.replace(/_/g, " ");
   }
 }
@@ -43,9 +46,17 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
   const { error } = await searchParams;
   const inquiry = await db.inquiry.findUnique({
     where: { id },
-    include: { order: true, events: { orderBy: { createdAt: "desc" }, take: 30 }, product: { select: { id: true, slug: true, sku: true, costPrice: true, weightGram: true, nameId: true, stockQty: true, availability: true } } },
+    include: { order: true, assignee: { select: { id: true, name: true } }, events: { orderBy: { createdAt: "desc" }, take: 30, where: { type: { not: "note" } } }, product: { select: { id: true, slug: true, sku: true, costPrice: true, weightGram: true, nameId: true, stockQty: true, availability: true } } },
   });
   if (!inquiry) notFound();
+  const manageOthers = can(me.role, "inquiry.assignOthers");
+  const [noteRows, staff] = await Promise.all([
+    db.inquiryEvent.findMany({ where: { inquiryId: id, type: "note" }, orderBy: { createdAt: "desc" }, take: 50, select: { id: true, data: true, actorId: true, createdAt: true } }),
+    manageOthers ? db.adminUser.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, take: 100, select: { id: true, name: true } }) : Promise.resolve(null),
+  ]);
+  const authorIds = [...new Set(noteRows.map((n) => n.actorId).filter((v): v is string => !!v))];
+  const authors = authorIds.length ? new Map((await db.adminUser.findMany({ where: { id: { in: authorIds } }, select: { id: true, name: true } })).map((u) => [u.id, u.name])) : new Map<string, string>();
+  const notes = noteRows.map((n) => ({ id: n.id, text: String((n.data as { text?: string } | null)?.text ?? ""), author: (n.actorId && authors.get(n.actorId)) || "Petugas", at: fmtDateTime(n.createdAt) }));
 
   const money = can(me.role, "order.write");
   const cost = can(me.role, "finance.view");
@@ -151,6 +162,8 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
 
           {profit && <p className="card flex gap-2 p-4 text-sm"><Icon name="chart" size={18} className="mt-0.5 shrink-0" /><span>Laba order ini: <b>{idr(profit.profit)}</b> ({(profit.marginBps / 100).toFixed(2)}%). Total tagihan customer: <b>{idr(o!.total)}</b>.</span></p>}
 
+          <NoteThread entity="inquiry" id={inquiry.id} notes={notes} />
+
           <NoteForm id={inquiry.id} note={inquiry.internalNote ?? ""} followUpAt={toLocalInput(inquiry.followUpAt)} />
 
           {money && o && (
@@ -182,6 +195,8 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
         </div>
 
         <aside className="space-y-6">
+          <AssigneePanel entity="inquiry" id={inquiry.id} assignee={inquiry.assignee} meId={me.id} users={staff} />
+
           <section className="card space-y-2 p-5 text-sm">
             <h2 className="font-bold">Customer</h2>
             <p>{inquiry.customerName}</p>

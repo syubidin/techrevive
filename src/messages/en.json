@@ -141,7 +141,8 @@
     "sortLabel": "Sort by",
     "searchLabel": "Search products",
     "searching": "Results for",
-    "filtersCount": "Filters ({n})"
+    "filtersCount": "Filters ({n})",
+    "sortRelevance": "Best match"
   },
   "product": {
     "specs": "Specifications",
@@ -217,7 +218,7 @@
     "sections": [
       {
         "t": "Warranty & servicing",
-        "d": "Every unit has a full warranty for 1 month from delivery. If something goes wrong, contact us on WhatsApp: our team can pick up the unit and deliver it back. After the warranty period, servicing continues for a fee, and we tell you the cost before any work starts."
+        "d": "Every unit has a full warranty for 1 month from delivery. If something goes wrong, contact us on WhatsApp: our team can pick up the unit and deliver it back. After the warranty period, servicing continues for a fee, and we tell you the cost before any work starts. You can file a claim directly on the Track Order page with your order code and WhatsApp number."
       },
       {
         "t": "Unit status & pricing",
@@ -316,7 +317,7 @@
     "items": [
       {
         "q": "Is there a warranty?",
-        "a": "Yes. Every unit has a full 1-month warranty from delivery. If something goes wrong, our team can pick up the unit and deliver it back. After the warranty ends, servicing is still available for a fee, and we tell you the cost before any work starts."
+        "a": "Yes. Every unit has a full 1-month warranty from delivery. If something goes wrong, our team can pick up the unit and deliver it back. After the warranty ends, servicing is still available for a fee, and we tell you the cost before any work starts. You can file a claim directly on the Track Order page with your order code and WhatsApp number."
       },
       {
         "q": "How do I order?",
@@ -379,7 +380,7 @@
   },
   "track": {
     "title": "Track Order",
-    "intro": "Enter the inquiry code and WhatsApp number you used when ordering.",
+    "intro": "Enter the inquiry code and WhatsApp number you used when ordering. Once your item arrives, you can also file a warranty claim here.",
     "code": "Inquiry code",
     "codeHint": "Example: TR-261114-ABCD",
     "phone": "WhatsApp number",
@@ -461,7 +462,45 @@
     "confirmReceived": "I have received my order",
     "confirmHint": "Tap once the item is in your hands. If you forget, our team will also mark it complete on delivery.",
     "thanksTitle": "Thank you for shopping with TechRevive",
-    "thanksBody": "We hope you enjoy it. It was a pleasure serving you, see you on your next order."
+    "thanksBody": "We hope you enjoy it. It was a pleasure serving you, see you on your next order.",
+    "claim": {
+      "title": "Warranty and service",
+      "active": "Warranty active",
+      "expired": "Warranty ended",
+      "activeInfo": "Covered until {date} ({days} days left).",
+      "expiredInfo": "The 1-month warranty ended on {date}. Paid service is still available, contact us on WhatsApp.",
+      "noneInfo": "The 1-month warranty starts when you receive your item.",
+      "list": "Claims",
+      "resolution": "Team note",
+      "cancel": "Cancel claim",
+      "start": "File a warranty claim",
+      "issueLabel": "Describe the problem",
+      "issueHint": "Example: the screen flickers after using the laptop for over 10 minutes.",
+      "issueHelp": "At least 10 characters. The clearer the description, the faster we can help.",
+      "submit": "Submit claim",
+      "close": "Close",
+      "sent": "Claim {code} received. Our team will contact you on WhatsApp.",
+      "status": {
+        "SUBMITTED": "Received",
+        "REVIEWING": "Under review",
+        "APPROVED": "Approved",
+        "IN_SERVICE": "In service",
+        "READY": "Ready to return",
+        "RESOLVED": "Resolved",
+        "REJECTED": "Rejected",
+        "CANCELLED": "Cancelled"
+      },
+      "errors": {
+        "generic": "Something went wrong. Try again or contact us on WhatsApp.",
+        "notFound": "Details do not match. Reload the page and check your code and WhatsApp number.",
+        "rateLimited": "Too many attempts. Please try again in a few minutes.",
+        "invalidIssue": "The description must be 10 to 1000 characters.",
+        "expired": "The warranty period has ended.",
+        "open": "You still have a claim in progress. File a new one once it is resolved.",
+        "limit": "The claim limit for this order has been reached. Please contact us on WhatsApp.",
+        "notStarted": "The warranty has not started yet."
+      }
+    }
   },
   "notFound": {
     "title": "Page not found",
@@ -537,5 +576,37 @@
     "categoryDescription": "Quality {name} with honest grading, Check QC and a 1-month warranty. Transparent product info, easy ordering on WhatsApp, delivery across Jabodetabek.",
     "ogAlt": "TechRevive: quality laptops, smartphones and gadgets",
     "orgDescription": "TechRevive is a direct supplier of quality laptops, smartphones and gadgets, from new to refurbished, with Check QC, a 1-month warranty and delivery across Greater Jakarta (Jabodetabek)."
+  },
+  "compare": {
+    "title": "Compare products",
+    "description": "See specs, condition and price of several units side by side.",
+    "add": "Compare",
+    "remove": "Remove from comparison",
+    "full": "Up to 4 products. Remove one first to add another.",
+    "selected": "{n} products selected",
+    "needMore": "Select at least 2 products to compare.",
+    "go": "Compare",
+    "clear": "Clear",
+    "empty": "No products to compare yet",
+    "emptyHint": "Tap the compare icon on a product card in the catalog, then pick 2 to 4 units.",
+    "browse": "Browse catalog",
+    "onlyDiff": "Differences only",
+    "showAll": "All specs",
+    "view": "Comparison view",
+    "availability": "Availability",
+    "features": "Features",
+    "lowest": "Lowest",
+    "noDiff": "All specs are the same.",
+    "order": "Order",
+    "removeItem": "Remove {name} from comparison",
+    "yes": "Yes",
+    "no": "No",
+    "shareHint": "You can share this page's link, the product list is kept in its address."
+  },
+  "search": {
+    "suggestions": "Product suggestions",
+    "loading": "Searching...",
+    "noSuggestions": "No suggestions. Press Enter to search the catalog.",
+    "viewAll": "See all results for \"{q}\""
   }
 }

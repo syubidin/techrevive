@@ -49,8 +49,22 @@ export async function setAdminActive(formData: FormData): Promise<void> {
     const target = await db.adminUser.findUnique({ where: { id }, select: { role: true } });
     if (target?.role === "DEVELOPER" && (await otherActiveDevelopers(id)) === 0) return fail("Harus ada minimal satu Admin/Developer aktif.");
   }
-  await db.adminUser.update({ where: { id }, data: { isActive: active, failedLogins: 0, lockedUntil: null, ...(active ? {} : { sessionVersion: { increment: 1 } }) } });
-  await audit(me.id, active ? "admin.activate" : "admin.deactivate", "AdminUser", id);
+  // Akun yang dinonaktifkan melepas semua inquiry/klaim yang masih berjalan agar tidak "tersangkut" pada orang yang sudah tidak aktif.
+  const update = db.adminUser.update({ where: { id }, data: { isActive: active, failedLogins: 0, lockedUntil: null, ...(active ? {} : { sessionVersion: { increment: 1 } }) } });
+  let releasedInquiries = 0;
+  if (active) {
+    await update;
+  } else {
+    const [, inq] = await db.$transaction([
+      update,
+      db.inquiry.updateMany({ where: { assigneeId: id, status: { notIn: ["DELIVERED", "CANCELLED", "EXPIRED"] } }, data: { assigneeId: null, assignedAt: null } }),
+      db.warrantyClaim.updateMany({ where: { assigneeId: id, status: { in: ["SUBMITTED", "REVIEWING", "APPROVED", "IN_SERVICE", "READY"] } }, data: { assigneeId: null } }),
+    ]);
+    releasedInquiries = inq.count;
+  }
+  await audit(me.id, active ? "admin.activate" : "admin.deactivate", "AdminUser", id, active ? undefined : { releasedInquiries });
+  revalidatePath("/admin/inquiries");
+  revalidatePath("/admin/claims");
   revalidatePath("/admin/users");
   redirect("/admin/users");
 }

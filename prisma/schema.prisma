@@ -1,11 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
+  // pg_trgm: pencarian toleran salah ketik (src/lib/search.ts). Jika ekstensi tidak tersedia, pencarian otomatis jatuh ke ILIKE.
+  extensions = [pg_trgm]
 }
 
 // ---------- Enum ----------
@@ -93,6 +96,8 @@ model AdminUser {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   auditLogs    AuditLog[]
+  assignedInquiries Inquiry[] @relation("InquiryAssignee")
+  assignedClaims    WarrantyClaim[] @relation("ClaimAssignee")
 }
 
 model AuditLog {
@@ -204,6 +209,8 @@ model Product {
   @@index([brandId])
   @@index([categoryId])
   @@index([supplierId])
+  @@index([nameId(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_nameId_trgm_idx")
+  @@index([nameEn(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_nameEn_trgm_idx")
   @@index([attributes], type: Gin)
   @@index([features], type: Gin)
 }
@@ -239,6 +246,9 @@ model Inquiry {
   followUpAt      DateTime?
   followUpNotifiedAt DateTime? // terakhir kali pengingat follow-up dikirim
   slaAlertedAt    DateTime?    // peringatan inquiry baru belum dibalas melewati SLA
+  assigneeId      String?      // petugas penanggung jawab (null = belum diambil)
+  assignee        AdminUser?   @relation("InquiryAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  assignedAt      DateTime?
   ipHash          String?
   utm             Json?
   createdAt       DateTime      @default(now())
@@ -247,6 +257,7 @@ model Inquiry {
   events          InquiryEvent[]
   order           Order?
 
+  @@index([assigneeId, status])
   @@index([phone, productId, createdAt])
   @@index([status, createdAt])
   @@index([followUpAt])
@@ -293,8 +304,55 @@ model Order {
   invoiceIssuedAt  DateTime?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  claims         WarrantyClaim[]
 
   @@index([paidAt])
+}
+
+// ---------- Klaim garansi dan service ----------
+enum ClaimStatus {
+  SUBMITTED   // diajukan pelanggan, menunggu ditinjau
+  REVIEWING   // sedang dicek tim
+  APPROVED    // disetujui, menunggu unit/jadwal
+  IN_SERVICE  // unit sedang diperbaiki/diganti
+  READY       // selesai, siap dikembalikan
+  RESOLVED    // selesai dan diterima pelanggan
+  REJECTED    // ditolak (alasan wajib)
+  CANCELLED   // dibatalkan pelanggan/tim
+}
+
+model WarrantyClaim {
+  id           String      @id @default(cuid())
+  code         String      @unique // CL-YYMMDD-XXXX
+  orderId      String
+  order        Order       @relation(fields: [orderId], references: [id])
+  issue        String      // keluhan dari pelanggan
+  status       ClaimStatus @default(SUBMITTED)
+  resolution   String?     // catatan penyelesaian / alasan penolakan (terlihat pelanggan)
+  internalNote String?
+  assigneeId   String?
+  assignee     AdminUser?  @relation("ClaimAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  ipHash       String?
+  resolvedAt   DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  events       ClaimEvent[]
+
+  @@index([orderId, status])
+  @@index([status, createdAt])
+  @@index([assigneeId, status])
+}
+
+model ClaimEvent {
+  id        String        @id @default(cuid())
+  claimId   String
+  claim     WarrantyClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  type      String        // submitted, status_changed, note, assigned
+  data      Json?
+  actorId   String?
+  createdAt DateTime      @default(now())
+
+  @@index([claimId, createdAt])
 }
 
 // ---------- Pengaturan ----------

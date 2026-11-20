@@ -7,10 +7,12 @@ import { confirmReceivedAction, trackAction, type TrackState } from "@/app/[loca
 import type { Locale } from "@/config/site";
 import { formatDate, formatIdr, type Messages } from "@/lib/i18n";
 import { trackStep, TRACK_STEP_COUNT, type TrackStatus } from "@/lib/track";
+import { ClaimPanel } from "./claim-panel";
 import { Icon } from "./icons";
 
 export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; waHref: string }) {
   const [state, action, pending] = useActionState<TrackState, FormData>(trackAction, null);
+  const [refreshing, startRefresh] = useTransition();
   const tr = t.track;
   const d = state?.ok ? state.data : null;
   const result = useRef<HTMLDivElement>(null);
@@ -139,6 +141,18 @@ export function TrackForm({ locale, t, waHref }: { locale: Locale; t: Messages; 
                 </div>
               )}
             </dl>
+
+            {d.warranty && (
+              <ClaimPanel
+                locale={locale} t={t} warranty={d.warranty} creds={creds.current}
+                onChanged={() => {
+                  const fd = new FormData();
+                  fd.set("code", creds.current.code); fd.set("phone", creds.current.phone);
+                  startRefresh(() => action(fd));
+                }}
+              />
+            )}
+            {refreshing && <span className="sr-only" role="status">{tr.checking}</span>}
 
             <div className="flex flex-wrap gap-2">
               {d.invoiceToken && <Link href={`/${locale}/invoice/${d.invoiceToken}`} className="btn btn-ghost"><Icon name="receipt" size={18} />{tr.invoice}</Link>}

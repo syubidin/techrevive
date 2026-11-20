@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { InquiryStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { can, fmtDateTime, idr, requireAdmin } from "@/lib/admin";
 import { expireQuotes } from "@/lib/maintenance";
@@ -22,7 +23,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   // Cadangan bila jadwal otomatis belum aktif; jalur utama adalah /api/cron/maintenance.
   await expireQuotes(now);
 
-  const [byStatus, dueFollowUps, recent, orders, daily, staleVerified, stockReview] = await Promise.all([
+  const OPEN_INQ = { notIn: ["DELIVERED", "CANCELLED", "EXPIRED"] as InquiryStatus[] };
+  const [byStatus, dueFollowUps, recent, orders, daily, staleVerified, stockReview, openClaims, myInquiries, unassigned] = await Promise.all([
     db.inquiry.groupBy({ by: ["status"], _count: { _all: true } }),
     db.inquiry.findMany({
       where: { followUpAt: { lte: endToday }, status: { notIn: ["DELIVERED", "CANCELLED", "EXPIRED"] } },
@@ -41,6 +43,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           select: { inquiryId: true, paidAt: true, inquiry: { select: { code: true, productSnapshot: true } } },
         })
       : Promise.resolve([]),
+    db.warrantyClaim.count({ where: { status: { in: ["SUBMITTED", "REVIEWING", "APPROVED", "IN_SERVICE", "READY"] } } }),
+    db.inquiry.count({ where: { assigneeId: me.id, status: OPEN_INQ } }),
+    db.inquiry.count({ where: { assigneeId: null, status: OPEN_INQ } }),
   ]);
 
   const statusCount = Object.fromEntries(byStatus.map((s) => [s.status, s._count._all])) as Record<string, number>;
@@ -65,6 +70,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     { label: "Menunggu pembayaran", value: n("AWAITING_PAYMENT"), href: "/admin/inquiries?g=pay", icon: "wallet" as IconName },
     { label: "Siap dikirim", value: n("PAID", "PROCURING", "RECEIVED_BY_US"), href: "/admin/inquiries?g=process", icon: "package" as IconName },
     { label: "Sedang dikirim", value: n("SHIPPED"), href: "/admin/inquiries?g=shipping", icon: "truck" as IconName },
+    { label: "Tugas saya", value: myInquiries, href: "/admin/inquiries?a=mine", icon: "user-check" as IconName },
+    { label: "Belum diambil", value: unassigned, href: "/admin/inquiries?a=none", icon: "user" as IconName },
+    { label: "Klaim garansi berjalan", value: openClaims, href: "/admin/claims", icon: "wrench" as IconName },
     ...(can(me.role, "finance.view")
       ? [{ label: "Omzet bulan ini", value: idr(revenue), href: "/admin/reports", icon: "chart" as IconName }]
       : []),

@@ -54,3 +54,16 @@ Panduan singkat agar proyek mudah dikembangkan dan tetap cepat saat data membesa
 - Cek Origin pada setiap POST publik dan unggahan. Turnstile pada form inquiry.
 - Pengambilan data publik tidak pernah memuat harga modal.
 - Unggahan: tipe dan ukuran diperiksa di server, logo wajib transparan (pemeriksaan alpha).
+
+## Fitur Tahap A (klaim, penugasan, pencarian, perbandingan)
+
+| Area | Letak kode | Aturan penting |
+|---|---|---|
+| Garansi dan alur klaim | `src/lib/warranty.ts`, `src/lib/claim-flow.ts` | Logika murni dan diuji. Garansi 30 hari sejak `deliveredAt`; satu klaim berjalan per order, maksimal 5 klaim per order. |
+| Klaim sisi pelanggan | `src/app/[locale]/track/actions.ts`, `src/components/claim-panel.tsx` | Wajib kode pesanan + nomor WhatsApp, rate limit per IP, baris order dikunci `FOR UPDATE` agar dua pengajuan bersamaan tidak lolos. |
+| Klaim sisi admin | `src/app/admin/(panel)/claims/` | Izin `claim.manage`. Perubahan status memakai `updateMany` bersyarat terhadap status yang dibaca. |
+| Penugasan dan catatan | `src/lib/assignment.ts`, `src/app/admin/(panel)/assign-actions.ts` | Satu aksi untuk inquiry dan klaim. Dilepas otomatis saat akun dinonaktifkan. |
+| Pencarian | `src/lib/search-text.ts`, `src/lib/search.ts`, `/api/search/suggest` | Semua parameter lewat `Prisma.sql` (tanpa penggabungan string). Lapis trigram dilewati otomatis bila ekstensi belum ada. |
+| Perbandingan | `src/lib/compare.ts`, `src/lib/compare-store.ts`, `/[locale]/compare` | Daftar di localStorage (aman bila diblokir), URL `?p=` bisa dibagikan, hanya data publik. |
+
+Setelah menarik perubahan ini jalankan `npx prisma generate` dan `npx prisma db push` (membuat tabel klaim, kolom penugasan, ekstensi `pg_trgm`, dan indeks trigram).

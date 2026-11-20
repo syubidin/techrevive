@@ -141,7 +141,8 @@
     "sortLabel": "Urutkan",
     "searchLabel": "Cari produk",
     "searching": "Hasil untuk",
-    "filtersCount": "Filter ({n})"
+    "filtersCount": "Filter ({n})",
+    "sortRelevance": "Paling cocok"
   },
   "product": {
     "specs": "Spesifikasi",
@@ -217,7 +218,7 @@
     "sections": [
       {
         "t": "Garansi & servis",
-        "d": "Seluruh unit mendapat garansi penuh selama 1 bulan sejak barang diterima. Jika ada kendala, hubungi kami lewat WhatsApp: unit dapat dijemput dan diantar kembali oleh tim kami. Setelah masa garansi berakhir, layanan servis tetap berjalan namun berbayar, dan biayanya kami informasikan lebih dulu sebelum pengerjaan."
+        "d": "Seluruh unit mendapat garansi penuh selama 1 bulan sejak barang diterima. Jika ada kendala, hubungi kami lewat WhatsApp: unit dapat dijemput dan diantar kembali oleh tim kami. Setelah masa garansi berakhir, layanan servis tetap berjalan namun berbayar, dan biayanya kami informasikan lebih dulu sebelum pengerjaan. Klaim bisa diajukan langsung di halaman Lacak Pesanan dengan kode pesanan dan nomor WhatsApp Anda."
       },
       {
         "t": "Status unit & harga",
@@ -316,7 +317,7 @@
     "items": [
       {
         "q": "Apakah barang bergaransi?",
-        "a": "Ya. Semua unit bergaransi penuh selama 1 bulan sejak diterima. Jika ada kendala, unit dapat dijemput dan diantar kembali oleh tim kami. Setelah garansi berakhir, servis tetap tersedia namun berbayar, dan biayanya kami informasikan dulu sebelum pengerjaan."
+        "a": "Ya. Semua unit bergaransi penuh selama 1 bulan sejak diterima. Jika ada kendala, unit dapat dijemput dan diantar kembali oleh tim kami. Setelah garansi berakhir, servis tetap tersedia namun berbayar, dan biayanya kami informasikan dulu sebelum pengerjaan. Klaim bisa diajukan langsung di halaman Lacak Pesanan dengan kode pesanan dan nomor WhatsApp Anda."
       },
       {
         "q": "Bagaimana cara memesan?",
@@ -379,7 +380,7 @@
   },
   "track": {
     "title": "Lacak Pesanan",
-    "intro": "Masukkan kode inquiry dan nomor WhatsApp yang Anda pakai saat memesan.",
+    "intro": "Masukkan kode inquiry dan nomor WhatsApp yang Anda pakai saat memesan. Setelah barang diterima, Anda juga bisa mengajukan klaim garansi di sini.",
     "code": "Kode inquiry",
     "codeHint": "Contoh: TR-261114-ABCD",
     "phone": "Nomor WhatsApp",
@@ -461,7 +462,45 @@
     "confirmReceived": "Pesanan sudah saya terima",
     "confirmHint": "Tekan setelah barang sampai di tangan Anda. Jika lupa, tim kami juga akan menandai selesai saat barang diterima.",
     "thanksTitle": "Terima kasih telah berbelanja di TechRevive",
-    "thanksBody": "Semoga barangnya bermanfaat. Kami senang bisa melayani Anda, sampai jumpa di pesanan berikutnya."
+    "thanksBody": "Semoga barangnya bermanfaat. Kami senang bisa melayani Anda, sampai jumpa di pesanan berikutnya.",
+    "claim": {
+      "title": "Garansi dan servis",
+      "active": "Garansi aktif",
+      "expired": "Garansi berakhir",
+      "activeInfo": "Garansi berlaku sampai {date} (sisa {days} hari).",
+      "expiredInfo": "Masa garansi 1 bulan berakhir pada {date}. Servis tetap tersedia dengan biaya, hubungi kami lewat WhatsApp.",
+      "noneInfo": "Garansi 1 bulan mulai berlaku sejak barang Anda terima.",
+      "list": "Daftar klaim",
+      "resolution": "Catatan tim",
+      "cancel": "Batalkan klaim",
+      "start": "Ajukan klaim garansi",
+      "issueLabel": "Jelaskan kendalanya",
+      "issueHint": "Contoh: layar berkedip saat laptop dipakai lebih dari 10 menit.",
+      "issueHelp": "Minimal 10 karakter. Jelaskan sejelas mungkin agar cepat ditangani.",
+      "submit": "Kirim klaim",
+      "close": "Tutup",
+      "sent": "Klaim {code} diterima. Tim kami akan menghubungi Anda lewat WhatsApp.",
+      "status": {
+        "SUBMITTED": "Diterima",
+        "REVIEWING": "Sedang ditinjau",
+        "APPROVED": "Disetujui",
+        "IN_SERVICE": "Sedang diservis",
+        "READY": "Siap dikembalikan",
+        "RESOLVED": "Selesai",
+        "REJECTED": "Ditolak",
+        "CANCELLED": "Dibatalkan"
+      },
+      "errors": {
+        "generic": "Terjadi kendala. Coba lagi atau hubungi kami lewat WhatsApp.",
+        "notFound": "Data tidak cocok. Muat ulang halaman lalu cek kode dan nomor WhatsApp Anda.",
+        "rateLimited": "Terlalu banyak percobaan. Coba lagi beberapa menit lagi.",
+        "invalidIssue": "Keluhan harus 10 sampai 1000 karakter.",
+        "expired": "Masa garansi sudah berakhir.",
+        "open": "Anda masih punya klaim yang sedang diproses. Ajukan klaim baru setelah selesai.",
+        "limit": "Batas jumlah klaim untuk pesanan ini sudah tercapai. Hubungi kami lewat WhatsApp.",
+        "notStarted": "Garansi belum berlaku."
+      }
+    }
   },
   "notFound": {
     "title": "Halaman tidak ditemukan",
@@ -537,5 +576,37 @@
     "categoryDescription": "Pilihan {name} berkualitas dengan grade jujur, lolos Check QC, dan garansi 1 bulan. Info produk transparan, pesan praktis via WhatsApp, diantar Jabodetabek.",
     "ogAlt": "TechRevive: laptop, smartphone, dan gadget berkualitas",
     "orgDescription": "TechRevive adalah supplier langsung laptop, smartphone, dan gadget berkualitas, baru hingga refurbished, dengan Check QC, garansi 1 bulan, dan pengantaran Jabodetabek."
+  },
+  "compare": {
+    "title": "Bandingkan produk",
+    "description": "Lihat spesifikasi, kondisi, dan harga beberapa unit berdampingan.",
+    "add": "Bandingkan",
+    "remove": "Hapus dari perbandingan",
+    "full": "Maksimal 4 produk. Hapus satu dulu untuk menambah yang lain.",
+    "selected": "{n} produk dipilih",
+    "needMore": "Pilih minimal 2 produk untuk dibandingkan.",
+    "go": "Bandingkan",
+    "clear": "Kosongkan",
+    "empty": "Belum ada produk untuk dibandingkan",
+    "emptyHint": "Tekan ikon bandingkan pada kartu produk di katalog, lalu pilih 2 sampai 4 unit.",
+    "browse": "Lihat katalog",
+    "onlyDiff": "Hanya yang berbeda",
+    "showAll": "Semua spesifikasi",
+    "view": "Tampilan perbandingan",
+    "availability": "Ketersediaan",
+    "features": "Fitur",
+    "lowest": "Termurah",
+    "noDiff": "Semua spesifikasi sama.",
+    "order": "Pesan",
+    "removeItem": "Hapus {name} dari perbandingan",
+    "yes": "Ya",
+    "no": "Tidak",
+    "shareHint": "Tautan halaman ini bisa dibagikan, daftar produk ikut tersimpan di alamatnya."
+  },
+  "search": {
+    "suggestions": "Saran produk",
+    "loading": "Mencari...",
+    "noSuggestions": "Tidak ada saran. Tekan Enter untuk mencari di katalog.",
+    "viewAll": "Lihat semua hasil untuk \"{q}\""
   }
 }

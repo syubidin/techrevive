@@ -49,3 +49,8 @@ Minggu 1: fondasi + katalog + filter. Minggu 2: detail + inquiry + admin produk.
 ## Status saat ini
 Selesai: skema DB, logika harga/ongkir/telepon/filter/WA, API inquiry aman, auth, middleware CSP, token desain, pesan ID/EN, tes unit (15 lolos).
 Belum: halaman UI publik dan admin, seed data, Dockerfile/CI.
+
+
+## Pembaruan
+
+Klaim garansi online, penugasan inquiry, pencarian pintar dan perbandingan produk sudah diimplementasikan (lihat `docs/ROADMAP.md` bagian Status implementasi).

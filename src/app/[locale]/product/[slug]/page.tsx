@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { formatIdr, getMessages, pick } from "@/lib/i18n";
 import { effectiveAvailability, publicProductSelect } from "@/lib/products";
 import { AvailabilityBadge } from "@/components/availability-badge";
+import { CompareToggle } from "@/components/compare-toggle";
 import { InquiryForm } from "@/components/inquiry-form";
 import { ProductCard } from "@/components/product-card";
 import { Gallery } from "@/components/gallery";
@@ -195,6 +196,7 @@ export default async function ProductPage({ params }: { params: Promise<{ locale
           <a href={waLink(t.product.askWaText.replace("{name}", name).replace("{sku}", p.sku))} target="_blank" rel="noopener noreferrer" className="btn btn-ghost w-full">
             <Icon name="message-circle" size={18} />{t.product.askWa}
           </a>
+          <CompareToggle slug={p.slug} t={t} variant="full" />
         </aside>
       </div>
 

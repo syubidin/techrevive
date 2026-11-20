@@ -60,3 +60,15 @@ Saat status Dikirim, pembeli bisa menekan "Pesanan sudah saya terima" di Lacak P
 - Logo merk: PNG/WebP transparan (wajib; JPG atau PNG berlatar ditolak), ideal 600 x 240 px, maks. 1 MB. Di marquee tampil abu-abu, berwarna saat hover/fokus, klik membuka katalog merk itu. Semua logo ditampilkan di kotak ukuran sama.
 - Hemat penyimpanan: nama file = hash isi (file sama tidak menggandakan), foto lama otomatis dihapus saat diganti/dilepas/produk dihapus, dan job maintenance menyapu aset yatim (diunggah tapi tidak disimpan) yang lebih dari 24 jam.
 - Setelah memasang versi ini jalankan `npx prisma db push` lalu `npx prisma generate` (kolom baru `Brand.logoUrl`).
+
+## Klaim garansi
+
+1. Pesanan berstatus Selesai (`DELIVERED`) dan `deliveredAt` tercatat: garansi 30 hari mulai berjalan.
+2. Pelanggan membuka Lacak Pesanan, memasukkan kode + nomor WhatsApp, lalu menekan "Ajukan klaim garansi". Satu klaim berjalan per pesanan, maksimal 5 klaim per pesanan.
+3. Tim menerima notifikasi (Telegram/webhook bila diatur), membuka Admin > Klaim garansi, mengambil klaim, lalu menggerakkan status: Baru > Ditinjau > Disetujui > Diservis > Siap dikembalikan > Selesai. Penolakan wajib disertai alasan.
+4. Catatan penyelesaian terlihat pelanggan di halaman Lacak. Catatan tim hanya terlihat admin.
+5. Setelah garansi berakhir, klaim baru ditolak dengan pesan yang mengarahkan ke WhatsApp (servis berbayar).
+
+## Penugasan inquiry
+
+Setiap inquiry/klaim punya satu penanggung jawab. Petugas bisa Ambil dan Lepas sendiri; Owner dan Admin juga bisa menugaskan ke orang lain atau mengambil alih. Akun yang dinonaktifkan otomatis melepas semua inquiry dan klaim yang masih berjalan.

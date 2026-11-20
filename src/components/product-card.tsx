@@ -4,6 +4,7 @@ import type { Locale } from "@/config/site";
 import { formatIdr, pick, type Messages } from "@/lib/i18n";
 import type { PublicProduct } from "@/lib/products";
 import { AvailabilityBadge } from "./availability-badge";
+import { CompareToggle } from "./compare-toggle";
 import { Icon, categoryIcon } from "./icons";
 
 /** Kartu produk ringkas: 2 kolom di ponsel, jadi teks & badge dibuat kecil dan label ketersediaan dipendekkan. */
@@ -11,6 +12,8 @@ export function ProductCard({ product: p, locale, t, priority }: { product: Publ
   const img = p.images[0];
   const name = pick(locale, p.nameId, p.nameEn);
   return (
+    <div className="relative h-full">
+    <CompareToggle slug={p.slug} t={t} />
     <Link href={`/${locale}/product/${p.slug}`} className="card hover-lift group flex h-full flex-col overflow-hidden">
       <div className="relative aspect-square overflow-hidden bg-white dark:bg-[var(--color-ink-800)]">
         {img ? (
@@ -29,5 +32,6 @@ export function ProductCard({ product: p, locale, t, priority }: { product: Publ
         </div>
       </div>
     </Link>
+    </div>
   );
 }

@@ -14,6 +14,7 @@ import { publicProductSelect } from "@/lib/products";
 import { Icon, categoryIcon, type IconName } from "@/components/icons";
 import { HeroSceneLoader } from "@/components/hero-scene-loader";
 import { ProductCard } from "@/components/product-card";
+import { SearchBox } from "@/components/search-box";
 
 export const revalidate = 60;
 
@@ -62,11 +63,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h1 className="mt-5 text-balance text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">{t.hero.title}</h1>
             <p className="muted mt-4 max-w-xl text-base sm:text-lg">{t.hero.subtitle}</p>
             <form action={L("/catalog")} method="get" role="search" className="mt-7 flex max-w-xl gap-2">
-              <label htmlFor="hero-q" className="sr-only">{t.hero.search}</label>
-              <div className="relative flex-1">
-                <Icon name="search" size={18} className="muted pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input id="hero-q" name="q" type="search" placeholder={t.hero.searchPlaceholder} className="input !pl-10" autoComplete="off" />
-              </div>
+              <SearchBox id="hero-q" locale={locale} t={t} placeholder={t.hero.searchPlaceholder} label={t.hero.search} />
               <button type="submit" className="btn btn-primary">{t.hero.search}</button>
             </form>
             <ul className="mt-6 flex flex-wrap gap-2">

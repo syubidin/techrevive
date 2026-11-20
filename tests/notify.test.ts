@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { msgFollowUps, msgNewInquiry, msgSlaBreach, notify } from "../src/lib/notify.ts";
+import { msgAssigned, msgNewClaim, msgFollowUps, msgNewInquiry, msgSlaBreach, notify } from "../src/lib/notify.ts";
 
 test("notifikasi inquiry baru menyamarkan nomor telepon", () => {
   const m = msgNewInquiry({ code: "TR-261114-ABCD", customerName: "Budi", phone: "6281234567890", productName: "ThinkPad T14", area: "Bekasi" }, "https://x.id", "abc");
@@ -16,4 +16,12 @@ test("pesan SLA dan follow-up memuat daftar", () => {
 test("tanpa kanal terkonfigurasi notify tidak melempar dan mengembalikan false", async () => {
   delete process.env.TELEGRAM_BOT_TOKEN; delete process.env.NOTIFY_WEBHOOK_URL;
   assert.equal(await notify("tes"), false);
+});
+
+test("pesan klaim dan penugasan memuat tautan admin tanpa data pribadi", () => {
+  const c = msgNewClaim({ code: "CL-261119-ABCD", inquiryCode: "TR-261114-ABCD", customerName: "Budi" }, "https://x.id", "c1");
+  assert.ok(c.includes("CL-261119-ABCD") && c.includes("https://x.id/admin/claims/c1"));
+  const a = msgAssigned("TR-261114-ABCD", "Sari", "inquiry", "https://x.id", "i1");
+  assert.ok(a.includes("Sari") && a.includes("https://x.id/admin/inquiries/i1"));
+  assert.ok(msgAssigned("CL-1", "Sari", "klaim", "https://x.id", "c1").includes("/admin/claims/c1"));
 });

@@ -37,6 +37,12 @@ export const PERMISSIONS = {
   "stock.review": MANAGEMENT,
   /** Membuat/mengirim link invoice (Staff ikut, karena invoice hanya memuat harga jual). Mencabut link butuh order.write. */
   "invoice.issue": ALL,
+  /** Mengambil/melepas inquiry atau klaim untuk diri sendiri dan menulis catatan tim. */
+  "inquiry.assign": ALL,
+  /** Menugaskan inquiry/klaim ke petugas lain dan mengambil alih dari orang lain. */
+  "inquiry.assignOthers": MANAGEMENT,
+  /** Memproses klaim garansi dan service. */
+  "claim.manage": ALL,
   "report.view": MANAGEMENT,
   // Katalog dan pengaturan
   "product.manage": MANAGEMENT,

@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 const NAV: Array<AdminNavItem & { permission?: Permission }> = [
   { href: "/admin", label: "Dashboard", icon: "dashboard" },
   { href: "/admin/inquiries", label: "Inquiry", icon: "inbox" },
+  { href: "/admin/claims", label: "Klaim garansi", icon: "wrench", permission: "claim.manage" },
   { href: "/admin/reports", label: "Laporan", icon: "chart", permission: "report.view" },
   { href: "/admin/products", label: "Produk", icon: "package", permission: "product.manage" },
   { href: "/admin/taxonomy", label: "Kategori & Spek", icon: "layers", permission: "taxonomy.manage" },

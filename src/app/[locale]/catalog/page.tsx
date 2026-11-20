@@ -6,11 +6,13 @@ import { db } from "@/lib/db";
 import { getCatalogMeta, getSpecDefs } from "@/lib/catalog-cache";
 import { formatIdr, getMessages, pick } from "@/lib/i18n";
 import { buildCatalogQuery, PAGE_SIZE } from "@/lib/catalog-query";
+import { rankedProductIds } from "@/lib/search";
 import { publicProductSelect } from "@/lib/products";
 import { CatalogFilters, type SpecFilter } from "@/components/catalog-filters";
 import { ProductCard } from "@/components/product-card";
 import { FilterSheet } from "@/components/filter-sheet";
 import { Icon } from "@/components/icons";
+import { SearchBox } from "@/components/search-box";
 import { buildFilterChips } from "@/lib/filter-chips";
 import { pageMetadata } from "@/lib/seo";
 
@@ -65,11 +67,27 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
   const { categories, brands, features } = meta;
   const specs: SpecFilter[] = specDefs.map((d) => ({ key: d.key, label: pick(locale, d.labelId, d.labelEn), type: d.type, unit: d.unit, options: d.options }));
 
-  const { where, orderBy, skip, take, page } = buildCatalogQuery(sp, specDefs.map((d) => ({ key: d.key, type: d.type })));
-  const [products, total] = await Promise.all([
-    db.product.findMany({ where, orderBy, skip, take, select: publicProductSelect }),
-    db.product.count({ where }),
-  ]).catch(() => [[], 0] as const);
+  // Pencarian pintar: peringkat id dihitung di database (toleran salah ketik), lalu digabung dengan filter lain.
+  const rawQ = (sp.get("q") ?? "").trim();
+  const ranked = rawQ ? await rankedProductIds(rawQ) : undefined;
+  const { where, orderBy, skip, take, sort, page } = buildCatalogQuery(sp, specDefs.map((d) => ({ key: d.key, type: d.type })), ranked);
+  const byRelevance = !!ranked && sort === "relevance";
+  const [products, total] = await (async () => {
+    if (!byRelevance) {
+      return Promise.all([
+        db.product.findMany({ where, orderBy, skip, take, select: publicProductSelect }),
+        db.product.count({ where }),
+      ]);
+    }
+    // Urutan relevansi: ambil id yang lolos filter, urutkan menurut peringkat, ambil satu halaman, lalu muat datanya.
+    const rank = new Map(ranked.map((id, i) => [id, i]));
+    const ok = await db.product.findMany({ where, select: { id: true }, take: ranked.length || 1 });
+    const ordered = ok.map((o) => o.id).sort((a, b) => (rank.get(a) ?? 0) - (rank.get(b) ?? 0));
+    const pageIds = ordered.slice(skip, skip + take);
+    const rows = pageIds.length ? await db.product.findMany({ where: { id: { in: pageIds } }, select: publicProductSelect }) : [];
+    const pos = new Map(pageIds.map((id, i) => [id, i]));
+    return [rows.sort((a, b) => (pos.get(a.id) ?? 0) - (pos.get(b.id) ?? 0)), ordered.length] as const;
+  })().catch(() => [[], 0] as const);
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const link = (patch: Record<string, string>) => {
@@ -78,6 +96,7 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
     return `/${locale}/catalog?${q.toString()}`;
   };
   const sortOptions = [
+    ...(rawQ ? ([["relevance", t.catalog.sortRelevance]] as const) : []),
     ["newest", t.catalog.sortNewest],
     ["price_asc", t.catalog.sortPriceAsc],
     ["price_desc", t.catalog.sortPriceDesc],
@@ -103,7 +122,7 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
     }
   };
   const chipHref = (rest: string) => `/${locale}/catalog${rest ? `?${rest}` : ""}`;
-  const sortNow = sp.get("sort") ?? "newest";
+  const sortNow = sp.get("sort") ?? (rawQ ? "relevance" : "newest");
 
   return (
     <div className="container-x py-8 sm:py-10">
@@ -114,10 +133,7 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
         </div>
         <form method="get" className="flex w-full min-w-0 gap-2 sm:w-auto" role="search">
           {[...sp.entries()].filter(([k]) => k !== "q" && k !== "page").map(([k, v], i) => <input key={`${k}${i}`} type="hidden" name={k} value={v} />)}
-          <div className="relative min-w-0 flex-1 sm:w-72 sm:flex-none">
-            <Icon name="search" size={18} className="muted pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input className="input !pl-10" type="search" name="q" defaultValue={sp.get("q") ?? ""} placeholder={t.catalog.searchPlaceholder} maxLength={60} aria-label={t.catalog.searchLabel} />
-          </div>
+          <div className="min-w-0 flex-1 sm:w-80 sm:flex-none"><SearchBox id="catalog-q" locale={locale} t={t} defaultValue={sp.get("q") ?? ""} placeholder={t.catalog.searchPlaceholder} label={t.catalog.searchLabel} /></div>
           <button className="btn btn-primary" type="submit">{t.hero.search}</button>
         </form>
       </div>

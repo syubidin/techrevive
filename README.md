@@ -22,7 +22,7 @@ reseller of refurbished laptops, phones and gadgets in Jabodetabek.
 ![Postgres](https://img.shields.io/badge/Neon_Postgres-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-![Tests](https://img.shields.io/badge/tests-112_passing-2ea44f?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-136_passing-2ea44f?style=flat-square)
 ![i18n](https://img.shields.io/badge/i18n-ID_%7C_EN-07273E?style=flat-square)
 ![Node](https://img.shields.io/badge/node-%E2%89%A522-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Runtime deps](https://img.shields.io/badge/no_spreadsheet_lib-zero_dep_xlsx-8A99A8?style=flat-square)
@@ -52,7 +52,7 @@ and the data model.
 
 ## Live demo
 
-> Add your deployed URL here, for example `https://techrevive.vercel.app`.
+> Add your deployed URL here, for example `https://techrevive-flax.vercel.app`.
 
 <!--
 ## Screenshots
@@ -84,6 +84,9 @@ Put images in docs/screenshots/ and uncomment.
 | **Order tracking** | Public token-based page with a stepper (reply, order, pay, ship, deliver, done). |
 | **Customer confirmation** | "Received" button on the tracking page, thank-you message, stepper checks off. |
 | **Invoice** | Shareable invoice page per order, no login required. |
+| **Warranty claims** | Customers file a claim on the tracking page (code + WhatsApp number), see warranty days left and follow the status. |
+| **Smart search** | Typo-tolerant search (pg_trgm) with live suggestions and relevance ranking. |
+| **Compare products** | Side-by-side table for up to 4 units, differences highlighted, shareable link. |
 | **Trust pages** | FAQ, How it works, Policy and Contact, all in both languages. |
 | **Adaptive branding** | Logo and tab icon switch between navy-on-white and white-on-navy with the OS theme. |
 
@@ -99,6 +102,8 @@ Put images in docs/screenshots/ and uncomment.
 | **Shipping** | Jabodetabek delivery fee table. |
 | **Reports** | Sales and inquiry summaries. |
 | **Users and roles** | RBAC with Admin/Developer, Owner and Staff. |
+| **Warranty claims** | Claim queue with status flow, customer-visible resolution note and team notes. |
+| **Assignment and team notes** | Take, release or assign inquiries and claims; "my tasks" and "unassigned" filters; notes thread. |
 | **Audit log** | Who changed what and when, for every sensitive action. |
 | **Safe actions** | A global confirm dialog guards every submit, delete and logout. |
 
@@ -134,7 +139,7 @@ getting the details right.
   the PNG/WebP alpha channel instead of trusting the file extension.
 
 **Developer experience**
-- TypeScript strict mode, Prisma 6, and 112 tests run on Node's built-in test runner with
+- TypeScript strict mode, Prisma 6, and 136 tests run on Node's built-in test runner with
   no extra framework (`node --test`).
 - Cron endpoints for SLA alerts, expiry and image sweeps, documented in `docs/CRON.md`.
 
@@ -177,7 +182,7 @@ techrevive/
 project works well).
 
 ```bash
-git clone https://github.com/<your-username>/techrevive.git
+git clone https://github.com/syubidin/techrevive.git
 cd techrevive
 npm install
 ```
@@ -234,7 +239,7 @@ the back-office.
 | `npm run start` | Serve the production build |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | Next.js lint |
-| `npm test` | Run all 112 tests |
+| `npm test` | Run all 136 tests |
 | `npm run db:migrate` / `db:deploy` | Create / apply migrations |
 | `npm run db:seed` / `db:seed:demo` | Seed base / demo data |
 | `npm run db:set-role` | Change a user's role from the CLI |
@@ -271,6 +276,6 @@ Contact the author for reuse. (Replace with MIT or another license if you prefer
 
 <div align="center">
 
-Built by **[Your Name](https://github.com/<your-username>)** &nbsp;|&nbsp; Jakarta, Indonesia
+Built by **[Syuby](https://github.com/syubidin)** &nbsp;|&nbsp; Jakarta, Indonesia
 
 </div>

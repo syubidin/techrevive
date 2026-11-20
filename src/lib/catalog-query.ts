@@ -20,7 +20,7 @@ const MAX_LIST = 10;
 const CONDITIONS = ["REFURBISHED", "USED"] as const;
 const GRADES = ["A", "B", "C"] as const;
 const AVAIL = ["CHECK", "VERIFIED", "PREORDER"] as const;
-const SORTS = ["newest", "price_asc", "price_desc"] as const;
+const SORTS = ["relevance", "newest", "price_asc", "price_desc"] as const;
 type Sort = (typeof SORTS)[number];
 
 const slugRe = /^[a-z0-9][a-z0-9-]{0,59}$/;
@@ -48,11 +48,17 @@ function int(value: string | null, min: number, max: number): number | undefined
 const NUM = "(\\d{1,9}(?:\\.\\d{1,2})?)";
 const rangeRe = new RegExp(`^${NUM}?-${NUM}?$`);
 
-export function buildCatalogQuery(sp: URLSearchParams, specDefs: SpecDef[]) {
+/**
+ * `searchIds`: hasil peringkat pencarian pintar (lib/search.ts). Bila diberikan, ia menggantikan pencocokan teks
+ * sederhana; daftar kosong berarti tidak ada produk yang cocok.
+ */
+export function buildCatalogQuery(sp: URLSearchParams, specDefs: SpecDef[], searchIds?: string[]) {
   const and: Prisma.ProductWhereInput[] = [{ status: "PUBLISHED", deletedAt: null }];
 
   const q = (sp.get("q") ?? "").trim().slice(0, 60);
-  if (q) {
+  if (q && searchIds) {
+    and.push({ id: { in: searchIds } });
+  } else if (q) {
     and.push({
       OR: [
         { nameId: { contains: q, mode: "insensitive" } },
@@ -133,6 +139,7 @@ export function buildCatalogQuery(sp: URLSearchParams, specDefs: SpecDef[]) {
   const sort: Sort = (SORTS as readonly string[]).includes(sp.get("sort") ?? "")
     ? (sp.get("sort") as Sort)
     : "newest";
+  // "relevance" diurutkan oleh halaman katalog berdasarkan peringkat pencarian; tanpa kata kunci sama dengan "newest".
   const orderBy: Prisma.ProductOrderByWithRelationInput[] =
     sort === "price_asc"
       ? [{ sellPrice: "asc" }, { id: "asc" }]
@@ -142,5 +149,5 @@ export function buildCatalogQuery(sp: URLSearchParams, specDefs: SpecDef[]) {
 
   const page = int(sp.get("page"), 1, MAX_PAGE) ?? 1;
 
-  return { where: { AND: and } satisfies Prisma.ProductWhereInput, orderBy, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE, page };
+  return { where: { AND: and } satisfies Prisma.ProductWhereInput, orderBy, skip: (page - 1) * PAGE_SIZE, take: PAGE_SIZE, page, sort, q };
 }
