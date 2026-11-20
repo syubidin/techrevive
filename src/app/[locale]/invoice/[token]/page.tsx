@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { formatDate, formatIdr, pick } from "@/lib/i18n";
 import { invoiceLines, invoiceNumber, isInvoiceToken } from "@/lib/invoice";
 import { maskPhone } from "@/lib/phone";
+import { BrandLogo } from "@/components/brand-logo";
 import { PrintButton } from "@/app/admin/(panel)/reports/print-button";
 
 export const dynamic = "force-dynamic";
@@ -42,8 +43,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ locale
       <article className="card space-y-6 p-6 sm:p-8">
         <header className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/mark-blue.png" alt="" width={44} height={44} className="rounded-lg" />
+            <BrandLogo variant="mark" size={44} className="h-11 w-11 object-contain" />
             <div><p className="text-lg font-extrabold">{site.name}</p><p className="muted text-xs">{L("Bukti pembelian", "Proof of purchase")}</p></div>
           </div>
           <div className="text-right">

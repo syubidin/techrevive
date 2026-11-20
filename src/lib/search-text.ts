@@ -23,3 +23,9 @@ export function tokenize(q: string): string[] {
 
 /** Escape karakter khusus LIKE agar kata kunci selalu dibaca apa adanya. */
 export const escapeLike = (s: string): string => s.replace(/[\\%_]/g, (c) => `\\${c}`);
+
+/** Kata baru dicocokkan secara fuzzy bila cukup panjang; kata pendek ("pro", "hp") hanya cocok persis agar tidak muncul hasil acak. */
+export const FUZZY_MIN_LEN = 4;
+export const canFuzzy = (token: string): boolean => token.length >= FUZZY_MIN_LEN && /\p{L}/u.test(token);
+/** Ambang kemiripan pg_trgm (word_similarity). 0.3 menangkap typo umum ("lenopo" untuk "lenovo", "thinkpd" untuk "thinkpad"). */
+export const FUZZY_THRESHOLD = 0.3;

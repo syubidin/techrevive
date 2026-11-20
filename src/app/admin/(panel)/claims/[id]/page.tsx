@@ -7,6 +7,7 @@ import { maskPhone } from "@/lib/phone";
 import { warrantyOf } from "@/lib/warranty";
 import { Icon } from "@/components/icons";
 import { AssigneePanel, NoteThread } from "../../assignment-panel";
+import { assignUi, isClaimClosed } from "@/lib/assignment";
 import { ClaimBadge } from "../claim-badge";
 import { StatusForm } from "./status-form";
 
@@ -79,7 +80,10 @@ export default async function ClaimDetail({ params }: { params: Promise<{ id: st
         </div>
 
         <aside className="space-y-6">
-          <AssigneePanel entity="claim" id={claim.id} assignee={claim.assignee} meId={me.id} users={staff} />
+          <AssigneePanel
+            entity="claim" id={claim.id} assignee={claim.assignee} meId={me.id} users={staff} closed={isClaimClosed(claim.status)}
+            ui={assignUi({ meId: me.id, canManageOthers: manageOthers, currentAssigneeId: claim.assignee?.id ?? null, closed: isClaimClosed(claim.status) })}
+          />
 
           <section className="card space-y-2 p-5 text-sm">
             <h2 className="font-bold">Pelanggan dan pesanan</h2>

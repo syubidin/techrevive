@@ -15,9 +15,6 @@ export const msgFollowUps = (items: Array<{ code: string; customerName: string }
 export const msgNewClaim = (c: { code: string; inquiryCode: string; customerName: string }, baseUrl: string, id: string) =>
   `[KLAIM] Klaim garansi baru ${c.code}\n${c.customerName} · pesanan ${c.inquiryCode}\n${baseUrl}/admin/claims/${id}`;
 
-export const msgAssigned = (code: string, byName: string, kind: "inquiry" | "klaim", baseUrl: string, id: string) =>
-  `[TUGAS] ${byName} menugaskan ${kind} ${code} kepada Anda\n${baseUrl}/admin/${kind === "inquiry" ? "inquiries" : "claims"}/${id}`;
-
 export const msgExpired = (n: number) => `[KEDALUWARSA] ${n} penawaran kedaluwarsa otomatis.`;
 
 /** Kirim ke semua kanal yang dikonfigurasi. Tidak pernah melempar; mengembalikan true bila ada kanal yang berhasil. */

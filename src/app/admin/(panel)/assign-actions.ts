@@ -1,13 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { after } from "next/server";
+import type { ClaimStatus, InquiryStatus } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { audit, can, requirePermission } from "@/lib/admin";
-import { ASSIGN_ERROR, cleanNote, decideAssignment } from "@/lib/assignment";
-import { getEnv } from "@/lib/env";
-import { msgAssigned, notify } from "@/lib/notify";
+import { ASSIGN_ERROR, CLAIM_CLOSED, INQUIRY_CLOSED, cleanNote, decideAssignment, isClaimClosed, isInquiryClosed } from "@/lib/assignment";
 
 export interface AssignState { ok?: boolean; error?: string }
 
@@ -35,37 +33,39 @@ export async function assignAction(_prev: AssignState, formData: FormData): Prom
   const canManageOthers = can(me.role, "inquiry.assignOthers");
 
   const row = entity === "inquiry"
-    ? await db.inquiry.findUnique({ where: { id }, select: { assigneeId: true, code: true } })
-    : await db.warrantyClaim.findUnique({ where: { id }, select: { assigneeId: true, code: true } });
+    ? await db.inquiry.findUnique({ where: { id }, select: { assigneeId: true, status: true } })
+    : await db.warrantyClaim.findUnique({ where: { id }, select: { assigneeId: true, status: true } });
   if (!row) return { error: "Data tidak ditemukan." };
+  const closed = entity === "inquiry" ? isInquiryClosed(row.status) : isClaimClosed(row.status);
 
-  if (mode === "assign") {
+  if (mode === "assign" && !closed) {
     const target = await db.adminUser.findFirst({ where: { id: targetId ?? "", isActive: true }, select: { id: true } });
     if (!target) return { error: ASSIGN_ERROR.target };
   }
-  const dec = decideAssignment({ mode, meId: me.id, canManageOthers, currentAssigneeId: row.assigneeId, targetId });
+  const dec = decideAssignment({ mode, meId: me.id, canManageOthers, currentAssigneeId: row.assigneeId, targetId, closed });
   if (!dec.ok) return { error: ASSIGN_ERROR[dec.error] };
   if (dec.noop) return { ok: true };
 
-  const data = { assigneeId: dec.assigneeId, ...(entity === "inquiry" ? { assignedAt: dec.assigneeId ? new Date() : null } : {}) };
-  const where = { id, assigneeId: row.assigneeId };
+  // Pembaruan bersyarat: penanggung jawab dan status harus MASIH seperti yang dibaca (anti tabrakan, anti perubahan setelah selesai).
   const changed = await db.$transaction(async (tx) => {
     const r = entity === "inquiry"
-      ? await tx.inquiry.updateMany({ where, data })
-      : await tx.warrantyClaim.updateMany({ where, data: { assigneeId: dec.assigneeId } });
+      ? await tx.inquiry.updateMany({
+          where: { id, assigneeId: row.assigneeId, status: { notIn: [...INQUIRY_CLOSED] as InquiryStatus[] } },
+          data: { assigneeId: dec.assigneeId, assignedAt: dec.assigneeId ? new Date() : null },
+        })
+      : await tx.warrantyClaim.updateMany({
+          where: { id, assigneeId: row.assigneeId, status: { notIn: [...CLAIM_CLOSED] as ClaimStatus[] } },
+          data: { assigneeId: dec.assigneeId },
+        });
     if (r.count === 0) return false;
     const ev = { type: "assigned", actorId: me.id, data: { from: row.assigneeId, to: dec.assigneeId, mode } };
     if (entity === "inquiry") await tx.inquiryEvent.create({ data: { inquiryId: id, ...ev } });
     else await tx.claimEvent.create({ data: { claimId: id, ...ev } });
     return true;
   });
-  if (!changed) return { error: ASSIGN_ERROR.taken };
+  if (!changed) return { error: "Data baru saja berubah. Muat ulang halaman lalu coba lagi." };
 
   await audit(me.id, `${entity}.assign`, entity === "inquiry" ? "Inquiry" : "WarrantyClaim", id, { from: row.assigneeId, to: dec.assigneeId });
-  if (mode === "assign" && dec.assigneeId && dec.assigneeId !== me.id) {
-    const base = getEnv().NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-    after(() => notify(msgAssigned(row.code, me.name, entity === "inquiry" ? "inquiry" : "klaim", base, id)));
-  }
   for (const path of paths(entity, id)) revalidatePath(path);
   return { ok: true };
 }

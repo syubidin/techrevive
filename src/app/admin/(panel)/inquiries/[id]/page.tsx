@@ -15,14 +15,16 @@ import { customerMessage, nextStep } from "@/lib/next-step";
 import { STATUS_LABEL } from "@/lib/inquiry-status";
 import type { TrackStatus } from "@/lib/track";
 import { site } from "@/config/site";
-import { FlowPanel, NoteForm } from "./flow-panel";
+import { FlowPanel } from "./flow-panel";
+import { FollowUpCard } from "./follow-up-card";
 import { AssigneePanel, NoteThread } from "../../assignment-panel";
+import { assignUi, isInquiryClosed } from "@/lib/assignment";
+import { toWibInput } from "@/lib/follow-up";
 import { OrderForm } from "./forms";
 
 export const metadata = { title: "Detail inquiry" };
 
 /** Konversi Date ke nilai <input type="datetime-local"> dalam WIB. */
-const toLocalInput = (d: Date | null) => (d ? new Date(d.getTime() + 7 * 3600 * 1000).toISOString().slice(0, 16) : "");
 
 function eventText(type: string, data: unknown): string {
   const d = (data ?? {}) as { to?: string; from?: string; price?: number; outcome?: string };
@@ -50,6 +52,7 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
   });
   if (!inquiry) notFound();
   const manageOthers = can(me.role, "inquiry.assignOthers");
+  const closed = isInquiryClosed(inquiry.status);
   const [noteRows, staff] = await Promise.all([
     db.inquiryEvent.findMany({ where: { inquiryId: id, type: "note" }, orderBy: { createdAt: "desc" }, take: 50, select: { id: true, data: true, actorId: true, createdAt: true } }),
     manageOthers ? db.adminUser.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, take: 100, select: { id: true, name: true } }) : Promise.resolve(null),
@@ -162,9 +165,7 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
 
           {profit && <p className="card flex gap-2 p-4 text-sm"><Icon name="chart" size={18} className="mt-0.5 shrink-0" /><span>Laba order ini: <b>{idr(profit.profit)}</b> ({(profit.marginBps / 100).toFixed(2)}%). Total tagihan customer: <b>{idr(o!.total)}</b>.</span></p>}
 
-          <NoteThread entity="inquiry" id={inquiry.id} notes={notes} />
-
-          <NoteForm id={inquiry.id} note={inquiry.internalNote ?? ""} followUpAt={toLocalInput(inquiry.followUpAt)} />
+          <NoteThread entity="inquiry" id={inquiry.id} notes={notes} legacy={inquiry.internalNote} />
 
           {money && o && (
             <details className="card p-5">
@@ -195,7 +196,13 @@ export default async function InquiryDetail({ params, searchParams }: { params: 
         </div>
 
         <aside className="space-y-6">
-          <AssigneePanel entity="inquiry" id={inquiry.id} assignee={inquiry.assignee} meId={me.id} users={staff} />
+          <AssigneePanel
+            entity="inquiry" id={inquiry.id} assignee={inquiry.assignee} meId={me.id} users={staff} closed={closed}
+            ui={assignUi({ meId: me.id, canManageOthers: manageOthers, currentAssigneeId: inquiry.assignee?.id ?? null, closed })}
+          />
+          {!closed && can(me.role, "inquiry.update") && (
+            <FollowUpCard inquiryId={inquiry.id} value={toWibInput(inquiry.followUpAt)} label={inquiry.followUpAt ? fmtDateTime(inquiry.followUpAt) : null} />
+          )}
 
           <section className="card space-y-2 p-5 text-sm">
             <h2 className="font-bold">Customer</h2>

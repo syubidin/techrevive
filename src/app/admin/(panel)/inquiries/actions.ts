@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { revalidateStorefront } from "@/lib/catalog-cache";
 import { z } from "zod";
+import { isInquiryClosed } from "@/lib/assignment";
+import { parseFollowUp } from "@/lib/follow-up";
 import type { PaymentMethod } from "@prisma/client";
 import { db } from "@/lib/db";
 import { audit, requireAdmin, requirePermission } from "@/lib/admin";
@@ -182,22 +184,24 @@ export async function sendQuote(_prev: ActionState, formData: FormData): Promise
   return { ok: true };
 }
 
-const noteSchema = z.object({
-  inquiryId: z.string().cuid(),
-  internalNote: z.string().trim().max(2000).optional().transform((v) => v || null),
-  followUpAt: z.string().optional().transform((v) => (v ? new Date(`${v}:00+07:00`) : null)),
-});
+const followUpSchema = z.object({ inquiryId: z.string().cuid(), followUpAt: z.string().max(20).optional().default("") });
 
-/** Catatan internal dan jadwal follow-up (tidak mengubah status). */
-export async function saveNote(_prev: ActionState, formData: FormData): Promise<ActionState> {
+/** Atur atau hapus jadwal follow-up (waktu WIB). Hanya untuk inquiry yang belum selesai. Tidak mengubah status. */
+export async function saveFollowUp(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const me = await requirePermission("inquiry.update");
-  const parsed = noteSchema.safeParse(Object.fromEntries(formData));
+  const parsed = followUpSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Data tidak valid." };
-  const d = parsed.data;
-  if (d.followUpAt && Number.isNaN(d.followUpAt.getTime())) return { error: "Tanggal follow-up tidak valid." };
-  await db.inquiry.update({ where: { id: d.inquiryId }, data: { internalNote: d.internalNote, followUpAt: d.followUpAt, followUpNotifiedAt: null } });
-  await audit(me.id, "inquiry.note", "Inquiry", d.inquiryId);
-  revalidatePath(`/admin/inquiries/${d.inquiryId}`);
+  const { inquiryId, followUpAt } = parsed.data;
+  const when = parseFollowUp(followUpAt);
+  if (!when.ok) return { error: when.error };
+  const inq = await db.inquiry.findUnique({ where: { id: inquiryId }, select: { status: true } });
+  if (!inq) return { error: "Inquiry tidak ditemukan." };
+  if (isInquiryClosed(inq.status)) return { error: "Inquiry sudah selesai, jadwal follow-up tidak bisa diubah." };
+  await db.inquiry.update({ where: { id: inquiryId }, data: { followUpAt: when.date, followUpNotifiedAt: null } });
+  await audit(me.id, when.date ? "inquiry.followup_set" : "inquiry.followup_clear", "Inquiry", inquiryId);
+  revalidatePath(`/admin/inquiries/${inquiryId}`);
+  revalidatePath("/admin/inquiries");
+  revalidatePath("/admin");
   return { ok: true };
 }
 

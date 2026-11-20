@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { BrandLogo } from "@/components/brand-logo";
 import { useActionState } from "react";
 import { Icon } from "@/components/icons";
 import { PasswordInput } from "@/components/password-input";
@@ -12,7 +12,7 @@ export function LoginForm({ expired = false }: { expired?: boolean }) {
     <div className="grid min-h-screen place-items-center px-4">
       <form action={action} className="card w-full max-w-sm space-y-5 p-6 sm:p-8">
         <div className="flex items-center gap-3">
-          <Image src="/logo.jpg" alt="" width={44} height={44} className="rounded-lg" />
+          <BrandLogo variant="mark" size={44} className="h-11 w-11 object-contain" />
           <div>
             <p className="font-extrabold leading-none">TechRevive</p>
             <p className="muted text-xs">Admin</p>

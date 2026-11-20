@@ -68,7 +68,7 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
                   <p className="flex flex-wrap items-center gap-2"><span className="font-mono text-sm font-bold">{r.code}</span><span className="muted font-mono text-xs">{r.order.inquiry.code}</span></p>
                   <p className="truncate text-sm">{r.order.inquiry.customerName} <span className="muted">· {(r.order.inquiry.productSnapshot as { name?: string }).name}</span></p>
                   <p className="muted truncate text-xs">{r.issue}</p>
-                  <p className="muted flex items-center gap-1 text-xs"><Icon name={r.assignee ? "user-check" : "user"} size={12} />{r.assignee?.name ?? "Belum diambil"}</p>
+                  <p className="muted flex items-center gap-1 text-xs"><Icon name={r.assignee ? "user-check" : "user"} size={12} />{r.assignee?.name ?? "Belum ditugaskan"}</p>
                 </div>
                 <div className="flex items-center justify-between gap-3 sm:justify-end">
                   <ClaimBadge status={r.status} />

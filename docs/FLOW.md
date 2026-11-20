@@ -71,4 +71,9 @@ Saat status Dikirim, pembeli bisa menekan "Pesanan sudah saya terima" di Lacak P
 
 ## Penugasan inquiry
 
-Setiap inquiry/klaim punya satu penanggung jawab. Petugas bisa Ambil dan Lepas sendiri; Owner dan Admin juga bisa menugaskan ke orang lain atau mengambil alih. Akun yang dinonaktifkan otomatis melepas semua inquiry dan klaim yang masih berjalan.
+Setiap inquiry/klaim punya satu penanggung jawab, atau berstatus "Belum ditugaskan".
+- Petugas: "Ambil tugas ini" hanya untuk yang belum ditugaskan, "Lepas tugas" hanya untuk miliknya sendiri. Tugas orang lain hanya tampil sebagai informasi.
+- Owner/Developer: selain di atas, bisa "Tugaskan ke" atau "Alihkan ke" petugas aktif mana pun (termasuk dirinya).
+- Setelah inquiry/klaim selesai (Selesai, Dibatalkan, Kedaluwarsa, Ditolak), penugasan terkunci untuk semua peran.
+- Akun yang dinonaktifkan otomatis melepas semua inquiry dan klaim yang masih berjalan.
+- Catatan tim berupa satu riwayat per inquiry/klaim. Jadwal follow-up diatur di kartu Follow-up (Besok, 3 hari, 1 minggu, atau waktu sendiri).

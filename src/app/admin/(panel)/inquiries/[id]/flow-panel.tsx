@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Icon, type IconName } from "@/components/icons";
 import { ConfirmButton } from "../../../confirm-button";
-import { createOrder, markDelivered, markPaid, markShipped, quickStatus, saveNote, sendQuote, type ActionState } from "../actions";
+import { createOrder, markDelivered, markPaid, markShipped, quickStatus, sendQuote, type ActionState } from "../actions";
 import { STEP_COPY, type StepKey } from "@/lib/next-step";
 
 export interface FlowDefaults {
@@ -210,19 +210,5 @@ export function FlowPanel({ id, step, status, canMoney, canFulfil, canOverride, 
 
       {step === "closed" && canOverride && <QuickBtn id={id} target="CONTACTED" icon="refresh" confirm="Buka kembali inquiry ini?">Buka kembali</QuickBtn>}
     </section>
-  );
-}
-
-export function NoteForm({ id, note, followUpAt }: { id: string; note: string; followUpAt: string }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(saveNote, {});
-  return (
-    <form action={action} className="card space-y-3 p-5">
-      <h2 className="font-bold">Catatan &amp; follow-up</h2>
-      <input type="hidden" name="inquiryId" value={id} />
-      <div><label className="label" htmlFor="internalNote">Catatan internal</label><textarea id="internalNote" name="internalNote" rows={2} maxLength={2000} className="input" defaultValue={note} /></div>
-      <div><label className="label" htmlFor="followUpAt">Ingatkan saya (WIB)</label><input id="followUpAt" name="followUpAt" type="datetime-local" className="input" defaultValue={followUpAt} /></div>
-      <Feedback state={state} />
-      <button className="btn btn-ghost" disabled={pending}>{pending ? "Menyimpan…" : "Simpan catatan"}</button>
-    </form>
   );
 }

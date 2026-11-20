@@ -71,7 +71,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     { label: "Siap dikirim", value: n("PAID", "PROCURING", "RECEIVED_BY_US"), href: "/admin/inquiries?g=process", icon: "package" as IconName },
     { label: "Sedang dikirim", value: n("SHIPPED"), href: "/admin/inquiries?g=shipping", icon: "truck" as IconName },
     { label: "Tugas saya", value: myInquiries, href: "/admin/inquiries?a=mine", icon: "user-check" as IconName },
-    { label: "Belum diambil", value: unassigned, href: "/admin/inquiries?a=none", icon: "user" as IconName },
+    { label: "Belum ditugaskan", value: unassigned, href: "/admin/inquiries?a=none", icon: "user" as IconName },
     { label: "Klaim garansi berjalan", value: openClaims, href: "/admin/claims", icon: "wrench" as IconName },
     ...(can(me.role, "finance.view")
       ? [{ label: "Omzet bulan ini", value: idr(revenue), href: "/admin/reports", icon: "chart" as IconName }]

@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { enter } from "@/lib/anim";
+import { BrandLogo } from "./brand-logo";
 import { Icon, type IconName } from "./icons";
 
 export interface AdminNavItem { href: string; label: string; icon: IconName }
@@ -50,7 +50,7 @@ export function AdminNav({ items, children }: { items: AdminNavItem[]; children:
   );
   const brand = (
     <div className="flex items-center gap-2.5">
-      <Image src="/logo.jpg" alt="" width={32} height={32} className="rounded-md" />
+      <BrandLogo variant="mark" size={32} className="h-8 w-8 object-contain" />
       <span className="font-extrabold">TechRevive</span>
       <span className="chip chip-tone-mute !min-h-0 !px-2 !py-0.5 !text-[10px]">Admin</span>
     </div>

@@ -59,7 +59,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
       </nav>
 
       <nav className="flex flex-wrap gap-2 text-sm" aria-label="Penanggung jawab">
-        {([[null, "Semua petugas"], ["mine", "Tugas saya"], ["none", "Belum diambil"]] as const).map(([key, label]) => {
+        {([[null, "Semua petugas"], ["mine", "Tugas saya"], ["none", "Belum ditugaskan"]] as const).map(([key, label]) => {
           const params = new URLSearchParams({ ...(group ? { g: group.key } : {}), ...(q ? { q } : {}), ...(key ? { a: key } : {}) }).toString();
           return <Link key={label} href={`/admin/inquiries${params ? `?${params}` : ""}`} aria-current={assign === key ? "true" : undefined} className={`chip !min-h-9 ${assign === key ? "!bg-[var(--color-ink-900)] !text-white" : "bg-[var(--card)]"}`}>{label}</Link>;
         })}
@@ -77,7 +77,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-center gap-2"><span className="font-mono text-sm font-bold">{r.code}</span>{due && <span className="chip chip-tone-warn !min-h-0 !px-2 !py-0.5 !text-[11px]"><Icon name="clock" size={12} />Follow-up</span>}</p>
                     <p className="truncate text-sm">{r.customerName} <span className="muted">· {(r.productSnapshot as { name?: string }).name}</span></p>
-                    <p className="muted flex items-center gap-1 text-xs"><Icon name={r.assignee ? "user-check" : "user"} size={12} />{r.assignee ? r.assignee.name : "Belum diambil"}</p>
+                    <p className="muted flex items-center gap-1 text-xs"><Icon name={r.assignee ? "user-check" : "user"} size={12} />{r.assignee ? r.assignee.name : "Belum ditugaskan"}</p>
                   </div>
                   <div className="flex items-center justify-between gap-3 sm:justify-end">
                     <StatusBadge status={r.status} />
