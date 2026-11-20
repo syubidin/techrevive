@@ -176,7 +176,7 @@ details[open] > summary .chev { transform: rotate(180deg); }
   .no-print { display: none !important; }
   html, body { background: #fff !important; color: #000 !important; }
   main { padding: 0 !important; }
-  .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
+  .card { background: #fff !important; color: #000 !important; box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
   .muted { color: #444 !important; }
   @page { margin: 14mm; }
 }
