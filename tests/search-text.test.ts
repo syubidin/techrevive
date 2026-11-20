@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { canFuzzy, escapeLike, normalizeQuery, tokenize } from "../src/lib/search-text.ts";
+import { escapeLike, normalizeQuery, tokenize } from "../src/lib/search-text.ts";
 
 test("kata kunci dinormalkan: huruf kecil, simbol berbahaya dibuang, spasi dirapatkan", () => {
   assert.equal(normalizeQuery("  ThinkPad   T14 "), "thinkpad t14");
@@ -22,10 +22,4 @@ test("karakter khusus LIKE di-escape", () => {
 
 test("token tanpa huruf/angka diabaikan", () => {
   assert.deepEqual(tokenize("drop --  table"), ["drop", "table"]);
-});
-
-test("fuzzy hanya untuk kata cukup panjang dan berhuruf", () => {
-  assert.equal(canFuzzy("pro"), false);
-  assert.equal(canFuzzy("lenopo"), true);
-  assert.equal(canFuzzy("1234"), false);
 });

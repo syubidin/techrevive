@@ -22,7 +22,7 @@ reseller of refurbished laptops, phones and gadgets in Jabodetabek.
 ![Postgres](https://img.shields.io/badge/Neon_Postgres-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-![Tests](https://img.shields.io/badge/tests-143_passing-2ea44f?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-142_passing-2ea44f?style=flat-square)
 ![i18n](https://img.shields.io/badge/i18n-ID_%7C_EN-07273E?style=flat-square)
 ![Node](https://img.shields.io/badge/node-%E2%89%A522-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Runtime deps](https://img.shields.io/badge/no_spreadsheet_lib-zero_dep_xlsx-8A99A8?style=flat-square)
@@ -139,7 +139,7 @@ getting the details right.
   the PNG/WebP alpha channel instead of trusting the file extension.
 
 **Developer experience**
-- TypeScript strict mode, Prisma 6, and 143 tests run on Node's built-in test runner with
+- TypeScript strict mode, Prisma 6, and 142 tests run on Node's built-in test runner with
   no extra framework (`node --test`).
 - Cron endpoints for SLA alerts, expiry and image sweeps, documented in `docs/CRON.md`.
 
@@ -239,7 +239,7 @@ the back-office.
 | `npm run start` | Serve the production build |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | Next.js lint |
-| `npm test` | Run all 143 tests |
+| `npm test` | Run all 142 tests |
 | `npm run db:migrate` / `db:deploy` | Create / apply migrations |
 | `npm run db:seed` / `db:seed:demo` | Seed base / demo data |
 | `npm run db:set-role` | Change a user's role from the CLI |
