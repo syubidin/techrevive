@@ -10,11 +10,15 @@ const config: NextConfig = {
   experimental: { serverActions: { bodySizeLimit: "3mb" } }, // impor produk CSV/Excel
   images: {
     formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 86_400, // hasil optimasi gambar lokal disimpan 1 hari (hemat kuota optimasi)
     remotePatterns: imageHosts.map((hostname) => ({ protocol: "https" as const, hostname })),
   },
   async headers() {
     // CSP dengan nonce diset di middleware; header statis di sini.
+    const staticCache = "public, max-age=86400, stale-while-revalidate=604800"; // nama berkas tidak berhash: 1 hari, lalu segarkan di latar
     return [
+      { source: "/assets/:path*", headers: [{ key: "Cache-Control", value: staticCache }] },
+      { source: "/brand/:path*", headers: [{ key: "Cache-Control", value: staticCache }] },
       {
         source: "/:path*",
         headers: [

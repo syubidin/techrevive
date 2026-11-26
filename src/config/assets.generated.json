@@ -1,0 +1,182 @@
+{
+  "hero/hero-backdrop": {
+    "src": "/assets/hero/hero-backdrop.webp",
+    "w": 1920,
+    "h": 899,
+    "dark": {
+      "src": "/assets/hero/hero-backdrop-dark.webp",
+      "w": 1920,
+      "h": 899
+    }
+  },
+  "cta/banner": {
+    "src": "/assets/cta/banner.webp",
+    "w": 1200,
+    "h": 746
+  },
+  "categories/laptop": {
+    "src": "/assets/categories/laptop.webp",
+    "w": 2400,
+    "h": 1792,
+    "dark": {
+      "src": "/assets/categories/laptop-dark.webp",
+      "w": 2400,
+      "h": 1792
+    }
+  },
+  "categories/smartphone": {
+    "src": "/assets/categories/smartphone.webp",
+    "w": 2400,
+    "h": 1792,
+    "dark": {
+      "src": "/assets/categories/smartphone-dark.webp",
+      "w": 2400,
+      "h": 1792
+    }
+  },
+  "categories/tablet": {
+    "src": "/assets/categories/tablet.webp",
+    "w": 2400,
+    "h": 1792,
+    "dark": {
+      "src": "/assets/categories/tablet-dark.webp",
+      "w": 2400,
+      "h": 1792
+    }
+  },
+  "categories/accessories": {
+    "src": "/assets/categories/accessories.webp",
+    "w": 2400,
+    "h": 1792,
+    "dark": {
+      "src": "/assets/categories/accessories-dark.webp",
+      "w": 2400,
+      "h": 1792
+    }
+  },
+  "categories/default": {
+    "src": "/assets/categories/default.webp",
+    "w": 960,
+    "h": 717,
+    "dark": {
+      "src": "/assets/categories/default-dark.webp",
+      "w": 960,
+      "h": 717
+    }
+  },
+  "trust/why-grade": {
+    "src": "/assets/trust/why-grade.webp",
+    "w": 800,
+    "h": 597,
+    "dark": {
+      "src": "/assets/trust/why-grade-dark.webp",
+      "w": 800,
+      "h": 597
+    }
+  },
+  "trust/why-qc": {
+    "src": "/assets/trust/why-qc.webp",
+    "w": 800,
+    "h": 597,
+    "dark": {
+      "src": "/assets/trust/why-qc-dark.webp",
+      "w": 800,
+      "h": 597
+    }
+  },
+  "trust/why-human": {
+    "src": "/assets/trust/why-human.webp",
+    "w": 800,
+    "h": 597,
+    "dark": {
+      "src": "/assets/trust/why-human-dark.webp",
+      "w": 800,
+      "h": 597
+    }
+  },
+  "process/step-1": {
+    "src": "/assets/process/step-1.webp",
+    "w": 640,
+    "h": 478,
+    "dark": {
+      "src": "/assets/process/step-1-dark.webp",
+      "w": 640,
+      "h": 478
+    }
+  },
+  "process/step-2": {
+    "src": "/assets/process/step-2.webp",
+    "w": 640,
+    "h": 478,
+    "dark": {
+      "src": "/assets/process/step-2-dark.webp",
+      "w": 640,
+      "h": 478
+    }
+  },
+  "process/step-3": {
+    "src": "/assets/process/step-3.webp",
+    "w": 640,
+    "h": 478,
+    "dark": {
+      "src": "/assets/process/step-3-dark.webp",
+      "w": 640,
+      "h": 478
+    }
+  },
+  "process/step-4": {
+    "src": "/assets/process/step-4.webp",
+    "w": 640,
+    "h": 478,
+    "dark": {
+      "src": "/assets/process/step-4-dark.webp",
+      "w": 640,
+      "h": 478
+    }
+  },
+  "grades/grade-a": {
+    "src": "/assets/grades/grade-a.webp",
+    "w": 800,
+    "h": 597,
+    "dark": {
+      "src": "/assets/grades/grade-a-dark.webp",
+      "w": 800,
+      "h": 597
+    }
+  },
+  "grades/grade-b": {
+    "src": "/assets/grades/grade-b.webp",
+    "w": 800,
+    "h": 597,
+    "dark": {
+      "src": "/assets/grades/grade-b-dark.webp",
+      "w": 800,
+      "h": 597
+    }
+  },
+  "grades/grade-c": {
+    "src": "/assets/grades/grade-c.webp",
+    "w": 800,
+    "h": 597,
+    "dark": {
+      "src": "/assets/grades/grade-c-dark.webp",
+      "w": 800,
+      "h": 597
+    }
+  },
+  "states/not-found": {
+    "src": "/assets/states/not-found.webp",
+    "w": 640,
+    "h": 478,
+    "dark": {
+      "src": "/assets/states/not-found-dark.webp",
+      "w": 640,
+      "h": 478
+    }
+  },
+  "about/workshop": {
+    "src": "/assets/about/workshop.webp",
+    "w": 1600,
+    "h": 800
+  }
+}

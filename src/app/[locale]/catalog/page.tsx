@@ -13,6 +13,7 @@ import { ProductCard } from "@/components/product-card";
 import { FilterSheet } from "@/components/filter-sheet";
 import { Icon } from "@/components/icons";
 import { SearchBox } from "@/components/search-box";
+import { NeedsFinder } from "@/components/needs-finder";
 import { buildFilterChips } from "@/lib/filter-chips";
 import { pageMetadata } from "@/lib/seo";
 
@@ -42,9 +43,12 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   return pageMetadata({ locale, path: "/catalog", title: t.catalog.title, description: t.meta.catalogDescription, noindex: true });
 }
 
+const MAX_PARAM_KEYS = 40; // batasi jumlah parameter agar URL berisi ratusan kunci tidak membebani render/formulir
+
 function toParams(raw: SearchParams): URLSearchParams {
   const sp = new URLSearchParams();
-  for (const [k, v] of Object.entries(raw)) {
+  for (const [k, v] of Object.entries(raw).slice(0, MAX_PARAM_KEYS)) {
+    if (k.length > 60) continue;
     if (Array.isArray(v)) v.slice(0, 20).forEach((x) => sp.append(k, x));
     else if (v !== undefined) sp.set(k, v);
   }
@@ -130,6 +134,7 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t.catalog.title}</h1>
           <p className="muted mt-1 text-sm">{t.catalog.results.replace("{n}", String(total))}</p>
+          <div className="mt-3"><NeedsFinder locale={locale} t={t} categories={categories} auto variant="primary" /></div>
         </div>
         <form method="get" className="flex w-full min-w-0 gap-2 sm:w-auto" role="search">
           {[...sp.entries()].filter(([k]) => k !== "q" && k !== "page").map(([k, v], i) => <input key={`${k}${i}`} type="hidden" name={k} value={v} />)}
@@ -157,6 +162,8 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
             </div>
           )}
 
+          {products.length > 0 && <p className="muted mb-3 flex items-start gap-2 text-xs sm:text-sm"><Icon name="compare" size={16} className="mt-0.5 shrink-0" />{t.catalog.compareTip}</p>}
+
           <nav className="mb-5 flex flex-wrap items-center gap-2 text-sm" aria-label={t.catalog.sortLabel}>
             <span className="muted flex shrink-0 items-center gap-1"><Icon name="sort" size={16} />{t.catalog.sort}:</span>
             {sortOptions.map(([value, label]) => (
@@ -169,7 +176,11 @@ export default async function CatalogPage({ params, searchParams }: { params: Pr
             <div className="card grid place-items-center gap-3 p-10 text-center">
               <span className="muted"><Icon name="search" size={36} /></span>
               <p className="muted">{t.catalog.empty}</p>
-              <Link href={`/${locale}/catalog`} className="btn btn-ghost">{t.catalog.reset}</Link>
+              <p className="muted max-w-sm text-sm">{t.finder.emptyHint}</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                <NeedsFinder locale={locale} t={t} categories={categories} variant="primary" />
+                <Link href={`/${locale}/catalog`} className="btn btn-ghost">{t.catalog.reset}</Link>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">

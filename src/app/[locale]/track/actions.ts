@@ -42,7 +42,7 @@ export type TrackState = { ok: true; data: TrackData } | { ok: false; error: "no
 export async function trackAction(_prev: TrackState, formData: FormData): Promise<TrackState> {
   try {
     const ip = await clientIpHash();
-    const rl = await rateLimit(`track:${ip}`, 8, 600);
+    const rl = await rateLimit(`track:${ip}`, 8, 600, { durable: true });
     if (!rl.allowed) return { ok: false, error: "rateLimited" };
 
     const code = normalizeCode(String(formData.get("code") ?? ""));
@@ -116,7 +116,7 @@ export type ConfirmState = { ok: true } | { ok: false; error: "notFound" | "rate
 export async function confirmReceivedAction(formData: FormData): Promise<ConfirmState> {
   try {
     const ip = await clientIpHash();
-    const rl = await rateLimit(`track-confirm:${ip}`, 8, 600);
+    const rl = await rateLimit(`track-confirm:${ip}`, 8, 600, { durable: true });
     if (!rl.allowed) return { ok: false, error: "rateLimited" };
     const code = normalizeCode(String(formData.get("code") ?? ""));
     const phone = normalizeIdPhone(String(formData.get("phone") ?? ""));
@@ -169,7 +169,7 @@ async function verifyBuyer(formData: FormData) {
 export async function submitClaimAction(formData: FormData): Promise<ClaimActionState> {
   try {
     const ip = await clientIpHash();
-    const rl = await rateLimit(`claim:${ip}`, 5, 600);
+    const rl = await rateLimit(`claim:${ip}`, 5, 600, { durable: true });
     if (!rl.allowed) return { ok: false, error: "rateLimited" };
     const issue = cleanIssue(String(formData.get("issue") ?? ""));
     if (!issue) return { ok: false, error: "invalidIssue" };
@@ -216,7 +216,7 @@ export async function submitClaimAction(formData: FormData): Promise<ClaimAction
 export async function cancelClaimAction(formData: FormData): Promise<ClaimActionState> {
   try {
     const ip = await clientIpHash();
-    const rl = await rateLimit(`claim-cancel:${ip}`, 8, 600);
+    const rl = await rateLimit(`claim-cancel:${ip}`, 8, 600, { durable: true });
     if (!rl.allowed) return { ok: false, error: "rateLimited" };
     const buyer = await verifyBuyer(formData);
     const claimCodeRaw = String(formData.get("claimCode") ?? "").trim().toUpperCase();

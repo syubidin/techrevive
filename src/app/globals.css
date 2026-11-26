@@ -160,6 +160,16 @@ details[open] > summary .chev { transform: rotate(180deg); }
 .scrollbar-none { scrollbar-width: none; } .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 
+/* Pudar tepi banner CTA ke warna kartu: ke bawah di HP (gambar di atas teks), ke kiri di desktop (gambar di sebelah teks). */
+.cta-fade { background: linear-gradient(to top, var(--color-ink-900), transparent 55%); }
+@media (min-width: 768px) { .cta-fade { background: linear-gradient(to right, var(--color-ink-900), transparent 45%); } }
+
+/* Gambar tidak bisa diseret/di-drag (hantu gambar, seret ke desktop/tab lain) dan tidak memunculkan menu tekan-lama di HP.
+   Ini hanya mencegah salin iseng; gambar yang tampil di browser tetap bisa diunduh lewat alat pengembang. */
+img, picture, svg, canvas, video { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+a, button { -webkit-user-drag: none; }
+img { pointer-events: auto; }
+
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes shimmer { to { background-position: -200% 0; } }
 

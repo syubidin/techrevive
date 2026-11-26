@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CompareBar } from "@/components/compare-bar";
 import { MotionRoot } from "@/components/motion-root";
+import { NoDrag } from "@/components/no-drag";
 import { getShowcase } from "@/lib/catalog-cache";
 import { jakarta, rootMetadata, rootViewport } from "@/lib/root";
 import "../globals.css";
@@ -25,6 +26,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     <html lang={locale} className={jakarta.variable}>
       <body>
         <MotionRoot />
+        <NoDrag />
         <SiteHeader locale={locale} t={t} />
         <main id="content">{children}</main>
         <SiteFooter locale={locale} t={t} brands={brands} />

@@ -82,6 +82,8 @@ Put images in docs/screenshots/ and uncomment.
 | **Brand marquee** | Logo-only, grayscale by default, full color on hover, click to filter by brand. |
 | **WhatsApp inquiry** | Pre-filled message per product, no checkout friction, no payment gateway. |
 | **Order tracking** | Public token-based page with a stepper (reply, order, pay, ship, deliver, done). |
+| **Product comparison** | Compare up to 4 units side by side, "only differences" mode, shareable link, spotlighted on the home page. |
+| **Help me decide** | Four-question needs finder on the catalog that turns answers into filters; first-visit prompt, reopen anytime. |
 | **Customer confirmation** | "Received" button on the tracking page, thank-you message, stepper checks off. |
 | **Invoice** | Shareable invoice page per order, no login required. |
 | **Warranty claims** | Customers file a claim on the tracking page (code + WhatsApp number), see warranty days left and follow the status. |
@@ -256,6 +258,8 @@ and [`docs/CRON.md`](docs/CRON.md).
 - [`docs/FLOW.md`](docs/FLOW.md) - inquiry, order and status flow
 - [`docs/HOSTING.md`](docs/HOSTING.md) - deployment and third-party setup
 - [`docs/CRON.md`](docs/CRON.md) - scheduled maintenance jobs
+- [`docs/SECURITY-AUDIT.md`](docs/SECURITY-AUDIT.md) - latest security, performance and edge-case audit
+- [`docs/ASSETS.md`](docs/ASSETS.md) - visual asset plan, free tools, prompts and workflow
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) - layers, scaling rules and how to add a feature
 - [`docs/SEO.md`](docs/SEO.md) - SEO and generative-engine (GEO) setup
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) - designed next features

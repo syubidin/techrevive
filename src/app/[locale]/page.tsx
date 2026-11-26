@@ -15,6 +15,8 @@ import { Icon, categoryIcon, type IconName } from "@/components/icons";
 import { HeroSceneLoader } from "@/components/hero-scene-loader";
 import { ProductCard } from "@/components/product-card";
 import { SearchBox } from "@/components/search-box";
+import { Visual } from "@/components/visual";
+import { firstAsset, getAsset } from "@/lib/assets";
 
 export const revalidate = 60;
 
@@ -47,6 +49,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     getShowcase().catch(() => ({ brands: [], categories: [] })),
   ]);
   const marquee = cycle(showcase.brands);
+  const cmp = t.home.compare;
   const trustChips = t.hero.chips;
   const chipIcons: IconName[] = ["badge-check", "clock", "truck"];
 
@@ -55,6 +58,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <JsonLd data={[organizationLd(locale), websiteLd(locale)]} />
       {/* HERO */}
       <section className="relative overflow-hidden">
+        <Visual k="hero/hero-backdrop" sizes="100vw" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30 [mask-image:linear-gradient(to_bottom,black_40%,transparent)]" />
         <div className="bg-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]" aria-hidden />
         <div className="hero-glow absolute -top-32 left-1/2 h-96 w-[48rem] -translate-x-1/2" aria-hidden />
         <div className="container-x relative grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
@@ -105,7 +109,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <Link href={L(`/catalog?brand=${b.slug}`)} tabIndex={copy === 1 ? -1 : undefined} title={b.name} aria-label={copy === 1 ? undefined : b.name} className="brand-tile">
                       {b.logoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={deliveryUrl(b.logoUrl, "c_fit,w_480,h_200,f_auto,q_auto")} alt="" width={224} height={96} loading="lazy" decoding="async" className="brand-logo" />
+                        <img src={deliveryUrl(b.logoUrl, "c_fit,w_480,h_200,f_auto,q_auto")} alt="" width={224} height={96} loading="lazy" decoding="async" draggable={false} className="brand-logo" />
                       ) : (
                         <span className="brand-name">{b.name}</span>
                       )}
@@ -118,20 +122,30 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
       )}
 
+
       {/* KATEGORI */}
       {showcase.categories.length > 0 && (
         <section data-reveal className="section container-x">
           <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.categoriesTitle}</h2>
           <ul data-stagger className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-            {showcase.categories.map((c) => (
-              <li key={c.slug}>
-                <Link href={L(`/catalog?category=${c.slug}`)} className="card hover-lift flex h-full flex-col gap-3 p-4 sm:p-5">
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name={categoryIcon(c.slug)} /></span>
-                  <span className="font-bold leading-tight">{pick(locale, c.nameId, c.nameEn)}</span>
-                  <span className="muted text-xs">{t.home.products.replace("{n}", String(c.count))}</span>
-                </Link>
-              </li>
-            ))}
+            {showcase.categories.map((c) => {
+              const imgKey = firstAsset(`categories/${c.slug}`, "categories/default");
+              return (
+                <li key={c.slug}>
+                  <Link href={L(`/catalog?category=${c.slug}`)} className="card hover-lift group flex h-full flex-col gap-3 p-3 sm:p-4">
+                    {imgKey ? (
+                      <span className="block overflow-hidden rounded-xl bg-[var(--color-ink-100)] dark:bg-[var(--color-ink-900)]">
+                        <Visual k={imgKey} sizes="(min-width: 768px) 25vw, 50vw" className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      </span>
+                    ) : (
+                      <span className="m-1 grid h-11 w-11 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name={categoryIcon(c.slug)} /></span>
+                    )}
+                    <span className="px-1 font-bold leading-tight">{pick(locale, c.nameId, c.nameEn)}</span>
+                    <span className="muted px-1 pb-1 text-xs">{t.home.products.replace("{n}", String(c.count))}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}
@@ -151,12 +165,59 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
       </section>
 
+      {/* PERBANDINGAN PRODUK */}
+      <section data-reveal aria-labelledby="compare-h" className="section container-x">
+        <div className="card grid items-center gap-8 overflow-hidden p-6 sm:p-10 lg:grid-cols-[1fr_1.05fr]">
+          <div>
+            <span className="chip bg-[var(--card)]"><Icon name="compare" size={14} />{cmp.chip}</span>
+            <h2 id="compare-h" className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">{cmp.title}</h2>
+            <p className="muted mt-3 max-w-lg">{cmp.sub}</p>
+            <ul className="mt-5 space-y-3">
+              {cmp.points.map((p) => (
+                <li key={p.t} className="flex gap-3">
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name="check" size={16} /></span>
+                  <div><p className="font-bold">{p.t}</p><p className="muted text-sm leading-relaxed">{p.d}</p></div>
+                </li>
+              ))}
+            </ul>
+            <Link href={L("/catalog")} className="btn btn-primary mt-6"><Icon name="compare" size={18} />{cmp.cta}</Link>
+          </div>
+          <figure className="min-w-0">
+            <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--bg)]">
+              <table className="w-full table-fixed text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--line)] text-left">
+                    <th scope="col" className="w-[28%] p-3"><span className="sr-only">{cmp.rowSpec}</span></th>
+                    <th scope="col" className="p-3 font-bold">{cmp.unitA}</th>
+                    <th scope="col" className="p-3 font-bold">{cmp.unitB}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cmp.rows.map((r) => (
+                    <tr key={r.l} className="border-b border-[var(--line)] last:border-0">
+                      <th scope="row" className="muted p-3 text-left text-xs font-semibold">{r.l}</th>
+                      {[r.a, r.b].map((v, i) => (
+                        <td key={i} className={`p-3 ${r.best === i ? "bg-brand-500/10 font-bold text-brand-700 dark:text-brand-300" : ""}`}>
+                          <span className="inline-flex items-center gap-1.5">{v}{r.best === i && <><Icon name="badge-check" size={14} /><span className="sr-only">{cmp.best}</span></>}</span>
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <figcaption className="muted mt-3 text-xs">{cmp.note}</figcaption>
+          </figure>
+        </div>
+      </section>
+
       {/* KENAPA KAMI */}
       <section data-reveal className="section container-x">
         <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.whyTitle}</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {t.home.why.map((w, i) => (
-            <div key={w.t} className="card p-6">
+            <div key={w.t} className="card overflow-hidden p-6">
+              <Visual k={["trust/why-grade", "trust/why-qc", "trust/why-human"][i] ?? ""} sizes="(min-width: 768px) 33vw, 100vw" className="-mx-6 -mt-6 mb-5 aspect-[4/3] w-[calc(100%+3rem)] max-w-none object-cover" />
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name={t.home.whyIcons[i] as IconName} /></span>
               <h3 className="mt-4 font-bold">{w.t}</h3>
               <p className="muted mt-2 text-sm leading-relaxed">{w.d}</p>
@@ -173,7 +234,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
         <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {t.home.steps.map((s, i) => (
-            <li key={s.t} className="card relative p-6">
+            <li key={s.t} className="card relative overflow-hidden p-6">
+              <Visual k={`process/step-${i + 1}`} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="-mx-6 -mt-6 mb-5 aspect-[4/3] w-[calc(100%+3rem)] max-w-none object-cover" />
               <div className="flex items-center justify-between">
                 <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--color-ink-900)] text-white"><Icon name={t.home.stepIcons[i] as IconName} /></span>
                 <span className="text-4xl font-extrabold text-[var(--color-ink-200)] dark:text-[var(--color-ink-700)]">{i + 1}</span>
@@ -191,9 +253,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <p className="muted mt-2 max-w-2xl">{t.home.gradeSub}</p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {t.home.grades.map((g) => (
-            <div key={g.g} className="card flex gap-4 p-5">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[var(--color-ink-900)] text-xl font-extrabold text-white">{g.g}</span>
-              <div><h3 className="font-bold">{g.t}</h3><p className="muted mt-1 text-sm leading-relaxed">{g.d}</p></div>
+            <div key={g.g} className="card overflow-hidden p-5">
+              <Visual k={`grades/grade-${g.g.toLowerCase()}`} sizes="(min-width: 768px) 33vw, 100vw" className="-mx-5 -mt-5 mb-4 aspect-[4/3] w-[calc(100%+2.5rem)] max-w-none object-cover" />
+              <div className="flex gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[var(--color-ink-900)] text-xl font-extrabold text-white">{g.g}</span>
+                <div><h3 className="font-bold">{g.t}</h3><p className="muted mt-1 text-sm leading-relaxed">{g.d}</p></div>
+              </div>
             </div>
           ))}
         </div>
@@ -217,12 +282,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* CTA */}
       <section data-reveal className="container-x section">
-        <div className="relative overflow-hidden rounded-3xl bg-[var(--color-ink-900)] p-8 text-white sm:p-12">
-          <div className="hero-glow absolute -right-20 -top-20 h-72 w-72 opacity-60" aria-hidden />
-          <div className="relative max-w-xl">
-            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.ctaTitle}</h2>
-            <p className="mt-3 text-white/75">{t.home.ctaDesc}</p>
-            <a href={waLink(t.home.ctaWaText)} target="_blank" rel="noopener noreferrer" className="btn btn-accent btn-lg mt-6"><Icon name="message-circle" />{t.home.ctaButton}</a>
+        <div className="relative isolate overflow-hidden rounded-3xl bg-[var(--color-ink-900)] text-white">
+          <div className="hero-glow absolute -right-20 -top-20 -z-10 h-72 w-72 opacity-60" aria-hidden />
+          <div className={`grid ${getAsset("cta/banner") ? "md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
+            {getAsset("cta/banner") && (
+              <div className="relative order-first overflow-hidden md:order-last">
+                <Visual k="cta/banner" sizes="(min-width: 1280px) 560px, (min-width: 768px) 45vw, 100vw" className="aspect-[16/10] w-full object-cover md:absolute md:inset-0 md:aspect-auto md:h-full" />
+                <div className="cta-fade pointer-events-none absolute inset-0" aria-hidden />
+              </div>
+            )}
+            <div className="relative p-8 sm:p-12 md:py-14">
+              <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.home.ctaTitle}</h2>
+              <p className="mt-3 max-w-md text-white/75">{t.home.ctaDesc}</p>
+              <a href={waLink(t.home.ctaWaText)} target="_blank" rel="noopener noreferrer" className="btn btn-accent btn-lg mt-6"><Icon name="message-circle" />{t.home.ctaButton}</a>
+            </div>
           </div>
         </div>
       </section>

@@ -6,15 +6,14 @@ import { db } from "@/lib/db";
 import { audit, clientIpHash, getAdminOrNull } from "@/lib/admin";
 import { clearSessionCookie, createSessionToken, setSessionCookie, verifyPassword } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
+import { lockDurationMs, shouldLock } from "@/lib/login-policy";
 
-const MAX_FAILS = 5;
-const LOCK_MS = 15 * 60 * 1000;
 const schema = z.object({ email: z.string().trim().toLowerCase().email().max(120), password: z.string().min(1).max(200) });
 
 export interface LoginState { error?: string }
 
 // Pesan error SELALU sama agar tidak membocorkan apakah email terdaftar.
-const GENERIC = "Email atau kata sandi salah.";
+const GENERIC = "Email atau kata sandi salah. Setelah beberapa kali gagal, akun dikunci sementara.";
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const parsed = schema.safeParse(Object.fromEntries(formData));
@@ -22,8 +21,16 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
   const { email, password } = parsed.data;
 
   const ipHash = await clientIpHash();
-  const [byIp, byEmail] = await Promise.all([rateLimit(`login:ip:${ipHash}`, 20, 900), rateLimit(`login:em:${email}`, 8, 900)]);
-  if (!byIp.allowed || !byEmail.allowed) return { error: "Terlalu banyak percobaan. Coba lagi dalam beberapa menit." };
+  // Tiga lapis, semuanya awet antar instance: per IP (15 menit), per IP (24 jam), dan per email (15 menit).
+  const [byIp, byIpDay, byEmail] = await Promise.all([
+    rateLimit(`login:ip:${ipHash}`, 15, 900, { durable: true }),
+    rateLimit(`login:ipd:${ipHash}`, 80, 86_400, { durable: true }),
+    rateLimit(`login:em:${email}`, 8, 900, { durable: true }),
+  ]);
+  if (!byIp.allowed || !byIpDay.allowed || !byEmail.allowed) {
+    const wait = Math.max(byIp.retryAfterSec, byEmail.retryAfterSec, byIpDay.allowed ? 0 : byIpDay.retryAfterSec);
+    return { error: `Terlalu banyak percobaan. Coba lagi dalam ${Math.max(1, Math.ceil(wait / 60))} menit.` };
+  }
 
   const user = await db.adminUser.findUnique({ where: { email } });
   const locked = !!user?.lockedUntil && user.lockedUntil > new Date();
@@ -34,11 +41,12 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
     if (user && !locked) {
       // Penambahan atomik agar percobaan paralel tidak "lolos" dari hitungan kunci akun.
       const { failedLogins } = await db.adminUser.update({ where: { id: user.id }, data: { failedLogins: { increment: 1 } }, select: { failedLogins: true } });
-      const lock = failedLogins >= MAX_FAILS;
-      if (lock) await db.adminUser.update({ where: { id: user.id }, data: { failedLogins: 0, lockedUntil: new Date(Date.now() + LOCK_MS) } });
+      const lock = shouldLock(failedLogins);
+      if (lock) await db.adminUser.update({ where: { id: user.id }, data: { lockedUntil: new Date(Date.now() + lockDurationMs(failedLogins)) } });
       await audit(user.id, lock ? "auth.locked" : "auth.failed", "AdminUser", user.id);
     }
-    return { error: locked ? "Akun terkunci sementara. Coba lagi nanti." : GENERIC };
+    // Pesan sama untuk semua kegagalan (termasuk akun terkunci) agar tidak membocorkan email mana yang terdaftar.
+    return { error: GENERIC };
   }
 
   await db.adminUser.update({ where: { id: user.id }, data: { failedLogins: 0, lockedUntil: null, lastLoginAt: new Date() } });

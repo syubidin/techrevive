@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   // 2. Rate limit per IP (IP di-hash; simpan hash saja)
   const ip = getClientIp(req.headers);
   const ipHash = hashIp(ip, env.IP_HASH_SECRET);
-  const ipLimit = await rateLimit(`inq:ip:${ipHash}`, 8, 600);
+  const ipLimit = await rateLimit(`inq:ip:${ipHash}`, 8, 600, { durable: true });
   if (!ipLimit.allowed) return fail(429, "RATE_LIMITED", { "Retry-After": String(ipLimit.retryAfterSec) });
 
   // 3. Validasi
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
   if (existing) return NextResponse.json({ code: existing.code, waUrl: makeUrl(existing.code) }, { headers: { "Cache-Control": "no-store" } });
 
   // Batas inquiry BARU per nomor (klik ulang produk yang sama sudah ditangani di atas dan tidak dihitung).
-  const phoneLimit = await rateLimit(`inq:phone:${input.phone}`, 5, 3600);
+  const phoneLimit = await rateLimit(`inq:phone:${hashIp(input.phone, env.IP_HASH_SECRET)}`, 5, 3600, { durable: true });
   if (!phoneLimit.allowed) return fail(429, "RATE_LIMITED", { "Retry-After": String(phoneLimit.retryAfterSec) });
 
   // 8. Simpan dengan snapshot harga; ulangi jika kode bentrok (unique)

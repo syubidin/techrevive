@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node --experimental-strip-types scripts/assets-sync.ts",
     "dev": "next dev --turbopack",
-    "build": "prisma generate && next build",
+    "assets:sync": "node --experimental-strip-types scripts/assets-sync.ts",
+    "build": "node --experimental-strip-types scripts/assets-sync.ts && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

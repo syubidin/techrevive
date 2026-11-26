@@ -6,6 +6,7 @@ import { isLocale } from "@/config/site";
 import { getMessages } from "@/lib/i18n";
 import { Icon, type IconName } from "@/components/icons";
 import { PageHero } from "@/components/page-hero";
+import { Visual } from "@/components/visual";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -26,6 +27,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     <>
       <PageHero title={a.title} intro={a.intro} icon="users" />
       <div className="container-x space-y-12 py-8 sm:space-y-16 sm:py-12">
+        <Visual k="about/workshop" alt={a.workshopAlt} priority sizes="(min-width: 1280px) 1200px, 100vw" className="aspect-[3/2] w-full rounded-3xl object-cover sm:aspect-[2/1]" />
         <section className="grid gap-6 lg:grid-cols-[1.4fr_1fr]" aria-labelledby="about-story">
           <div>
             <h2 id="about-story" className="text-2xl font-extrabold tracking-tight">{a.storyTitle}</h2>

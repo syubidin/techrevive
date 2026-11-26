@@ -107,7 +107,64 @@
       "message-circle",
       "circle-check",
       "truck"
-    ]
+    ],
+    "compare": {
+      "chip": "Featured tool",
+      "title": "Compare before you decide",
+      "sub": "Torn between two or three units? Put them side by side and see the differences on one screen.",
+      "points": [
+        {
+          "t": "Up to 4 units at once",
+          "d": "Price, specs, condition, grade and availability line up in one view."
+        },
+        {
+          "t": "Differences stand out",
+          "d": "\"Only differences\" hides identical specs and marks the best value."
+        },
+        {
+          "t": "Share with a link",
+          "d": "Send the comparison to family or friends over WhatsApp."
+        }
+      ],
+      "cta": "Try comparing",
+      "rowSpec": "Specification",
+      "unitA": "Unit A",
+      "unitB": "Unit B",
+      "best": "Best",
+      "rows": [
+        {
+          "l": "Price",
+          "a": "Rp 6.5M",
+          "b": "Rp 7.2M",
+          "best": 0
+        },
+        {
+          "l": "RAM",
+          "a": "16 GB",
+          "b": "16 GB",
+          "best": -1
+        },
+        {
+          "l": "Storage",
+          "a": "512 GB",
+          "b": "1 TB",
+          "best": 1
+        },
+        {
+          "l": "Battery",
+          "a": "91%",
+          "b": "84%",
+          "best": 0
+        },
+        {
+          "l": "Grade",
+          "a": "A",
+          "b": "B",
+          "best": 0
+        }
+      ],
+      "note": "Sample layout for illustration only, not units for sale."
+    }
   },
   "catalog": {
     "title": "Catalog",
@@ -142,7 +199,8 @@
     "searchLabel": "Search products",
     "searching": "Results for",
     "filtersCount": "Filters ({n})",
-    "sortRelevance": "Best match"
+    "sortRelevance": "Best match",
+    "compareTip": "Tip: tap the compare icon on a product card to see 2 to 4 units side by side."
   },
   "product": {
     "specs": "Specifications",
@@ -566,7 +624,8 @@
     "ctaTitle": "Ready to upgrade?",
     "ctaDesc": "Browse the catalog or tell us what you need, and we will reply quickly.",
     "ctaCatalog": "Browse Catalog",
-    "ctaContact": "Contact Us"
+    "ctaContact": "Contact Us",
+    "workshopAlt": "TechRevive workshop and QC area"
   },
   "meta": {
     "homeTitle": "TechRevive: Quality Laptops, Smartphones & Gadgets, New to Refurbished",
@@ -608,5 +667,51 @@
     "loading": "Searching...",
     "noSuggestions": "No suggestions. Press Enter to search the catalog.",
     "viewAll": "See all results for \"{q}\""
+  },
+  "finder": {
+    "trigger": "Help me decide",
+    "title": "Help me choose",
+    "sub": "Answer a few quick questions and we'll show the units that fit best.",
+    "step": "Step {n} of {m}",
+    "back": "Back",
+    "skip": "Skip",
+    "next": "Next",
+    "show": "Show matching units",
+    "restart": "Start over",
+    "close": "Close",
+    "later": "Maybe later",
+    "hint": "Your answers are not stored on our server and you can change them anytime.",
+    "q": {
+      "purpose": "What will you use it for?",
+      "device": "Which device are you looking for?",
+      "budget": "What is your budget?",
+      "priority": "What matters most?"
+    },
+    "purpose": {
+      "study": "School / university",
+      "office": "Office work",
+      "creative": "Design / editing",
+      "gaming": "Gaming",
+      "business": "Business / online selling",
+      "daily": "Everyday use"
+    },
+    "device": {
+      "any": "Not sure yet"
+    },
+    "budget": {
+      "lt3": "Under Rp 3 million",
+      "3to6": "Rp 3 - 6 million",
+      "6to10": "Rp 6 - 10 million",
+      "gt10": "Over Rp 10 million",
+      "flex": "Flexible"
+    },
+    "priority": {
+      "cheap": "Lowest price",
+      "performance": "Best performance",
+      "battery": "Long battery life",
+      "mint": "Cleanest condition"
+    },
+    "empty": "No unit matches your answers yet.",
+    "emptyHint": "Try loosening the budget or priority, or ask our team on WhatsApp."
   }
 }

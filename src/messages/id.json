@@ -107,7 +107,64 @@
       "message-circle",
       "circle-check",
       "truck"
-    ]
+    ],
+    "compare": {
+      "chip": "Fitur unggulan",
+      "title": "Bandingkan sebelum memutuskan",
+      "sub": "Bingung memilih antara dua atau tiga unit? Taruh berdampingan dan lihat bedanya dalam satu layar.",
+      "points": [
+        {
+          "t": "Sampai 4 unit sekaligus",
+          "d": "Harga, spesifikasi, kondisi, grade, dan ketersediaan tampil sejajar."
+        },
+        {
+          "t": "Perbedaan langsung terlihat",
+          "d": "Mode \"hanya yang berbeda\" menyembunyikan spesifikasi yang sama dan menandai yang terbaik."
+        },
+        {
+          "t": "Bagikan lewat tautan",
+          "d": "Kirim hasil perbandingan ke keluarga atau teman lewat WhatsApp."
+        }
+      ],
+      "cta": "Coba bandingkan",
+      "rowSpec": "Spesifikasi",
+      "unitA": "Unit A",
+      "unitB": "Unit B",
+      "best": "Terbaik",
+      "rows": [
+        {
+          "l": "Harga",
+          "a": "Rp 6,5 jt",
+          "b": "Rp 7,2 jt",
+          "best": 0
+        },
+        {
+          "l": "RAM",
+          "a": "16 GB",
+          "b": "16 GB",
+          "best": -1
+        },
+        {
+          "l": "Penyimpanan",
+          "a": "512 GB",
+          "b": "1 TB",
+          "best": 1
+        },
+        {
+          "l": "Baterai",
+          "a": "91%",
+          "b": "84%",
+          "best": 0
+        },
+        {
+          "l": "Grade",
+          "a": "A",
+          "b": "B",
+          "best": 0
+        }
+      ],
+      "note": "Contoh tampilan untuk ilustrasi, bukan unit yang dijual."
+    }
   },
   "catalog": {
     "title": "Katalog",
@@ -142,7 +199,8 @@
     "searchLabel": "Cari produk",
     "searching": "Hasil untuk",
     "filtersCount": "Filter ({n})",
-    "sortRelevance": "Paling cocok"
+    "sortRelevance": "Paling cocok",
+    "compareTip": "Tips: tekan ikon bandingkan di kartu produk untuk melihat 2 sampai 4 unit berdampingan."
   },
   "product": {
     "specs": "Spesifikasi",
@@ -566,7 +624,8 @@
     "ctaTitle": "Siap upgrade perangkatmu?",
     "ctaDesc": "Lihat katalog atau tanyakan langsung kebutuhanmu, kami balas cepat.",
     "ctaCatalog": "Lihat Katalog",
-    "ctaContact": "Hubungi Kami"
+    "ctaContact": "Hubungi Kami",
+    "workshopAlt": "Foto bengkel dan area QC TechRevive"
   },
   "meta": {
     "homeTitle": "TechRevive: Laptop, Smartphone & Gadget Berkualitas, Baru hingga Refurbished",
@@ -608,5 +667,51 @@
     "loading": "Mencari...",
     "noSuggestions": "Tidak ada saran. Tekan Enter untuk mencari di katalog.",
     "viewAll": "Lihat semua hasil untuk \"{q}\""
+  },
+  "finder": {
+    "trigger": "Bantu memutuskan",
+    "title": "Bantu saya memilih",
+    "sub": "Jawab beberapa pertanyaan singkat, kami tampilkan unit yang paling cocok.",
+    "step": "Langkah {n} dari {m}",
+    "back": "Kembali",
+    "skip": "Lewati",
+    "next": "Lanjut",
+    "show": "Lihat unit yang cocok",
+    "restart": "Mulai lagi",
+    "close": "Tutup",
+    "later": "Nanti saja",
+    "hint": "Jawaban tidak disimpan di server dan bisa diubah kapan saja.",
+    "q": {
+      "purpose": "Untuk apa perangkatnya?",
+      "device": "Perangkat apa yang dicari?",
+      "budget": "Berapa anggaran Anda?",
+      "priority": "Apa yang paling penting?"
+    },
+    "purpose": {
+      "study": "Kuliah / sekolah",
+      "office": "Kerja kantoran",
+      "creative": "Desain / editing",
+      "gaming": "Gaming",
+      "business": "Usaha / jualan online",
+      "daily": "Sehari-hari"
+    },
+    "device": {
+      "any": "Belum tahu"
+    },
+    "budget": {
+      "lt3": "Di bawah Rp 3 juta",
+      "3to6": "Rp 3 - 6 juta",
+      "6to10": "Rp 6 - 10 juta",
+      "gt10": "Di atas Rp 10 juta",
+      "flex": "Fleksibel"
+    },
+    "priority": {
+      "cheap": "Harga paling hemat",
+      "performance": "Performa terbaik",
+      "battery": "Baterai awet",
+      "mint": "Kondisi paling mulus"
+    },
+    "empty": "Belum ada unit yang pas dengan jawaban Anda.",
+    "emptyHint": "Coba longgarkan anggaran atau prioritas, atau tanya tim kami lewat WhatsApp."
   }
 }

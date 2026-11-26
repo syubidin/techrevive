@@ -41,6 +41,7 @@ export async function runMaintenance(baseUrl: string, now = new Date()): Promise
   }
   if (expired > 0) notified = (await notify(msgExpired(expired))) || notified;
 
+  await db.rateBucket.deleteMany({ where: { resetAt: { lt: new Date(now.getTime() - 3_600_000) } } }).catch(() => undefined);
   const orphanImages = await sweepOrphanImages(now);
   return { expired, slaAlerts: late.length, followUps: dueFresh.length, notified, orphanImages };
 }

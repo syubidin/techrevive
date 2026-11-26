@@ -10,7 +10,7 @@ export function BrandLogo({ variant, size, className = "", priority = false, alt
       {/* "screen and": saat dicetak tetap logo biru agar terlihat di kertas putih */}
       <source media="screen and (prefers-color-scheme: dark)" srcSet={`${base}-white.png`} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`${base}-blue.png`} alt={alt} width={size} height={size} className={className} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : undefined} decoding="async" />
+      <img src={`${base}-blue.png`} alt={alt} width={size} height={size} className={className} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : undefined} decoding="async" draggable={false} />
     </picture>
   );
 }

@@ -372,3 +372,13 @@ model Setting {
   value     Json
   updatedAt DateTime @updatedAt
 }
+
+/// Penghitung batas percobaan yang awet (dipakai bila Redis/Upstash tidak dikonfigurasi), agar brute force
+/// tidak lolos hanya karena permintaan dilayani instance serverless yang berbeda.
+model RateBucket {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
