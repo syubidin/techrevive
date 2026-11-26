@@ -2,6 +2,7 @@
 
 import { NavLink } from "./nav-link";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { enter } from "@/lib/anim";
 import { Icon, type IconName } from "./icons";
 
@@ -12,6 +13,15 @@ export function MobileMenu({ links, waHref, labels }: { links: MenuLink[]; waHre
   const [open, setOpen] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => { if (open) void enter(panel.current, "top"); }, [open]);
+
+  // Menu di layar lebar tidak ada: tutup bila jendela diperlebar (mis. HP diputar) agar scroll tidak tertinggal terkunci.
+  useEffect(() => {
+    if (!open) return;
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => mq.matches && setOpen(false);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -30,7 +40,9 @@ export function MobileMenu({ links, waHref, labels }: { links: MenuLink[]; waHre
       <button type="button" onClick={() => setOpen(true)} aria-label={labels.open} aria-expanded={open} className="btn btn-ghost !h-11 !w-11 !p-0">
         <Icon name="menu" />
       </button>
-      {open && (
+      {/* Dirender ke <body>: header memakai backdrop-filter, yang membuat elemen "fixed" di dalamnya menempel ke header
+          (bukan ke layar) sehingga menu hanya tampil di bagian paling atas halaman. */}
+      {open && createPortal(
         <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label={labels.open}>
           <button type="button" aria-label={labels.close} className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} tabIndex={-1} />
           <div ref={panel} className="absolute inset-x-0 top-0 max-h-[100dvh] overflow-y-auto overscroll-contain rounded-b-2xl border-b border-[var(--line)] bg-[var(--bg)] p-4 shadow-2xl">
@@ -51,7 +63,8 @@ export function MobileMenu({ links, waHref, labels }: { links: MenuLink[]; waHre
               <Icon name="message-circle" />{labels.wa}
             </a>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

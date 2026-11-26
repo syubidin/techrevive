@@ -69,7 +69,8 @@ body { overflow-x: clip; background: var(--bg); color: var(--fg); font-family: v
 .muted { color: var(--muted); }
 .container-x { margin-inline: auto; width: 100%; max-width: 80rem; padding-inline: 1rem; }
 @media (min-width: 640px) { .container-x { padding-inline: 1.5rem; } }
-.section { margin-top: 4rem; }
+.section { margin-top: 2.75rem; }
+@media (min-width: 640px) { .section { margin-top: 4rem; } }
 @media (min-width: 768px) { .section { margin-top: 6rem; } }
 .eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--color-brand-700); }
 @media (prefers-color-scheme: dark) { .eyebrow { color: var(--color-brand-300); } }
@@ -158,6 +159,14 @@ details[open] > summary .chev { transform: rotate(180deg); }
 @media (prefers-reduced-motion: reduce) { .brand-tile { transition: none; } .brand-tile:hover { transform: none; } }
 .logo-checker { background: repeating-conic-gradient(#e2e8f0 0% 25%, #fff 0% 50%) 50% / 12px 12px; }
 .scrollbar-none { scrollbar-width: none; } .scrollbar-none::-webkit-scrollbar { display: none; }
+}
+
+/* Baris geser (HP saja): daftar kartu menjadi satu baris yang digeser ke samping dengan snap, kartu berikutnya sedikit
+   mengintip sebagai petunjuk. Di layar >= 640px kelas ini tidak berpengaruh (tetap grid). Lebar kartu lewat --snap-w. */
+@media (max-width: 639px) {
+  .snap-row { display: flex; gap: .75rem; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; margin-inline: -1rem; padding-inline: 1rem; scroll-padding-inline: 1rem; padding-bottom: .5rem; scrollbar-width: none; }
+  .snap-row::-webkit-scrollbar { display: none; }
+  .snap-row > * { flex: 0 0 var(--snap-w, 78%); min-width: 0; scroll-snap-align: start; }
 }
 
 /* Pudar tepi banner CTA ke warna kartu: ke bawah di HP (gambar di atas teks), ke kiri di desktop (gambar di sebelah teks). */
