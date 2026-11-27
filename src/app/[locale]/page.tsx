@@ -87,7 +87,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <div><p className="text-sm font-bold">{t.hero.floatA}</p><p className="muted text-xs">{t.hero.floatAd}</p></div>
             </div>
             <div className="card absolute -bottom-3 -right-2 hidden sm:flex items-center gap-2.5 p-3 sm:-right-6">
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name="shield-check" size={18} /></span>
+              <span className="icon-tile !h-9 !w-9 !rounded-lg"><Icon name="shield-check" size={18} /></span>
               <div><p className="text-sm font-bold">{t.hero.floatB}</p><p className="muted text-xs">{t.hero.floatBd}</p></div>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                         <Visual k={imgKey} sizes="(min-width: 768px) 25vw, 50vw" className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       </span>
                     ) : (
-                      <span className="m-1 grid h-11 w-11 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name={categoryIcon(c.slug)} /></span>
+                      <span className="icon-tile m-1"><Icon name={categoryIcon(c.slug)} /></span>
                     )}
                     <span className="px-1 font-bold leading-tight">{pick(locale, c.nameId, c.nameEn)}</span>
                     <span className="muted px-1 pb-1 text-xs">{t.home.products.replace("{n}", String(c.count))}</span>
@@ -175,7 +175,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <ul className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3">
               {cmp.points.map((p) => (
                 <li key={p.t} className="flex gap-3">
-                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name="check" size={16} /></span>
+                  <span className="icon-tile mt-0.5 !h-8 !w-8 !rounded-lg"><Icon name="check" size={16} /></span>
                   <div><p className="font-bold">{p.t}</p><p className="muted text-sm leading-relaxed max-sm:hidden">{p.d}</p></div>
                 </li>
               ))}
