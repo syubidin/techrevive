@@ -61,7 +61,7 @@ export function organizationLd(locale: Locale) {
     logo: abs("/brand/icon-512.png"),
     description: t.meta.orgDescription,
     areaServed: { "@type": "AdministrativeArea", name: "Jabodetabek" },
-    founder: { "@type": "Person", name: founder.name, sameAs: [founder.linkedin] },
+    founder: { "@type": "Person", name: founder.name, sameAs: [founder.linkedin, founder.instagram] },
     knowsAbout: ["Refurbished laptops", "Second-hand smartphones", "Gadgets", "Device quality control"],
     ...(SAME_AS().length ? { sameAs: SAME_AS() } : {}),
     ...(real ? { contactPoint: { "@type": "ContactPoint", contactType: "customer service", telephone: `+${phone}`, availableLanguage: ["id", "en"], areaServed: "ID" } } : {}),

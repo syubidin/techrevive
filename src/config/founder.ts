@@ -7,5 +7,6 @@ export const founder = {
   name: "Muhammad Fajri Ramadhan",
   initials: "MF",
   linkedin: "https://www.linkedin.com/in/muhammad-fajri-ramadhan-597256311/",
+  instagram: "https://www.instagram.com/m_framadhan20",
   photoKey: "about/founder",
 } as const;

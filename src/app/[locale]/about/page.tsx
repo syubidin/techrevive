@@ -64,7 +64,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             <div className="mt-4 space-y-3">
               {a.founder.bio.map((p) => <p key={p} className="muted max-w-prose leading-relaxed">{p}</p>)}
             </div>
-            <a href={founder.linkedin} target="_blank" rel="noopener noreferrer me" className="btn btn-ghost mt-5"><Icon name="linkedin" size={18} />{a.founder.linkedin}</a>
+            <div className="mt-5 flex flex-row gap-2">
+              <a href={founder.linkedin} target="_blank" rel="noopener noreferrer me" className="btn btn-ghost btn-sm !min-h-11 flex-1 whitespace-nowrap !px-3 sm:flex-none sm:!px-5"><Icon name="linkedin" size={18} />{a.founder.linkedin}</a>
+              <a href={founder.instagram} target="_blank" rel="noopener noreferrer me" className="btn btn-ghost btn-sm !min-h-11 flex-1 whitespace-nowrap !px-3 sm:flex-none sm:!px-5"><Icon name="instagram" size={18} />{a.founder.instagram}</a>
+            </div>
           </div>
         </section>
 
