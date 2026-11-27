@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BrandLogo } from "@/components/brand-logo";
 import { JsonLd } from "@/components/json-ld";
 import { organizationLd, pageMetadata, websiteLd } from "@/lib/seo";
 import Link from "next/link";
@@ -11,7 +12,6 @@ import { db } from "@/lib/db";
 import { getMessages, pick } from "@/lib/i18n";
 import { publicProductSelect } from "@/lib/products";
 import { Icon, categoryIcon, type IconName } from "@/components/icons";
-import { BrandLogo } from "@/components/brand-logo";
 import { HeroSceneLoader } from "@/components/hero-scene-loader";
 import { ProductCard } from "@/components/product-card";
 import { SearchBox } from "@/components/search-box";
@@ -63,23 +63,32 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="hero-glow absolute -top-32 left-1/2 h-96 w-[48rem] -translate-x-1/2" aria-hidden />
         <div className="container-x relative grid items-center gap-6 py-8 sm:gap-10 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
           <div data-intro>
-            <h1 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">{t.hero.title}</h1>
+            <span className="chip bg-[var(--card)]"><Icon name="badge-check" size={14} />{t.hero.badge}</span>
+            <h1 className="mt-5 text-balance text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">{t.hero.title}</h1>
             <p className="muted mt-4 max-w-xl text-base sm:text-lg">{t.hero.subtitle}</p>
             <form action={L("/catalog")} method="get" role="search" className="mt-7 flex max-w-xl gap-2">
               <SearchBox id="hero-q" locale={locale} t={t} placeholder={t.hero.searchPlaceholder} label={t.hero.search} />
               <button type="submit" className="btn btn-primary">{t.hero.search}</button>
             </form>
-            <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold">
+            <ul className="mt-6 flex flex-wrap gap-2">
               {trustChips.map((c, i) => (
-                <li key={c} className="inline-flex items-center gap-1.5"><span className="text-[var(--color-brand-600)] dark:text-[var(--color-brand-300)]"><Icon name={chipIcons[i] ?? "check"} size={16} /></span>{c}</li>
+                <li key={c} className="chip bg-[var(--card)]"><Icon name={chipIcons[i] ?? "check"} size={14} />{c}</li>
               ))}
             </ul>
           </div>
           <div data-intro className="relative mx-auto w-full max-w-[10.5rem] sm:max-w-sm">
-            {/* Globe 3D (inset-0 lalu diskalakan dari tengah) dan logo mengisi kotak persegi yang SAMA, jadi pusatnya pasti satu titik. */}
+            {/* Bola 3D (inset-0 lalu diskalakan dari tengah) dan logo mengisi kotak persegi yang SAMA, jadi pusatnya pasti satu titik. */}
             <div data-float className="relative aspect-square">
               <div className="pointer-events-none absolute inset-0 hidden origin-center scale-[1.3] opacity-60 lg:block" aria-hidden><HeroSceneLoader /></div>
               <BrandLogo variant="full" size={420} alt="TechRevive" priority className="relative block h-full w-full object-contain" />
+            </div>
+            <div className="card absolute -left-2 -top-3 hidden sm:flex items-center gap-2.5 p-3 sm:-left-6">
+              <span className="grid h-9 w-9 place-items-center rounded-lg bg-green-600/10 text-green-700 dark:text-green-300"><Icon name="badge-check" size={18} /></span>
+              <div><p className="text-sm font-bold">{t.hero.floatA}</p><p className="muted text-xs">{t.hero.floatAd}</p></div>
+            </div>
+            <div className="card absolute -bottom-3 -right-2 hidden sm:flex items-center gap-2.5 p-3 sm:-right-6">
+              <span className="icon-tile !h-9 !w-9 !rounded-lg"><Icon name="shield-check" size={18} /></span>
+              <div><p className="text-sm font-bold">{t.hero.floatB}</p><p className="muted text-xs">{t.hero.floatBd}</p></div>
             </div>
           </div>
         </div>
@@ -229,7 +238,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Visual k={`process/step-${i + 1}`} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="-mx-6 -mt-6 mb-5 aspect-[4/3] w-[calc(100%+3rem)] max-w-none object-cover" />
               <div className="flex items-center justify-between">
                 <span className="icon-tile-solid"><Icon name={t.home.stepIcons[i] as IconName} /></span>
-                <span className="step-no" aria-label={`${i + 1}`}>{i + 1}</span>
+                <span className="text-4xl font-extrabold text-[var(--color-ink-200)] dark:text-[var(--color-ink-700)]">{i + 1}</span>
               </div>
               <h3 className="mt-4 font-bold">{s.t}</h3>
               <p className="muted mt-2 text-sm leading-relaxed">{s.d}</p>
