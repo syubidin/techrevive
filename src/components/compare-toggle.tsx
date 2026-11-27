@@ -16,7 +16,7 @@ export function CompareToggle({ slug, t, variant = "icon" }: { slug: string; t: 
   if (variant === "full") {
     return (
       <div>
-        <button type="button" onClick={click} aria-pressed={on} className={`btn ${on ? "btn-primary" : "btn-ghost"}`}>
+        <button type="button" onClick={click} aria-pressed={on} className={`btn w-full ${on ? "btn-primary" : "btn-ghost"}`}>
           <Icon name={on ? "check" : "compare"} size={18} />{label}
         </button>
         {full && <p role="status" className="mt-2 text-sm text-amber-700 dark:text-amber-300">{t.compare.full}</p>}

@@ -9,7 +9,7 @@ const config: NextConfig = {
   reactStrictMode: true,
   experimental: { serverActions: { bodySizeLimit: "3mb" } }, // impor produk CSV/Excel
   images: {
-    formats: ["image/avif", "image/webp"],
+    formats: ["image/webp"], // seluruh gambar tampil sebagai WebP
     minimumCacheTTL: 86_400, // hasil optimasi gambar lokal disimpan 1 hari (hemat kuota optimasi)
     remotePatterns: imageHosts.map((hostname) => ({ protocol: "https" as const, hostname })),
   },

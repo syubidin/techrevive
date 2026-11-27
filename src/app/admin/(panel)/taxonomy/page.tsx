@@ -128,7 +128,7 @@ export default async function Taxonomy({ searchParams }: { searchParams: Promise
           <DataTable heads={["Logo", "Merk", "Produk", "Aksi"]} min="30rem" empty="Belum ada merk.">
             {brands.map((b) => (
               <tr key={b.id}>
-                <td className={td}><div className="logo-checker grid h-10 w-24 place-items-center overflow-hidden rounded-lg border border-[var(--line)]">{b.logoUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={deliveryUrl(b.logoUrl, "c_fit,w_192,h_80")} alt="" className="h-full w-full object-contain p-1" /> : <span className="muted text-[10px]">Tanpa logo</span>}</div></td>
+                <td className={td}><div className="logo-checker grid h-10 w-24 place-items-center overflow-hidden rounded-lg border border-[var(--line)]">{b.logoUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={deliveryUrl(b.logoUrl, "c_fit,w_192,h_80,f_webp")} alt="" className="h-full w-full object-contain p-1" /> : <span className="muted text-[10px]">Tanpa logo</span>}</div></td>
                 <td className={`${td} font-semibold`}>{b.name}</td><td className={td}>{b._count.products}</td>
                 <Actions>
                   {edit && <FormDialog label="Edit" title="Edit merk" icon="pencil"><form action={updateBrand} className="grid gap-3"><input type="hidden" name="id" value={b.id} /><div><label className="label">Nama merk</label><input name="name" className="input" defaultValue={b.name} required /></div><LogoField defaultUrl={b.logoUrl ?? ""} /><button className="btn btn-primary w-fit">Simpan perubahan</button></form></FormDialog>}

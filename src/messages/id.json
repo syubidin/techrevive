@@ -625,7 +625,17 @@
     "ctaDesc": "Lihat katalog atau tanyakan langsung kebutuhanmu, kami balas cepat.",
     "ctaCatalog": "Lihat Katalog",
     "ctaContact": "Hubungi Kami",
-    "workshopAlt": "Foto bengkel dan area QC TechRevive"
+    "workshopAlt": "Foto bengkel dan area QC TechRevive",
+    "founder": {
+      "title": "Di balik TechRevive",
+      "role": "Pendiri TechRevive",
+      "bio": [
+        "Muhammad Fajri Ramadhan mendirikan TechRevive dengan keyakinan sederhana: perangkat second berkualitas layak dijual dengan jujur. Setiap unit diperiksa, dinilai apa adanya, dan diberi garansi, supaya pembeli di Jabodetabek bisa memilih dengan tenang.",
+        "Ia menjaga agar standar pemeriksaan dan layanan purna jual tetap menjadi prioritas, dari unit pertama sampai pelanggan berikutnya."
+      ],
+      "linkedin": "Lihat profil LinkedIn",
+      "photoAlt": "Foto Muhammad Fajri Ramadhan, pendiri TechRevive"
+    }
   },
   "meta": {
     "homeTitle": "TechRevive: Laptop, Smartphone & Gadget Berkualitas, Baru hingga Refurbished",
@@ -660,7 +670,10 @@
     "removeItem": "Hapus {name} dari perbandingan",
     "yes": "Ya",
     "no": "Tidak",
-    "shareHint": "Tautan halaman ini bisa dibagikan, daftar produk ikut tersimpan di alamatnya."
+    "shareHint": "Tautan halaman ini bisa dibagikan, daftar produk ikut tersimpan di alamatnya.",
+    "better": "Unggul",
+    "winsCount": "Unggul di {n} bagian",
+    "legend": "menandai nilai terbaik di tiap baris (harga termurah, spek lebih tinggi, grade lebih baik). Spek berselera seperti ukuran layar tidak ditandai."
   },
   "search": {
     "suggestions": "Saran produk",
@@ -675,9 +688,7 @@
     "step": "Langkah {n} dari {m}",
     "back": "Kembali",
     "skip": "Lewati",
-    "next": "Lanjut",
     "show": "Lihat unit yang cocok",
-    "restart": "Mulai lagi",
     "close": "Tutup",
     "later": "Nanti saja",
     "hint": "Jawaban tidak disimpan di server dan bisa diubah kapan saja.",
@@ -685,7 +696,7 @@
       "purpose": "Untuk apa perangkatnya?",
       "device": "Perangkat apa yang dicari?",
       "budget": "Berapa anggaran Anda?",
-      "priority": "Apa yang paling penting?"
+      "priority": "Apa yang paling penting? (opsional)"
     },
     "purpose": {
       "study": "Kuliah / sekolah",

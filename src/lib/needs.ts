@@ -73,4 +73,5 @@ export function buildFinderParams(answers: Answers): string {
   return sp.toString();
 }
 
-export const FINDER_STORAGE = { seen: "tr_finder_seen", answers: "tr_finder_answers" } as const;
+/** Penanda "sudah pernah ditawari" agar otomatis muncul sekali saja. Jawaban sengaja tidak disimpan. */
+export const FINDER_SEEN_KEY = "tr_finder_seen";

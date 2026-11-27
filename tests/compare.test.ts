@@ -29,3 +29,25 @@ test("harga terendah ditandai, seri semua ditandai, tunggal tidak", () => {
   assert.deepEqual(cheapestIndexes([3, 3]), [0, 1]);
   assert.deepEqual(cheapestIndexes([3]), []);
 });
+
+import { bestIndexes, scoreOf, winCounts } from "../src/lib/compare.ts";
+
+test("bestIndexes: tertinggi menang, seri menang bersama, seri total tanpa tanda", () => {
+  assert.deepEqual(bestIndexes([8, 16, 16]), [1, 2]);
+  assert.deepEqual(bestIndexes([8, 8]), []);
+  assert.deepEqual(bestIndexes([5, null]), []);
+  assert.deepEqual(bestIndexes([null, 4, 2]), [1]);
+  assert.deepEqual(bestIndexes([3, 1, 2], "lower"), [1]);
+});
+test("scoreOf: grade, kondisi, boolean, angka", () => {
+  assert.ok(scoreOf("grade", "A")! > scoreOf("grade", "B")!);
+  assert.ok(scoreOf("condition", "REFURBISHED")! > scoreOf("condition", "USED")!);
+  assert.equal(scoreOf("boolean", true), 1);
+  assert.equal(scoreOf("boolean", "false"), 0);
+  assert.equal(scoreOf("number", "16"), 16);
+  assert.equal(scoreOf("number", "abc"), null);
+  assert.equal(scoreOf("grade", null), null);
+});
+test("winCounts menjumlahkan kemenangan per produk", () => {
+  assert.deepEqual(winCounts([[0], [0, 1], undefined, []], 3), [2, 1, 0]);
+});

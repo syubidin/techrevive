@@ -102,6 +102,7 @@ Kolom **Versi**: *T+G* = buat terang (`nama.webp`) dan gelap (`nama-dark.webp`);
 | 15 | `hero/hero-backdrop` | 1920 x 900 | 160 KB | Latar samar beranda | AI | T+G | Fase 3 |
 | 16 | `states/not-found` | 640 x 480 | 60 KB | Halaman 404 | AI | T+G | Fase 3 |
 | 17 | `about/workshop` | 1600 x 800 | 160 KB | Tentang Kami | **Foto asli** | 1 | Fase 2 |
+| 18 | `about/founder` | 800 x 1000 | 100 KB | Tentang Kami (profil pendiri) | **Foto asli** | 1 | Fase 2 |
 
 Di luar `public/assets/` (diganti manual bila mau):
 - `public/brand/og-default.png` (1200 x 630): gambar saat tautan dibagikan di WhatsApp/sosmed. Susun di Figma: logo + latar navy + 1 ilustrasi. Bagian teks boleh dalam bahasa Indonesia saja atau tanpa teks.
@@ -141,6 +142,8 @@ Gabungkan: **awalan terang (bagian 4)** + baris subjek di bawah, lalu buat versi
 **Hero backdrop** (16:7), dua versi: terang `Abstract very light blue-grey background with a fine teal circuit-line grid and a soft cyan glow in the upper right, very low contrast, large empty area on the left. No objects.`; gelap: sama tetapi latar navy dengan garis cyan.
 
 **404** (4:3): `A laptop with a magnifier and a small question-mark-shaped cable loop (no text), lost-and-found feeling.`
+
+**Foto pendiri `about/founder`** (rasio 4:5, potret): LinkedIn tidak bisa diambil otomatis, jadi simpan foto profil Anda sendiri (pakai foto resolusi tertinggi). Potong 4:5 dengan wajah di bagian atas (di Photopea atau Squoosh), ubah ke WebP kualitas 80, namai `founder.webp`, taruh di `public/assets/about/founder.webp`, lalu jalankan `npm run assets:sync`. Sebelum file ada, halaman menampilkan inisial "MF" sebagai pengganti. Nama dan tautan LinkedIn ada di `src/config/founder.ts`, teks bio di `aboutPage.founder` pada `src/messages/*.json`.
 
 **Foto asli `about/workshop`** (bukan AI): foto meja kerja QC, unit yang sedang dites, dan area pengemasan. Ambil landscape, cahaya terang, rapikan kabel, jangan tampilkan data pelanggan, nomor seri, atau layar berisi info pribadi. Rasio 2:1, potong di Photopea.
 
@@ -190,3 +193,8 @@ Bila satu aset belum ada, bagian itu tetap tampil seperti sebelumnya (ikon), jad
 | Peringatan "rasio beda" | Gambar terpotong di tepi | Potong ulang ke rasio yang benar |
 | Objek banner terpotong atau memudar | Objek terlalu dekat tepi kiri/bawah | Minta objek lebih ke tengah-kanan atas, ulangi gambar |
 | Gaya antar gambar berbeda | Percakapan berbeda | Pakai satu percakapan dan "same style as this image" |
+
+
+## Unggah foto produk (WebP otomatis)
+
+Foto produk dan logo yang diunggah lewat panel admin diubah ke WebP di browser sebelum dikirim (sisi terpanjang maksimal 1600 px, logo 600 px). Cloudinary juga menyimpannya sebagai WebP (`f_webp`) dan situs menyajikan WebP. Bila browser tidak bisa menyandi WebP, berkas asli dikirim dan Cloudinary yang mengonversinya.

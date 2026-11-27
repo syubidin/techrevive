@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { db } from "@/lib/db";
 import { getSpecDefs } from "@/lib/catalog-cache";
-import { cheapestIndexes, COMPARE_MIN, parseSlugs, rowDiffers } from "@/lib/compare";
+import { bestIndexes, cheapestIndexes, COMPARE_MIN, parseSlugs, rowDiffers, scoreOf, SPEC_RULES, winCounts } from "@/lib/compare";
 import { formatIdr, getMessages, pick } from "@/lib/i18n";
 import { effectiveAvailability, publicProductSelect } from "@/lib/products";
 import { pageMetadata } from "@/lib/seo";
@@ -55,16 +55,18 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
   const battery = products.map((p) => p.batteryHealth);
   const avail = products.map((p) => effectiveAvailability(p));
 
-  type Row = { label: string; cells: React.ReactNode[]; differs: boolean; highlight?: number[] };
+  type Row = { label: string; cells: React.ReactNode[]; differs: boolean; best?: number[] };
   const table: Row[] = [
-    { label: t.catalog.price, cells: products.map((p) => <b key={p.id}>{formatIdr(p.sellPrice)}</b>), differs: rowDiffers(prices), highlight: cheapest },
-    { label: t.catalog.condition, cells: cond, differs: rowDiffers(cond) },
-    { label: t.catalog.grade, cells: grade.map((g) => g ?? "-"), differs: rowDiffers(grade) },
-    { label: t.product.battery, cells: battery.map((b) => (b != null ? `${b}%` : "-")), differs: rowDiffers(battery) },
+    { label: t.catalog.price, cells: products.map((p) => <b key={p.id}>{formatIdr(p.sellPrice)}</b>), differs: rowDiffers(prices), best: cheapest },
+    { label: t.catalog.condition, cells: cond, differs: rowDiffers(cond), best: bestIndexes(products.map((p) => scoreOf("condition", p.condition))) },
+    { label: t.catalog.grade, cells: grade.map((g) => g ?? "-"), differs: rowDiffers(grade), best: bestIndexes(products.map((p) => scoreOf("grade", p.grade))) },
+    { label: t.product.battery, cells: battery.map((b) => (b != null ? `${b}%` : "-")), differs: rowDiffers(battery), best: bestIndexes(battery.map((b) => scoreOf("number", b))) },
     { label: t.compare.availability, cells: products.map((p) => <AvailabilityBadge key={p.id} product={p} t={t} />), differs: rowDiffers(avail) },
     ...specRows.map((r) => {
       const vals = products.map((p) => attr(p, r.key));
-      return { label: r.label, cells: vals.map((v) => fmtSpec(v, r.type, r.unit)), differs: rowDiffers(vals) };
+      const kind = r.type === "BOOLEAN" ? "boolean" : "number";
+      const rule = r.type !== "ENUM" ? SPEC_RULES[r.key] : undefined;
+      return { label: r.label, cells: vals.map((v) => fmtSpec(v, r.type, r.unit)), differs: rowDiffers(vals), best: rule ? bestIndexes(vals.map((v) => scoreOf(kind, v)), rule) : undefined };
     }),
     {
       label: t.compare.features,
@@ -72,6 +74,8 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
       differs: rowDiffers(products.map((p) => [...p.features].sort().join(","))),
     },
   ];
+  const wins = winCounts(table.map((r) => r.best), products.length);
+  const topWins = Math.max(0, ...wins);
   const shown = onlyDiff ? table.filter((r) => r.differs) : table;
   const base = `/${locale}/compare?p=${live.join(",")}`;
   const L = (x: string) => `/${locale}${x}`;
@@ -120,6 +124,11 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
                           <CompareRemove locale={locale} slug={p.slug} rest={others} label={t.compare.removeItem.replace("{name}", name)} />
                         </div>
                         <p className="muted mt-2 text-[11px] font-semibold uppercase tracking-wide">{p.brand.name}</p>
+                        {topWins > 0 && wins[products.indexOf(p)] > 0 && (
+                          <p className={`win-tag mb-1.5 mt-2 ${wins[products.indexOf(p)] === topWins ? "win-tag-top" : ""}`}>
+                            <Icon name="badge-check" size={12} />{t.compare.winsCount.replace("{n}", String(wins[products.indexOf(p)]))}
+                          </p>
+                        )}
                         <Link href={L(`/product/${p.slug}`)} className="line-clamp-3 font-semibold leading-snug underline-offset-4 hover:underline">{name}</Link>
                       </th>
                     );
@@ -130,11 +139,15 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
                 {shown.map((r) => (
                   <tr key={r.label} className="border-t border-[var(--line)]">
                     <th scope="row" className={`sticky left-0 z-10 bg-[var(--card)] p-3 text-left text-xs font-semibold ${r.differs ? "" : "muted"}`}>{r.label}</th>
-                    {r.cells.map((c, i) => (
-                      <td key={i} className={`border-l border-[var(--line)] p-3 align-top ${r.differs ? "bg-brand-500/[0.04]" : ""} ${r.highlight?.includes(i) ? "font-bold text-green-700 dark:text-green-400" : ""}`}>
-                        {c}{r.highlight?.includes(i) && <span className="ml-1 text-[11px] font-semibold">{t.compare.lowest}</span>}
-                      </td>
-                    ))}
+                    {r.cells.map((c, i) => {
+                      const win = r.best?.includes(i);
+                      return (
+                        <td key={i} className={`border-l border-[var(--line)] p-3 align-top ${win ? "win-cell font-bold" : r.differs ? "bg-brand-500/[0.04]" : ""}`}>
+                          {c}
+                          {win && <span className="win-tag"><Icon name="check" size={11} />{r.label === t.catalog.price ? t.compare.lowest : t.compare.better}</span>}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
                 {shown.length === 0 && <tr><td colSpan={products.length + 1} className="muted p-6 text-center">{t.compare.noDiff}</td></tr>}
@@ -151,7 +164,8 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
               </tfoot>
             </table>
           </div>
-          <p className="muted mt-3 text-xs">{t.compare.shareHint}</p>
+          <p className="muted mt-3 text-xs"><span className="win-tag mr-1.5"><Icon name="check" size={11} />{t.compare.better}</span>{t.compare.legend}</p>
+          <p className="muted mt-1 text-xs">{t.compare.shareHint}</p>
         </>
       )}
     </div>

@@ -15,15 +15,13 @@ export const site = {
   minMarginBps: 500,
   placeholderWhatsApp: "6281200000000",
   /**
-   * Link sosial media di footer. PLACEHOLDER: ganti `url` dengan akun asli, mis.
-   * "https://www.instagram.com/akun-anda". Hapus baris platform yang tidak dipakai,
+   * Link sosial media di footer dan halaman Kontak. Hapus baris platform yang tidak dipakai,
    * atau kosongkan `url` agar link tidak ditampilkan.
    */
   social: [
-    { key: "instagram", label: "Instagram", url: "https://www.instagram.com/" },
-    { key: "tiktok", label: "TikTok", url: "https://www.tiktok.com/" },
-    { key: "facebook", label: "Facebook", url: "https://www.facebook.com/" },
-    { key: "youtube", label: "YouTube", url: "https://www.youtube.com/" },
+    { key: "instagram", label: "Instagram", url: "https://www.instagram.com/techrevive.id" },
+    { key: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@techrevive_id" },
+    { key: "youtube", label: "YouTube", url: "https://www.youtube.com/@Techreviveid" },
   ],
 } as const;
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { founder } from "@/config/founder";
 import { site, type Locale } from "@/config/site";
 import { getMessages } from "./i18n";
 import { waNumber } from "./contact";
@@ -60,6 +61,7 @@ export function organizationLd(locale: Locale) {
     logo: abs("/brand/icon-512.png"),
     description: t.meta.orgDescription,
     areaServed: { "@type": "AdministrativeArea", name: "Jabodetabek" },
+    founder: { "@type": "Person", name: founder.name, sameAs: [founder.linkedin] },
     knowsAbout: ["Refurbished laptops", "Second-hand smartphones", "Gadgets", "Device quality control"],
     ...(SAME_AS().length ? { sameAs: SAME_AS() } : {}),
     ...(real ? { contactPoint: { "@type": "ContactPoint", contactType: "customer service", telephone: `+${phone}`, availableLanguage: ["id", "en"], areaServed: "ID" } } : {}),

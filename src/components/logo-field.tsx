@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { deliveryUrl } from "@/lib/cloudinary-url";
+import { toWebp } from "@/lib/image-client";
 import { Icon } from "./icons";
 
 const MSG: Record<string, string> = {
@@ -22,7 +23,7 @@ export function LogoField({ defaultUrl = "" }: { defaultUrl?: string }) {
   async function upload(file: File | undefined) {
     if (!file) return;
     setBusy(true); setMsg("");
-    const fd = new FormData(); fd.append("file", file); fd.append("kind", "logo");
+    const fd = new FormData(); fd.append("file", await toWebp(file, { maxSide: 600, quality: 0.9 })); fd.append("kind", "logo");
     try {
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
       const data = (await res.json()) as { url?: string; error?: string };
@@ -39,7 +40,7 @@ export function LogoField({ defaultUrl = "" }: { defaultUrl?: string }) {
       <div className="flex flex-wrap items-center gap-3">
         <div className="logo-checker relative grid h-16 w-40 place-items-center overflow-hidden rounded-xl border border-[var(--line)]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          {url ? <img src={deliveryUrl(url, "c_fit,w_320,h_128")} alt="" className="h-full w-full object-contain p-2" /> : <span className="muted text-xs">Belum ada logo</span>}
+          {url ? <img src={deliveryUrl(url, "c_fit,w_320,h_128,f_webp")} alt="" className="h-full w-full object-contain p-2" /> : <span className="muted text-xs">Belum ada logo</span>}
         </div>
         <div className="flex flex-col gap-2">
           <label className="btn btn-ghost btn-sm cursor-pointer">

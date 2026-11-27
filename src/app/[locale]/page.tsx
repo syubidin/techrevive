@@ -109,7 +109,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <Link href={L(`/catalog?brand=${b.slug}`)} tabIndex={copy === 1 ? -1 : undefined} title={b.name} aria-label={copy === 1 ? undefined : b.name} className="brand-tile">
                       {b.logoUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={deliveryUrl(b.logoUrl, "c_fit,w_480,h_200,f_auto,q_auto")} alt="" width={224} height={96} loading="lazy" decoding="async" draggable={false} className="brand-logo" />
+                        <img src={deliveryUrl(b.logoUrl, "c_fit,w_480,h_200,f_webp,q_auto")} alt="" width={224} height={96} loading="lazy" decoding="async" draggable={false} className="brand-logo" />
                       ) : (
                         <span className="brand-name">{b.name}</span>
                       )}
@@ -218,7 +218,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           {t.home.why.map((w, i) => (
             <div key={w.t} className="card overflow-hidden p-6">
               <Visual k={["trust/why-grade", "trust/why-qc", "trust/why-human"][i] ?? ""} sizes="(min-width: 768px) 33vw, 100vw" className="-mx-6 -mt-6 mb-5 aspect-[4/3] w-[calc(100%+3rem)] max-w-none object-cover" />
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name={t.home.whyIcons[i] as IconName} /></span>
+              <span className="icon-tile"><Icon name={t.home.whyIcons[i] as IconName} /></span>
               <h3 className="mt-4 font-bold">{w.t}</h3>
               <p className="muted mt-2 text-sm leading-relaxed">{w.d}</p>
             </div>
@@ -237,7 +237,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <li key={s.t} className="card relative overflow-hidden p-6">
               <Visual k={`process/step-${i + 1}`} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="-mx-6 -mt-6 mb-5 aspect-[4/3] w-[calc(100%+3rem)] max-w-none object-cover" />
               <div className="flex items-center justify-between">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--color-ink-900)] text-white"><Icon name={t.home.stepIcons[i] as IconName} /></span>
+                <span className="icon-tile-solid"><Icon name={t.home.stepIcons[i] as IconName} /></span>
                 <span className="text-4xl font-extrabold text-[var(--color-ink-200)] dark:text-[var(--color-ink-700)]">{i + 1}</span>
               </div>
               <h3 className="mt-4 font-bold">{s.t}</h3>
@@ -256,7 +256,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div key={g.g} className="card overflow-hidden p-5">
               <Visual k={`grades/grade-${g.g.toLowerCase()}`} sizes="(min-width: 768px) 33vw, 100vw" className="-mx-5 -mt-5 mb-4 aspect-[4/3] w-[calc(100%+2.5rem)] max-w-none object-cover" />
               <div className="flex gap-4">
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[var(--color-ink-900)] text-xl font-extrabold text-white">{g.g}</span>
+                <span className="icon-tile-solid !h-12 !w-12 text-xl font-extrabold">{g.g}</span>
                 <div><h3 className="font-bold">{g.t}</h3><p className="muted mt-1 text-sm leading-relaxed">{g.d}</p></div>
               </div>
             </div>

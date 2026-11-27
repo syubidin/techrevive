@@ -7,6 +7,8 @@ import { getMessages } from "@/lib/i18n";
 import { Icon, type IconName } from "@/components/icons";
 import { PageHero } from "@/components/page-hero";
 import { Visual } from "@/components/visual";
+import { founder } from "@/config/founder";
+import { getAsset } from "@/lib/assets";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -37,13 +39,32 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             <article className="card p-5">
-              <h3 className="flex items-center gap-2 font-bold"><Icon name="info" size={18} />{a.missionTitle}</h3>
-              <p className="muted mt-2 text-sm leading-relaxed">{a.mission}</p>
+              <div className="flex items-center gap-3"><span className="icon-tile"><Icon name="info" size={22} /></span><h3 className="font-bold">{a.missionTitle}</h3></div>
+              <p className="muted mt-3 text-sm leading-relaxed">{a.mission}</p>
             </article>
             <article className="card p-5">
-              <h3 className="flex items-center gap-2 font-bold"><Icon name="search" size={18} />{a.visionTitle}</h3>
-              <p className="muted mt-2 text-sm leading-relaxed">{a.vision}</p>
+              <div className="flex items-center gap-3"><span className="icon-tile"><Icon name="search" size={22} /></span><h3 className="font-bold">{a.visionTitle}</h3></div>
+              <p className="muted mt-3 text-sm leading-relaxed">{a.vision}</p>
             </article>
+          </div>
+        </section>
+
+        <section aria-labelledby="about-founder" className="card grid items-center gap-6 p-5 sm:gap-8 sm:p-8 md:grid-cols-[16rem_1fr] lg:grid-cols-[18rem_1fr]">
+          <div className="relative mx-auto aspect-[4/5] w-full max-w-[16rem] overflow-hidden rounded-2xl bg-[var(--color-ink-100)] dark:bg-[var(--color-ink-800)] md:max-w-none">
+            {getAsset(founder.photoKey) ? (
+              <Visual k={founder.photoKey} alt={a.founder.photoAlt} sizes="(min-width: 768px) 288px, 256px" className="h-full w-full object-cover object-top" />
+            ) : (
+              <span style={{ background: "linear-gradient(135deg, var(--color-ink-800), var(--color-ink-950))" }} className="absolute inset-0 grid place-items-center text-5xl font-extrabold tracking-tight text-[var(--color-brand-300)]" role="img" aria-label={a.founder.photoAlt}>{founder.initials}</span>
+            )}
+          </div>
+          <div>
+            <p className="eyebrow">{a.founder.title}</p>
+            <h2 id="about-founder" className="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{founder.name}</h2>
+            <p className="chip mt-3 bg-[var(--card)]"><Icon name="badge-check" size={14} />{a.founder.role}</p>
+            <div className="mt-4 space-y-3">
+              {a.founder.bio.map((p) => <p key={p} className="muted max-w-prose leading-relaxed">{p}</p>)}
+            </div>
+            <a href={founder.linkedin} target="_blank" rel="noopener noreferrer me" className="btn btn-ghost mt-5"><Icon name="linkedin" size={18} />{a.founder.linkedin}</a>
           </div>
         </section>
 
@@ -52,7 +73,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {a.values.map((v, i) => (
               <li key={v.t} className="card p-5">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-500/10 text-brand-600 dark:text-brand-300"><Icon name={VALUE_ICONS[i] ?? "check"} size={22} /></span>
+                <span className="icon-tile"><Icon name={VALUE_ICONS[i] ?? "check"} size={22} /></span>
                 <h3 className="mt-3 font-bold">{v.t}</h3>
                 <p className="muted mt-1 text-sm leading-relaxed">{v.d}</p>
               </li>
@@ -64,10 +85,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <h2 id="about-process" className="text-2xl font-extrabold tracking-tight">{a.processTitle}</h2>
           <ol className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {a.process.map((s, i) => (
-              <li key={s.t} className="card flex gap-4 p-5 sm:block">
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--color-ink-900)] text-white"><Icon name={STEP_ICONS[i] ?? "check"} size={20} /></span>
-                <div className="sm:mt-3">
-                  <p className="muted text-xs font-bold uppercase tracking-wide">{i + 1}</p>
+              <li key={s.t} className="card p-5">
+                <div className="flex items-center justify-between">
+                  <span className="icon-tile-solid"><Icon name={STEP_ICONS[i] ?? "check"} size={22} /></span>
+                  <span className="step-no" aria-label={`${i + 1}`}>{i + 1}</span>
+                </div>
+                <div className="mt-4">
                   <h3 className="font-bold">{s.t}</h3>
                   <p className="muted mt-1 text-sm leading-relaxed">{s.d}</p>
                 </div>

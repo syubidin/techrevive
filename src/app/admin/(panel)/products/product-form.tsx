@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { computeProfit, computeSellPrice, PricingError } from "@/lib/pricing";
 import { site } from "@/config/site";
 import { deliveryUrl } from "@/lib/cloudinary-url";
+import { toWebp } from "@/lib/image-client";
 import { Icon } from "@/components/icons";
 import { saveProduct, type ProductState } from "./actions";
 
@@ -32,10 +33,10 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
     setUploading(true); setUploadMsg("");
     const messages: Record<string, string> = {
       UPLOAD_NOT_CONFIGURED: "Penyimpanan gambar belum diatur. Tempel URL manual.", UNSUPPORTED_TYPE: "Hanya JPG, PNG, atau WebP.",
-      TOO_LARGE: "Maksimal 5 MB per foto.", RATE_LIMITED: "Terlalu banyak unggahan, coba lagi nanti.", STORAGE_ERROR: "Gagal menyimpan gambar ke penyimpanan.",
+      TOO_LARGE: "Foto terlalu besar. Gunakan foto di bawah 5 MB.", RATE_LIMITED: "Terlalu banyak unggahan, coba lagi nanti.", STORAGE_ERROR: "Gagal menyimpan gambar ke penyimpanan.",
     };
     for (const file of Array.from(files)) {
-      const fd = new FormData(); fd.append("file", file);
+      const fd = new FormData(); fd.append("file", await toWebp(file)); // diubah ke WebP dulu di browser
       try {
         const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
         const data = (await res.json()) as { url?: string; error?: string };
@@ -114,7 +115,7 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
               {uploading ? "Mengunggah…" : "Unggah foto"}
               <input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden disabled={uploading} onChange={(e) => { void upload(e.target.files); e.target.value = ""; }} />
             </label>
-            <span className="muted text-xs" role="status">{uploadMsg || "Foto yang diunggah muncul di bawah. Klik Simpan produk untuk menerapkan."}</span>
+            <span className="muted text-xs" role="status">{uploadMsg || "Foto otomatis diubah ke WebP agar ringan. Foto yang diunggah muncul di bawah; klik Simpan produk untuk menerapkan."}</span>
           </div>
           <p className="muted mt-2 text-xs">Ukuran ideal <strong>1200 x 1200 px (persegi 1:1)</strong>, latar polos/putih, JPG atau WebP, maks. 5 MB. Foto non-persegi tetap utuh (tidak dipotong), sisi terpanjang otomatis diperkecil ke 1600 px. Mengunggah file yang sama dua kali tidak menggandakan penyimpanan, dan foto yang dilepas/diganti otomatis dihapus dari penyimpanan saat disimpan.</p>
           {imgLines.length === 0 ? <p className="muted mt-3 rounded-xl border border-dashed border-[var(--line)] p-4 text-center text-xs">Belum ada foto. Produk tanpa foto tidak bisa diterbitkan.</p> : (
@@ -123,7 +124,7 @@ export function ProductForm({ values, categories, brands, suppliers }: { values:
                 <li key={u} className="relative">
                   <div className="aspect-square overflow-hidden rounded-lg border border-[var(--line)] bg-white">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={deliveryUrl(u, "c_fit,w_240,h_240")} alt="" className="h-full w-full object-contain" loading="lazy" />
+                    <img src={deliveryUrl(u, "c_fit,w_240,h_240,f_webp")} alt="" className="h-full w-full object-contain" loading="lazy" />
                   </div>
                   {i === 0 && <span className="chip chip-tone-info absolute left-1 top-1 !min-h-0 !px-1.5 !py-0 !text-[10px]">Utama</span>}
                   <button type="button" data-no-confirm aria-label="Lepas foto ini" onClick={() => setImgText(imgLines.filter((x) => x !== u).join("\n"))} className="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80"><Icon name="x" size={14} /></button>

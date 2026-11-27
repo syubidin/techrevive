@@ -23,10 +23,10 @@ export function signParams(params: Record<string, string | number>, secret: stri
   return createHash("sha1").update(base + secret).digest("hex");
 }
 
-/** Transformasi saat masuk: dibatasi ukurannya (tidak dipotong, tidak diperbesar). */
+/** Transformasi saat masuk: dibatasi ukurannya (tidak dipotong, tidak diperbesar) dan disimpan sebagai WebP. */
 const INCOMING: Record<UploadKind, string> = {
-  product: "c_limit,w_1600,h_1600,q_auto:good",
-  logo: "c_limit,w_600,h_300",
+  product: "c_limit,w_1600,h_1600,q_auto:good,f_webp",
+  logo: "c_limit,w_600,h_300,f_webp",
 };
 
 export const contentId = (bytes: Uint8Array): string => createHash("sha256").update(bytes).digest("hex").slice(0, 24);

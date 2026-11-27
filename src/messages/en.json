@@ -625,7 +625,17 @@
     "ctaDesc": "Browse the catalog or tell us what you need, and we will reply quickly.",
     "ctaCatalog": "Browse Catalog",
     "ctaContact": "Contact Us",
-    "workshopAlt": "TechRevive workshop and QC area"
+    "workshopAlt": "TechRevive workshop and QC area",
+    "founder": {
+      "title": "Behind TechRevive",
+      "role": "Founder of TechRevive",
+      "bio": [
+        "Muhammad Fajri Ramadhan founded TechRevive on a simple belief: quality second-hand devices deserve to be sold honestly. Every unit is checked, graded as it really is and covered by a warranty, so buyers in Jabodetabek can choose with confidence.",
+        "He keeps inspection standards and after-sales care a priority, from the first unit to the next customer."
+      ],
+      "linkedin": "View LinkedIn profile",
+      "photoAlt": "Photo of Muhammad Fajri Ramadhan, founder of TechRevive"
+    }
   },
   "meta": {
     "homeTitle": "TechRevive: Quality Laptops, Smartphones & Gadgets, New to Refurbished",
@@ -660,7 +670,10 @@
     "removeItem": "Remove {name} from comparison",
     "yes": "Yes",
     "no": "No",
-    "shareHint": "You can share this page's link, the product list is kept in its address."
+    "shareHint": "You can share this page's link, the product list is kept in its address.",
+    "better": "Better",
+    "winsCount": "Best in {n} rows",
+    "legend": "marks the best value in each row (lowest price, higher specs, better grade). Taste-based specs such as screen size are not marked."
   },
   "search": {
     "suggestions": "Product suggestions",
@@ -675,9 +688,7 @@
     "step": "Step {n} of {m}",
     "back": "Back",
     "skip": "Skip",
-    "next": "Next",
     "show": "Show matching units",
-    "restart": "Start over",
     "close": "Close",
     "later": "Maybe later",
     "hint": "Your answers are not stored on our server and you can change them anytime.",
@@ -685,7 +696,7 @@
       "purpose": "What will you use it for?",
       "device": "Which device are you looking for?",
       "budget": "What is your budget?",
-      "priority": "What matters most?"
+      "priority": "What matters most? (optional)"
     },
     "purpose": {
       "study": "School / university",

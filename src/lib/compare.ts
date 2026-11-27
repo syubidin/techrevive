@@ -29,3 +29,42 @@ export function cheapestIndexes(prices: number[]): number[] {
   const min = Math.min(...prices);
   return prices.flatMap((p, i) => (p === min ? [i] : []));
 }
+
+/** Arah "lebih unggul" per spek. Spek yang tidak terdaftar (ukuran layar, prosesor, dll.) bersifat selera, jadi tidak ditandai. */
+export const SPEC_RULES: Readonly<Record<string, "higher">> = {
+  ram_gb: "higher",
+  storage_gb: "higher",
+  dedicated_gpu: "higher",
+  touchscreen: "higher",
+  esim: "higher",
+};
+const GRADE_SCORE: Record<string, number> = { A: 3, B: 2, C: 1 };
+const CONDITION_SCORE: Record<string, number> = { REFURBISHED: 2, USED: 1 };
+
+/** Ubah nilai mentah menjadi skor angka; null bila tidak diketahui atau tidak bisa dibandingkan. */
+export function scoreOf(kind: "number" | "boolean" | "grade" | "condition", v: unknown): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  if (kind === "grade") return GRADE_SCORE[String(v)] ?? null;
+  if (kind === "condition") return CONDITION_SCORE[String(v)] ?? null;
+  if (kind === "boolean") return v === true || v === "true" || v === 1 ? 1 : v === false || v === "false" || v === 0 ? 0 : null;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Indeks yang paling unggul pada satu baris. Tidak ada tanda bila: kurang dari 2 nilai diketahui, semua nilai sama
+ * (seri total), atau nilai yang diketahui hanya satu. Produk dengan nilai kosong tidak pernah dianggap unggul.
+ */
+export function bestIndexes(scores: Array<number | null>, dir: "higher" | "lower" = "higher"): number[] {
+  const known = scores.filter((s): s is number => s !== null);
+  if (known.length < 2 || new Set(known).size < 2) return [];
+  const best = dir === "higher" ? Math.max(...known) : Math.min(...known);
+  return scores.flatMap((s, i) => (s === best ? [i] : []));
+}
+
+/** Jumlah baris yang dimenangkan tiap produk (untuk ringkasan di kepala kolom). */
+export function winCounts(rows: Array<number[] | undefined>, n: number): number[] {
+  const out = Array<number>(n).fill(0);
+  for (const r of rows) for (const i of r ?? []) if (i >= 0 && i < n) out[i] += 1;
+  return out;
+}
