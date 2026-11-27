@@ -14,22 +14,15 @@
     "about": "About Us"
   },
   "hero": {
-    "badge": "Second-hand premium & customizable",
     "title": "Curated tech, honestly graded.",
     "subtitle": "Upgrade your devices with quality laptops, smartphones and gadgets, new to refurbished, to fit your needs and budget. Transparent product info, easy ordering on WhatsApp.",
-    "browse": "Browse Catalog",
-    "how": "How to Order",
     "searchPlaceholder": "Search laptops, phones or brands…",
     "search": "Search",
     "chips": [
       "Honest A/B/C grading",
       "Replies within 15 min",
       "Jabodetabek delivery"
-    ],
-    "floatA": "Grade A",
-    "floatAd": "Mint units, real photos",
-    "floatB": "Manually checked",
-    "floatBd": "QC-checked by our team"
+    ]
   },
   "home": {
     "featured": "Latest Picks",

@@ -14,22 +14,15 @@
     "about": "Tentang Kami"
   },
   "hero": {
-    "badge": "Second-hand premium & customizable",
     "title": "Gadget kelas atas, budget pas",
     "subtitle": "Upgrade perangkatmu dengan laptop, smartphone, dan gadget berkualitas, baru hingga refurbished sesuai kebutuhan dan budget. Info produk transparan, pesan praktis via WhatsApp.",
-    "browse": "Lihat Katalog",
-    "how": "Cara Pesan",
     "searchPlaceholder": "Cari laptop, HP, atau merk…",
     "search": "Cari",
     "chips": [
       "Grade jujur A/B/C",
       "Dibalas maks. 15 menit",
       "Antar Jabodetabek"
-    ],
-    "floatA": "Grade A",
-    "floatAd": "Unit mulus, foto asli",
-    "floatB": "Dicek manual",
-    "floatBd": "Lolos QC tim kami"
+    ]
   },
   "home": {
     "featured": "Pilihan Terbaru",

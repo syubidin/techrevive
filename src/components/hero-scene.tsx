@@ -3,10 +3,8 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Latar 3D ringan untuk hero (three.js): ikosahedron kawat + titik, berputar pelan.
- * - Hanya dipasang di desktop, saat idle, dan tanpa "kurangi gerakan" / "hemat data" (lihat HeroSceneLoader)
- * - Impor bernama agar tree-shaking membuang sisa three.js
- * - Berhenti menggambar saat di luar layar atau tab disembunyikan; semua resource di-dispose saat unmount
+ * Globe 3D di belakang logo hero (three.js, dimuat malas oleh HeroSceneLoader): bola kawat berputar pelan dan
+ * titik-titik. Berhenti menggambar saat keluar layar atau tab tersembunyi.
  */
 export default function HeroScene() {
   const host = useRef<HTMLDivElement>(null);
@@ -14,37 +12,32 @@ export default function HeroScene() {
   useEffect(() => {
     const el = host.current;
     if (!el) return;
-    let raf = 0;
-    let visible = true;
-    let disposed = false;
-    let cleanup = () => {};
+    let stop = () => {};
+    let dead = false;
 
     (async () => {
       const T = await import("three");
-      if (disposed) return;
-      const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const color = dark ? 0xb8c4d6 : 0x1b4670;
-
-      const renderer = new T.WebGLRenderer({ alpha: true, antialias: false, powerPreference: "low-power" });
+      if (dead) return;
+      const renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-      renderer.domElement.style.cssText = "width:100%;height:100%;display:block";
       el.appendChild(renderer.domElement);
+      renderer.domElement.style.cssText = "display:block;width:100%;height:100%";
 
       const scene = new T.Scene();
-      const camera = new T.PerspectiveCamera(45, 1, 0.1, 50);
-      camera.position.z = 6;
+      const camera = new T.PerspectiveCamera(40, 1, 0.1, 50);
+      camera.position.z = 5.2;
 
-      const geo = new T.IcosahedronGeometry(2, 1);
-      const edges = new T.EdgesGeometry(geo);
-      const lineMat = new T.LineBasicMaterial({ color, transparent: true, opacity: 0.55 });
-      const mesh = new T.LineSegments(edges, lineMat);
-      const pts = new T.Points(geo, new T.PointsMaterial({ color: 0x06b6d4, size: 0.07 }));
-      const group = new T.Group();
-      group.add(mesh, pts);
-      scene.add(group);
+      const cyan = new T.Color(0x06b6d4);
+      const globe = new T.Group();
+      scene.add(globe);
+
+      const sphere = new T.IcosahedronGeometry(1.5, 3);
+      globe.add(new T.LineSegments(new T.WireframeGeometry(sphere), new T.LineBasicMaterial({ color: cyan, transparent: true, opacity: 0.35 })));
+      globe.add(new T.Points(sphere, new T.PointsMaterial({ color: 0x67e8f9, size: 0.035, transparent: true, opacity: 0.9 })));
 
       const resize = () => {
-        const w = el.clientWidth || 1, h = el.clientHeight || 1;
+        const w = el.clientWidth || 1;
+        const h = el.clientHeight || 1;
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
@@ -52,33 +45,34 @@ export default function HeroScene() {
       resize();
       const ro = new ResizeObserver(resize);
       ro.observe(el);
-      const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; });
-      io.observe(el);
 
+      let raf = 0;
+      let visible = true;
       const tick = () => {
-        raf = requestAnimationFrame(tick);
-        if (!visible || document.hidden) return;
-        group.rotation.y += 0.0035;
-        group.rotation.x += 0.0015;
+        globe.rotation.y += 0.0035;
+        globe.rotation.x = Math.sin(performance.now() / 4000) * 0.12;
         renderer.render(scene, camera);
+        raf = visible && !document.hidden ? requestAnimationFrame(tick) : 0;
       };
-      tick();
+      const start = () => { if (!raf) raf = requestAnimationFrame(tick); };
+      const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); });
+      io.observe(el);
+      document.addEventListener("visibilitychange", start);
+      start();
 
-      cleanup = () => {
+      stop = () => {
         cancelAnimationFrame(raf);
-        ro.disconnect();
         io.disconnect();
-        geo.dispose(); edges.dispose(); lineMat.dispose(); (pts.material as { dispose: () => void }).dispose();
+        ro.disconnect();
+        document.removeEventListener("visibilitychange", start);
+        sphere.dispose();
         renderer.dispose();
         renderer.domElement.remove();
       };
-    })().catch(() => { /* WebGL tidak tersedia: hero tetap tampil tanpa latar 3D */ });
+    })().catch(() => {}); // WebGL tidak tersedia: hero tetap tampil tanpa globe
 
-    return () => {
-      disposed = true;
-      cleanup();
-    };
+    return () => { dead = true; stop(); };
   }, []);
 
-  return <div ref={host} className="h-full w-full" aria-hidden />;
+  return <div ref={host} className="h-full w-full" />;
 }

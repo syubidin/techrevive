@@ -126,7 +126,7 @@ getting the details right.
 **Performance**
 - Public pages are ISR-cached with `unstable_cache`, and a single
   `revalidateStorefront()` helper invalidates exactly the right paths after any admin change.
-- Heavy motion (three.js hero, GSAP, anime.js) is gated: desktop only, idle-time, and
+- Heavy motion (three.js hero globe, GSAP, anime.js) is gated: desktop only, idle-time, and
   disabled under `prefers-reduced-motion`.
 - Images are served through Cloudinary transformations, sized per use.
 
