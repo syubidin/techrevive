@@ -101,6 +101,7 @@ Kolom **Versi**: *T+G* = buat terang (`nama.webp`) dan gelap (`nama-dark.webp`);
 | 14 | `process/step-1` ... `step-4` | 640 x 480 | 60 KB | Cara pesan (4 file) | AI | T+G | Fase 2 |
 | 15 | `hero/hero-backdrop` | 1920 x 900 | 160 KB | Latar samar beranda | AI | T+G | Fase 3 |
 | 16 | `states/not-found` | 640 x 480 | 60 KB | Halaman 404 | AI | T+G | Fase 3 |
+| 16b | `states/error` | 640 x 480 | 60 KB | Halaman error (500) | AI | T+G | Fase 3 |
 | 17 | `about/workshop` | 1600 x 800 | 160 KB | Tentang Kami | **Foto asli** | 1 | Fase 2 |
 | 18 | `about/founder` | 800 x 1000 | 100 KB | Tentang Kami (profil pendiri) | **Foto asli** | 1 | Fase 2 |
 

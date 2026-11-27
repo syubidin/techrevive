@@ -29,4 +29,3 @@ export const inquirySchema = z.object({
     .optional(),
 });
 
-export type InquiryInput = z.infer<typeof inquirySchema>;

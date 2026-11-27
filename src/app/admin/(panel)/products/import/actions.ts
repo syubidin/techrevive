@@ -28,15 +28,14 @@ export async function importProducts(_prev: ImportState, formData: FormData): Pr
   let matrix: string[][];
   try { matrix = await readMatrix(file); } catch (e) { return { error: e instanceof Error ? e.message : "File tidak bisa dibaca." }; }
 
-  const [categories, brands, suppliers, skus, slugs] = await Promise.all([
+  const [categories, brands, suppliers, existing] = await Promise.all([
     db.category.findMany({ select: { id: true, slug: true, nameId: true, nameEn: true, specs: { select: { key: true, type: true, options: true } } } }),
     db.brand.findMany({ select: { id: true, name: true } }),
     db.supplier.findMany({ select: { id: true, name: true } }),
-    db.product.findMany({ select: { sku: true } }),
-    db.product.findMany({ select: { slug: true } }),
+    db.product.findMany({ select: { sku: true, slug: true } }),
   ]);
   const result = validateImport(matrix, {
-    categories, brands, suppliers, existingSkus: new Set(skus.map((s) => s.sku)), minMarginBps: site.minMarginBps, imageHost: process.env.IMAGE_HOST?.trim() || undefined,
+    categories, brands, suppliers, existingSkus: new Set(existing.map((s) => s.sku)), minMarginBps: site.minMarginBps, imageHost: process.env.IMAGE_HOST?.trim() || undefined,
   });
   if (result.errors.length) return { errors: result.errors.slice(0, 100), error: result.errors.length > 100 ? `Menampilkan 100 dari ${result.errors.length} kesalahan.` : undefined };
 
@@ -44,8 +43,8 @@ export async function importProducts(_prev: ImportState, formData: FormData): Pr
   const base = { total: result.products.length, newBrands: result.newBrands, newSuppliers: result.newSuppliers, preview };
   if (checkOnly) return { summary: { ...base, created: 0, checkOnly: true } };
 
-  const usedSlugs = new Set(slugs.map((s) => s.slug));
-  const usedSkus = new Set(skus.map((s) => s.sku));
+  const usedSlugs = new Set(existing.map((s) => s.slug));
+  const usedSkus = new Set(existing.map((s) => s.sku));
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       await db.$transaction(async (tx) => {
@@ -84,8 +83,8 @@ export async function importProducts(_prev: ImportState, formData: FormData): Pr
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002" && attempt < 2) {
         // SKU/slug bentrok dengan penulisan bersamaan: muat ulang daftar dan coba lagi.
-        const [s2, sl2] = await Promise.all([db.product.findMany({ select: { sku: true } }), db.product.findMany({ select: { slug: true } })]);
-        s2.forEach((x) => usedSkus.add(x.sku)); sl2.forEach((x) => usedSlugs.add(x.slug));
+        const fresh = await db.product.findMany({ select: { sku: true, slug: true } });
+        fresh.forEach((x) => { usedSkus.add(x.sku); usedSlugs.add(x.slug); });
         continue;
       }
       console.error(JSON.stringify({ evt: "product.import.error", message: e instanceof Error ? e.message : "unknown" }));

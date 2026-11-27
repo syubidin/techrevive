@@ -560,17 +560,6 @@
       }
     }
   },
-  "notFound": {
-    "title": "Page not found",
-    "desc": "The page you opened does not exist or has moved.",
-    "browse": "Browse catalog",
-    "home": "Go home"
-  },
-  "error": {
-    "title": "Something went wrong",
-    "desc": "The page failed to load. Please try again.",
-    "retry": "Try again"
-  },
   "aboutPage": {
     "title": "About TechRevive",
     "intro": "A direct supplier of quality laptops, smartphones and gadgets, from new to refurbished, with honest information and a simple ordering process.",

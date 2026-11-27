@@ -28,6 +28,7 @@ export const ASSET_SPECS: readonly AssetSpec[] = [
   { key: "grades/grade-b", w: 800, h: 600, maxKb: 70, use: "Penjelasan grade B", themed: true },
   { key: "grades/grade-c", w: 800, h: 600, maxKb: 70, use: "Penjelasan grade C", themed: true },
   { key: "states/not-found", w: 640, h: 480, maxKb: 60, use: "Halaman 404", themed: true },
+  { key: "states/error", w: 640, h: 480, maxKb: 60, use: "Halaman error (500)", themed: true },
   { key: "about/founder", w: 800, h: 1000, maxKb: 100, use: "Foto pendiri di halaman Tentang Kami (rasio 4:5)", themed: false },
   { key: "about/workshop", w: 1600, h: 800, maxKb: 160, use: "Halaman Tentang Kami (foto asli bengkel/QC)", themed: false },
 ] as const;

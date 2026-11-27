@@ -560,17 +560,6 @@
       }
     }
   },
-  "notFound": {
-    "title": "Halaman tidak ditemukan",
-    "desc": "Alamat yang Anda buka tidak tersedia atau sudah dipindahkan.",
-    "browse": "Lihat katalog",
-    "home": "Ke beranda"
-  },
-  "error": {
-    "title": "Terjadi kendala",
-    "desc": "Halaman gagal dimuat. Coba muat ulang.",
-    "retry": "Coba lagi"
-  },
   "aboutPage": {
     "title": "Tentang TechRevive",
     "intro": "Supplier langsung laptop, smartphone, dan gadget berkualitas, dari baru hingga refurbished, dengan informasi yang jujur dan proses pesan yang praktis.",
